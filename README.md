@@ -40,13 +40,11 @@ Every line of code touches a data structure. Choosing the right collection isn't
 
 ## 📸 Screenshots
 
-*(Screenshots to be added. Please place your images in the `/assets` folder and uncomment the links below!)*
+*(Place your images in the `/assets` folder and uncomment the links below!)*
 
-<!--
 ![Landing Page](./assets/landing.png)
 ![Priority Queue Visualizer](./assets/priorityqueue.png)
 ![Hash Set Probing](./assets/hashset.png)
--->
 
 ## 💻 Usage & Installation
 
