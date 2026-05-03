@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Java Collections Framework — Interactive Visualizers</title>
+  <meta name="description" content="See how Java Collections really work. Watch arrays resize, heaps bubble, trees rotate, and buffers wrap — with step-by-step visualizations.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Background Grid -->
+<div class="bg-grid"></div>
+
+<!-- ── Navigation ── -->
+<nav class="navbar" id="navbar">
+  <a href="#" class="nav-brand">
+    <div class="nav-logo">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="16 18 22 12 16 6"></polyline>
+        <polyline points="8 6 2 12 8 18"></polyline>
+      </svg>
+    </div>
+    <span>Collections Visualization</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#why">Why DSA</a></li>
+    <li><a href="#hierarchy">Hierarchy</a></li>
+    <li><a href="#visualizers">Visualizers</a></li>
+  </ul>
+</nav>
+
+<!-- ── Hero ── -->
+<section class="hero" id="hero">
+  <div class="hero-content">
+    <h1>
+      Understand Data Structures<br>
+      <span class="gradient-text">At the Memory Level</span>
+    </h1>
+    <p class="hero-subtitle">
+      See how Java Collections really work. Watch arrays resize, heaps bubble,
+      trees rotate, and buffers wrap — complete with comprehensive theory,
+      complexity tables, and step-by-step visualizations built for deep understanding.
+    </p>
+    <div class="hero-buttons">
+      <a href="#visualizers" class="btn-primary">Explore Visualizers →</a>
+      <a href="#hierarchy" class="btn-secondary">View Hierarchy</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── Why DSA ── -->
+<section class="section" id="why">
+  <div class="reveal">
+    <div class="section-label">Why It Matters</div>
+    <h2 class="section-title">Every Line of Code Touches<br>a Data Structure</h2>
+    <p class="section-desc">
+      Choosing the right collection isn't just an interview question — it's the
+      difference between code that scales and code that breaks.
+    </p>
+  </div>
+
+  <div class="why-grid reveal">
+    <!-- Card 1: Performance -->
+    <div class="why-card">
+      <div class="why-icon green">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      </div>
+      <h3>Performance</h3>
+      <p>O(1) vs O(n) can mean milliseconds vs minutes. Understanding internal mechanics helps you pick the right tool — ArrayList for random access, LinkedList for constant insertions.</p>
+    </div>
+    <!-- Card 2: Interview Mastery -->
+    <div class="why-card">
+      <div class="why-icon purple">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      </div>
+      <h3>Interview Mastery</h3>
+      <p>FAANG-level interviews expect you to explain <em>why</em> a TreeMap uses Red-Black Trees, how PriorityQueue heapifies, and when ArrayDeque beats LinkedList.</p>
+    </div>
+    <!-- Card 3: Scalable Systems -->
+    <div class="why-card">
+      <div class="why-icon teal">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+      </div>
+      <h3>Scalable Systems</h3>
+      <p>From caching strategies to task scheduling, production systems rely on queues, heaps, and balanced trees. Know the internals to make architectural decisions.</p>
+    </div>
+    <!-- Card 4: One-Stop Destination -->
+    <div class="why-card">
+      <div class="why-icon amber">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      </div>
+      <h3>One-Stop Destination</h3>
+      <p>Master the Java Collections Framework end-to-end. Visualizations paired with comprehensive theory, complexity tables, and real-world use cases build an intuitive, deep understanding.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── Visualizers ── -->
+<section class="section" id="visualizers">
+  <div class="reveal viz-intro">
+    <h2 class="section-title">Pick a Collection.<br>Watch it Work.</h2>
+    <p class="section-desc">
+      Each visualizer features an interactive <strong>Theory Section</strong> and lets you
+      perform real operations to see exactly how Java manages memory, pointers, and internal arrays.
+    </p>
+  </div>
+
+  <!-- Row 1: 3 cards -->
+  <div class="viz-grid reveal">
+    <!-- ArrayList -->
+    <a href="ArrayList/index.html" class="viz-card">
+      <div class="viz-card-icon orange">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>
+      </div>
+      <h3>ArrayList</h3>
+      <div class="viz-subtitle">Dynamic Resizable Array</div>
+      <p class="viz-desc">
+        Watch the internal <code>Object[]</code> array grow with the 1.5× formula. See element shifting during insertions and deletions, capacity thresholds, and <code>System.arraycopy</code> in action.
+      </p>
+      <div class="viz-tags">
+        <span class="viz-tag">add(e)</span>
+        <span class="viz-tag">add(i, e)</span>
+        <span class="viz-tag">remove(i)</span>
+        <span class="viz-tag">get(i)</span>
+        <span class="viz-tag">set(i, e)</span>
+        <span class="viz-tag">1.5× growth</span>
+      </div>
+      <span class="viz-link">Open Visualizer <span class="arrow">→</span></span>
+    </a>
+
+    <!-- LinkedList -->
+    <a href="LinkedList/index.html" class="viz-card">
+      <div class="viz-card-icon cyan">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><circle cx="6" cy="12" r="3"/><circle cx="18" cy="12" r="3"/><line x1="9" y1="12" x2="15" y2="12"/><path d="M13 10l2 2-2 2"/></svg>
+      </div>
+      <h3>LinkedList</h3>
+      <div class="viz-subtitle">Doubly-Linked List (List / Deque / Queue / Stack)</div>
+      <p class="viz-desc">
+        See <code>prev</code> and <code>next</code> pointers at each node. Watch O(n) traversal from the optimal end, O(1) head/tail operations, and switch between List, Deque, Queue, and Stack modes.
+      </p>
+      <div class="viz-tags">
+        <span class="viz-tag">addFirst()</span>
+        <span class="viz-tag">addLast()</span>
+        <span class="viz-tag">add(i, e)</span>
+        <span class="viz-tag">get(i)</span>
+        <span class="viz-tag">removeFirst()</span>
+        <span class="viz-tag">O(n) traversal</span>
+      </div>
+      <span class="viz-link">Open Visualizer <span class="arrow">→</span></span>
+    </a>
+
+    <!-- ArrayDeque -->
+    <a href="ArrayDeque/index.html" class="viz-card">
+      <div class="viz-card-icon blue">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M17 3l4 4-4 4"/><path d="M7 21l-4-4 4-4"/><line x1="21" y1="7" x2="3" y2="7"/><line x1="3" y1="17" x2="21" y2="17"/></svg>
+      </div>
+      <h3>ArrayDeque</h3>
+      <div class="viz-subtitle">Circular Buffer (Deque / Queue / Stack)</div>
+      <p class="viz-desc">
+        See the circular ring buffer with head and tail pointers wrapping around. Switch between Deque, Queue (FIFO), and Stack (LIFO) modes. Watch power-of-2 capacity doubling.
+      </p>
+      <div class="viz-tags">
+        <span class="viz-tag">addFirst()</span>
+        <span class="viz-tag">addLast()</span>
+        <span class="viz-tag">removeFirst()</span>
+        <span class="viz-tag">removeLast()</span>
+        <span class="viz-tag">circular wrap</span>
+      </div>
+      <span class="viz-link">Open Visualizer <span class="arrow">→</span></span>
+    </a>
+  </div>
+
+  <!-- Row 2: 3 cards -->
+  <div class="viz-grid reveal">
+    <!-- PriorityQueue -->
+    <a href="PriorityQueue/index.html" class="viz-card">
+      <div class="viz-card-icon purple">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+      </div>
+      <h3>PriorityQueue</h3>
+      <div class="viz-subtitle">Binary Min/Max-Heap</div>
+      <p class="viz-desc">
+        Visualize heapify-up and heapify-down with the tree and array views side by side. Toggle between Min-Heap and Max-Heap. See parent/child index formulas live.
+      </p>
+      <div class="viz-tags">
+        <span class="viz-tag">add(e)</span>
+        <span class="viz-tag">poll()</span>
+        <span class="viz-tag">peek()</span>
+        <span class="viz-tag">heapify-up</span>
+        <span class="viz-tag">heapify-down</span>
+      </div>
+      <span class="viz-link">Open Visualizer <span class="arrow">→</span></span>
+    </a>
+
+    <!-- TreeSet -->
+    <a href="TreeSet/index.html" class="viz-card">
+      <div class="viz-card-icon red">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="5" r="3"/><circle cx="6" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><line x1="12" y1="8" x2="6" y2="14"/><line x1="12" y1="8" x2="18" y2="14"/></svg>
+      </div>
+      <h3>TreeSet</h3>
+      <div class="viz-subtitle">Red-Black Tree (Sorted Set)</div>
+      <p class="viz-desc">
+        Watch Red-Black Tree rotations and recoloring as elements are inserted and removed. See in-order traversal produce sorted output. Explore floor, ceiling, first, last.
+      </p>
+      <div class="viz-tags">
+        <span class="viz-tag">add(e)</span>
+        <span class="viz-tag">remove(e)</span>
+        <span class="viz-tag">contains(e)</span>
+        <span class="viz-tag">floor()</span>
+        <span class="viz-tag">ceiling()</span>
+        <span class="viz-tag">O(log n)</span>
+      </div>
+      <span class="viz-link">Open Visualizer <span class="arrow">→</span></span>
+    </a>
+
+    <!-- HashSet -->
+    <a href="HashSet/index.html" class="viz-card">
+      <div class="viz-card-icon" style="background:#ffc107">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+      </div>
+      <h3>HashSet</h3>
+      <div class="viz-subtitle">Hash Table with Separate Chaining</div>
+      <p class="viz-desc">
+        See the bucket array, hash computation (<code>hash &amp; (n-1)</code>), and collision chaining in real time. Watch the load factor climb and trigger automatic rehashing.
+      </p>
+      <div class="viz-tags">
+        <span class="viz-tag">add(e)</span>
+        <span class="viz-tag">remove(e)</span>
+        <span class="viz-tag">contains(e)</span>
+        <span class="viz-tag">rehash</span>
+        <span class="viz-tag">load factor 0.75</span>
+      </div>
+      <span class="viz-link">Open Visualizer <span class="arrow">→</span></span>
+    </a>
+  </div>
+
+  <!-- Row 3: 1 card -->
+  <div class="viz-grid reveal" style="grid-template-columns: 1fr 1fr 1fr;">
+    <!-- LinkedHashSet -->
+    <a href="LinkedHashSet/index.html" class="viz-card">
+      <div class="viz-card-icon pink">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      </div>
+      <h3>LinkedHashSet</h3>
+      <div class="viz-subtitle">Hash Table + Insertion-Order Linked List</div>
+      <p class="viz-desc">
+        Same bucket array as HashSet, but with a doubly-linked list threading through all entries in insertion order. See <code>iterate()</code> walk the chain to prove order is preserved.
+      </p>
+      <div class="viz-tags">
+        <span class="viz-tag">add(e)</span>
+        <span class="viz-tag">remove(e)</span>
+        <span class="viz-tag">contains(e)</span>
+        <span class="viz-tag">iterate()</span>
+        <span class="viz-tag">insertion order</span>
+      </div>
+      <span class="viz-link">Open Visualizer <span class="arrow">→</span></span>
+    </a>
+  </div>
+</section>
+
+<!-- ── Hierarchy Section ── -->
+<section class="hierarchy-section section" id="hierarchy">
+  <div class="reveal">
+    <div class="section-label">The Complete Hierarchy</div>
+    <h2 class="section-title">Java Collections<br>Family Tree</h2>
+    <p class="section-desc">
+      Both the Collection and Map hierarchies — every interface, abstract class, and concrete implementation in one view.
+    </p>
+  </div>
+
+  <div class="hierarchy-container reveal">
+    <div class="hierarchy-tree" id="hierarchy-tree">
+      <!-- Collection Hierarchy -->
+      <!-- Level 0: Iterable -->
+      <div class="hierarchy-level">
+        <div class="hierarchy-node node-interface">Iterable&lt;E&gt; <span class="node-info" title="Top-level interface for all collections">i</span></div>
+      </div>
+      <!-- Level 1: Collection -->
+      <div class="hierarchy-level">
+        <div class="hierarchy-node node-interface">Collection&lt;E&gt; <span class="node-info" title="Root interface for the Collections Framework">i</span></div>
+      </div>
+      <!-- Level 2: List, Queue, Set -->
+      <div class="hierarchy-level">
+        <div class="hierarchy-node node-interface">List&lt;E&gt; <span class="node-info" title="Ordered collection with index access">i</span></div>
+        <div class="hierarchy-node node-interface">Queue&lt;E&gt; <span class="node-info" title="FIFO ordering">i</span></div>
+        <div class="hierarchy-node node-interface">Set&lt;E&gt; <span class="node-info" title="No duplicate elements">i</span></div>
+      </div>
+      <!-- Level 3: Abstract classes & sub-interfaces -->
+      <div class="hierarchy-level">
+        <div class="hierarchy-node node-abstract">AbstractList</div>
+        <div class="hierarchy-node node-interface">Deque&lt;E&gt; <span class="node-info" title="Double-ended queue">i</span></div>
+        <div class="hierarchy-node node-class">PriorityQueue</div>
+        <div class="hierarchy-node node-class">HashSet</div>
+        <div class="hierarchy-node node-interface">SortedSet&lt;E&gt; <span class="node-info" title="Set with natural ordering">i</span></div>
+      </div>
+      <!-- Level 4: Concrete classes -->
+      <div class="hierarchy-level">
+        <div class="hierarchy-node node-class">ArrayList</div>
+        <div class="hierarchy-node node-class">LinkedList</div>
+        <div class="hierarchy-node node-class">ArrayDeque</div>
+        <div class="hierarchy-node node-class">LinkedHashSet</div>
+        <div class="hierarchy-node node-interface">NavigableSet&lt;E&gt; <span class="node-info" title="Extended SortedSet with navigation methods">i</span></div>
+      </div>
+      <!-- Level 5: Legacy & TreeSet -->
+      <div class="hierarchy-level">
+        <div class="hierarchy-node node-legacy">Vector</div>
+        <div class="hierarchy-node node-class">EnumSet</div>
+        <div class="hierarchy-node node-class">TreeSet</div>
+      </div>
+      <!-- Level 6 -->
+      <div class="hierarchy-level">
+        <div class="hierarchy-node node-legacy">Stack</div>
+      </div>
+
+      <!-- Map Hierarchy Divider -->
+      <div class="hierarchy-divider">Map Hierarchy (Separate from Collection)</div>
+
+      <!-- Map Level 0 -->
+      <div class="hierarchy-level">
+        <div class="hierarchy-node node-interface">Map&lt;K,V&gt; <span class="node-info" title="Key-value pair mapping">i</span></div>
+      </div>
+      <!-- Map Level 1 -->
+      <div class="hierarchy-level">
+        <div class="hierarchy-node node-abstract">AbstractMap&lt;K,V&gt;</div>
+        <div class="hierarchy-node node-interface">SortedMap&lt;K,V&gt; <span class="node-info" title="Map with key ordering">i</span></div>
+        <div class="hierarchy-node node-legacy">Hashtable</div>
+      </div>
+      <!-- Map Level 2 -->
+      <div class="hierarchy-level">
+        <div class="hierarchy-node node-class">HashMap</div>
+        <div class="hierarchy-node node-class">WeakHashMap</div>
+        <div class="hierarchy-node node-class">IdentityHashMap</div>
+        <div class="hierarchy-node node-class">EnumMap</div>
+        <div class="hierarchy-node node-interface">NavigableMap&lt;K,V&gt; <span class="node-info" title="Extended SortedMap with navigation">i</span></div>
+        <div class="hierarchy-node node-class">ConcurrentHashMap</div>
+      </div>
+      <!-- Map Level 3 -->
+      <div class="hierarchy-level">
+        <div class="hierarchy-node node-class">LinkedHashMap</div>
+        <div class="hierarchy-node node-class">TreeMap</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ── -->
+<footer class="footer">
+  <p class="footer-tagline">Built for learning Java internals — one visualization at a time.</p>
+  <ul class="footer-links">
+    <li><a href="#why">Why DSA</a></li>
+    <li><a href="#hierarchy">Hierarchy</a></li>
+    <li><a href="#visualizers">Visualizers</a></li>
+  </ul>
+</footer>
+
+<!-- ── Scripts ── -->
+<script>
+  // Intersection Observer for reveal animations
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // Active nav link highlighting
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-links a');
+
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(section => {
+      const sectionTop = section.offsetTop - 100;
+      if (scrollY >= sectionTop) {
+        current = section.getAttribute('id');
+      }
+    });
+    navLinks.forEach(link => {
+      link.classList.remove('active');
+      if (link.getAttribute('href') === '#' + current) {
+        link.classList.add('active');
+      }
+    });
+  });
+
+  // Smooth scroll for nav links
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+      e.preventDefault();
+      const target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  });
+</script>
+
+</body>
+</html>

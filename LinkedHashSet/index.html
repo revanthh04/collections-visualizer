@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LinkedHashSet Visualizer — Insertion-Order Hash Table</title>
+  <link rel="stylesheet" href="../visualizer-common.css">
+</head>
+<body>
+<div class="viz-page">
+  <div class="viz-header">
+    <div class="viz-header-left">
+      <a href="../index.html" class="viz-home">← Home</a>
+      <div class="viz-icon" style="background:linear-gradient(135deg,#d500f9,#ea80fc)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      </div>
+      <div class="viz-title-group">
+        <h1>LinkedHashSet Visualizer</h1>
+        <p>Java Collections — Hash Table + Insertion-Order Doubly-Linked List</p>
+      </div>
+    </div>
+    <div class="viz-header-badges">
+      <div class="viz-badge">BACKED BY <code>LinkedHashMap</code></div>
+      <div class="viz-badge">ORDER <code>Insertion Order</code></div>
+      <div class="viz-badge">AVG <code>O(1)</code></div>
+    </div>
+  </div>
+
+  <div class="viz-controls">
+    <div class="viz-input-group">
+      <button class="viz-input-btn" onclick="decVal()">−</button>
+      <input type="text" class="viz-input" id="valInput" value="10">
+      <button class="viz-input-btn" onclick="incVal()">+</button>
+    </div>
+    <button class="viz-op-btn primary" onclick="doAdd()">add(e)</button>
+    <button class="viz-op-btn danger" onclick="doRemove()">remove(e)</button>
+    <button class="viz-op-btn secondary" onclick="doContains()">contains(e)</button>
+    <button class="viz-op-btn info" onclick="doIterate()">iterate()</button>
+    <button class="viz-op-btn secondary" onclick="doClear()">Clear</button>
+    <div class="viz-controls-right">
+      <button class="viz-load-btn" onclick="loadExample()">▶ Load Example</button>
+      <div class="viz-speed">Speed <input type="range" id="speedSlider" min="100" max="1500" value="500"></div>
+    </div>
+  </div>
+
+  <div class="viz-theory">
+    <button class="viz-theory-toggle" aria-expanded="false" onclick="toggleTheory(this)">
+      <span class="toggle-left">📖 What is a LinkedHashSet? — Order-Preserving Hash Table</span>
+      <span class="viz-theory-chevron">▼</span>
+    </button>
+    <div class="viz-theory-content" id="theoryContent">
+      <div class="viz-theory-inner">
+        <h3>How It Works</h3>
+        <p>LinkedHashSet extends HashSet but maintains a <strong>doubly-linked list</strong> threading through all entries in <strong>insertion order</strong>. When you iterate, elements come out in the order they were added.</p>
+        <h3>Key Differences from HashSet</h3>
+        <ul>
+          <li>Iteration order = insertion order (HashSet has no guaranteed order)</li>
+          <li>Slightly slower than HashSet due to linked list maintenance</li>
+          <li>Uses more memory (extra before/after pointers per entry)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bucket Array -->
+  <div class="viz-panel">
+    <div class="viz-panel-header">
+      <h2>📦 Bucket Array (Hash Table)</h2>
+      <div class="viz-panel-badges">
+        <span class="viz-panel-badge">capacity: <strong id="capBadge">16</strong></span>
+        <span class="viz-panel-badge">size: <strong id="sizeBadge">0</strong></span>
+        <span class="viz-panel-badge">load: <strong id="loadBadge">0.00</strong></span>
+      </div>
+    </div>
+    <div class="viz-panel-body" style="flex-direction:column;align-items:stretch">
+      <div style="padding:0 0 8px;display:flex;align-items:center;gap:12px">
+        <span style="font-size:.78rem;color:var(--text-muted);font-family:var(--mono)">Load Factor: <strong id="loadText">0.00</strong> / 0.75</span>
+        <div class="load-factor-bar" style="flex:1"><div class="load-factor-fill" id="loadFill" style="width:0%"></div><div class="load-factor-threshold" style="left:75%"></div></div>
+        <span style="font-size:.72rem;color:var(--text-muted);font-family:var(--mono)">Threshold: <strong id="threshBadge">12</strong></span>
+      </div>
+      <div class="hash-computation" id="hashComp">Ready — hash computation will appear here</div>
+      <div class="hash-container"><div class="hash-grid" id="bucketGrid"></div></div>
+    </div>
+  </div>
+
+  <!-- Insertion Order Chain -->
+  <div class="viz-panel">
+    <div class="viz-panel-header">
+      <h2>🔗 Insertion Order (Doubly-Linked List)</h2>
+      <div class="viz-panel-badges"><span class="viz-panel-badge" style="color:var(--green)">iteration order preserved</span></div>
+    </div>
+    <div class="viz-panel-body" id="chainView" style="justify-content:flex-start">
+      <span style="color:var(--text-muted);font-size:.85rem">Elements will appear here in insertion order</span>
+    </div>
+  </div>
+
+  <div class="viz-status" id="statusBar"><span class="status-icon">ℹ️</span> Ready. Add elements or load the example.</div>
+
+  <div class="viz-log">
+    <div class="viz-log-header"><h2>📋 Operation Log</h2><button class="viz-log-clear" onclick="clearLog()">Clear</button></div>
+    <div class="viz-log-body" id="logBody"><div class="log-entry info">Visualizer ready. LinkedHashSet preserves insertion order via doubly-linked list.</div></div>
+  </div>
+</div>
+
+<script>
+let capacity = 16;
+let buckets = Array.from({length:capacity}, ()=>[]);
+let insertionOrder = []; // maintains insertion order
+let size = 0;
+let animSpeed = 500;
+let highlightChainVal = null;
+
+document.getElementById('speedSlider').addEventListener('input', e => { animSpeed = 1600 - parseInt(e.target.value); });
+function getVal() { return document.getElementById('valInput').value.trim(); }
+function incVal() { const i=document.getElementById('valInput'); const n=parseInt(i.value); if(!isNaN(n)) i.value=n+1; }
+function decVal() { const i=document.getElementById('valInput'); const n=parseInt(i.value); if(!isNaN(n)) i.value=n-1; }
+function setStatus(msg) { document.getElementById('statusBar').innerHTML='<span class="status-icon">ℹ️</span> '+msg; }
+function addLog(msg,type='info') { const d=document.createElement('div');d.className='log-entry '+type;d.textContent=msg;document.getElementById('logBody').insertBefore(d,document.getElementById('logBody').firstChild); }
+function clearLog() { document.getElementById('logBody').innerHTML=''; }
+function toggleTheory(btn) { const e=btn.getAttribute('aria-expanded')==='true';btn.setAttribute('aria-expanded',!e);document.getElementById('theoryContent').classList.toggle('open'); }
+function sleep(ms) { return new Promise(r=>setTimeout(r,ms)); }
+
+function hashCode(s) { let h=0; s=String(s); for(let i=0;i<s.length;i++){h=((h<<5)-h+s.charCodeAt(i))|0;} return Math.abs(h); }
+function getBucket(val) { return hashCode(val) & (capacity-1); }
+
+function render(hlBucket=-1, hlVal=null) {
+  // Buckets
+  const grid = document.getElementById('bucketGrid');
+  let html = '';
+  for(let i=0;i<capacity;i++) {
+    html += '<div class="hash-bucket">';
+    html += `<div class="hash-bucket-idx">[${i}]</div>`;
+    if(!buckets[i].length) { html += '<div class="hash-bucket-cell empty"></div>'; }
+    else {
+      buckets[i].forEach((val,j) => {
+        if(j>0) html += '<div class="hash-chain-arrow">↓</div>';
+        let cls = 'filled';
+        if(i===hlBucket && val===hlVal) cls = 'highlight';
+        else if(buckets[i].length>1) cls = 'collision filled';
+        html += `<div class="hash-bucket-cell ${cls}">${val}</div>`;
+      });
+    }
+    html += '</div>';
+  }
+  grid.innerHTML = html;
+
+  // Insertion order chain
+  const chain = document.getElementById('chainView');
+  if(!insertionOrder.length) { chain.innerHTML = '<span style="color:var(--text-muted);font-size:.85rem">Elements will appear here in insertion order</span>'; }
+  else {
+    let ch = '<div class="insert-chain">';
+    insertionOrder.forEach((val,i) => {
+      if(i>0) ch += '<div class="insert-chain-arrow">→</div>';
+      const cls = val===highlightChainVal ? 'highlight' : '';
+      ch += `<div class="insert-chain-node"><div class="insert-chain-val ${cls}">${val}</div></div>`;
+    });
+    ch += '</div>';
+    chain.innerHTML = ch;
+  }
+
+  // Badges
+  const loadFactor = size / capacity;
+  document.getElementById('capBadge').textContent = capacity;
+  document.getElementById('sizeBadge').textContent = size;
+  document.getElementById('loadBadge').textContent = loadFactor.toFixed(2);
+  document.getElementById('loadText').textContent = loadFactor.toFixed(2);
+  document.getElementById('threshBadge').textContent = Math.floor(capacity * 0.75);
+  const fill = document.getElementById('loadFill');
+  fill.style.width = Math.min(100, (loadFactor/0.75)*75)+'%';
+  fill.className = 'load-factor-fill'+(loadFactor>0.75?' danger':'');
+}
+
+function showHash(val) {
+  const h=hashCode(val), idx=h&(capacity-1);
+  document.getElementById('hashComp').innerHTML = `hash("${val}") = ${h} → <code>${h} & ${capacity-1}</code> = bucket <strong style="color:var(--green)">[${idx}]</strong>`;
+  return idx;
+}
+
+async function rehash() {
+  const oldCap=capacity; capacity*=2;
+  const oldBuckets=buckets;
+  buckets=Array.from({length:capacity},()=>[]);
+  size=0;
+  setStatus(`⚡ Rehashing! ${oldCap} → ${capacity}`);
+  addLog(`Rehash: ${oldCap} → ${capacity}`, 'warn');
+  render(); await sleep(animSpeed);
+  for(const b of oldBuckets) for(const v of b) { buckets[getBucket(v)].push(v); size++; }
+  render(); await sleep(animSpeed*0.5);
+}
+
+async function doAdd() {
+  const val=getVal(); if(!val){setStatus('Enter a value');return;}
+  const idx=showHash(val);
+  if(buckets[idx].includes(val)) {
+    setStatus(`add(${val}) → duplicate, not added`);
+    addLog(`add(${val}) → duplicate`, 'warn');
+    render(idx,val); return;
+  }
+  buckets[idx].push(val); insertionOrder.push(val); size++;
+  highlightChainVal=val;
+  const isCollision = buckets[idx].length > 1;
+  setStatus(`add(${val}) → bucket [${idx}]${isCollision?' (collision!)':''}. Appended to insertion-order chain.`);
+  addLog(`add(${val}) → bucket [${idx}]`, 'add');
+  render(idx,val); incVal();
+  await sleep(animSpeed*0.5); highlightChainVal=null;
+  if(size>capacity*0.75) { await sleep(animSpeed); await rehash(); }
+}
+
+async function doRemove() {
+  const val=getVal(); const idx=showHash(val);
+  const pos=buckets[idx].indexOf(val);
+  if(pos===-1) { setStatus(`remove(${val}) → not found`); addLog(`remove(${val}) → not found`,'warn'); render(idx); return; }
+  render(idx,val); await sleep(animSpeed);
+  buckets[idx].splice(pos,1); insertionOrder=insertionOrder.filter(v=>v!==val); size--;
+  render();
+  setStatus(`remove(${val}) → removed. Insertion-order chain updated.`);
+  addLog(`remove(${val}) → removed`, 'remove');
+}
+
+function doContains() {
+  const val=getVal(); const idx=showHash(val);
+  const found=buckets[idx].includes(val);
+  highlightChainVal=found?val:null;
+  render(idx,found?val:null);
+  setStatus(`contains(${val}) → ${found}`);
+  addLog(`contains(${val}) → ${found}`, 'info');
+  setTimeout(()=>{highlightChainVal=null;render();}, animSpeed*2);
+}
+
+async function doIterate() {
+  if(!insertionOrder.length) { setStatus('Set is empty'); return; }
+  setStatus('iterate() → walking the insertion-order linked list...');
+  addLog('iterate() → traversing insertion order', 'info');
+  for(let i=0;i<insertionOrder.length;i++) {
+    highlightChainVal=insertionOrder[i];
+    render(-1, null);
+    await sleep(animSpeed*0.5);
+  }
+  highlightChainVal=null; render();
+  setStatus(`iterate() → [${insertionOrder.join(', ')}] — insertion order preserved!`);
+  addLog(`iterate() → [${insertionOrder.join(', ')}]`, 'add');
+}
+
+function doClear() {
+  capacity=16; buckets=Array.from({length:capacity},()=>[]); insertionOrder=[]; size=0; highlightChainVal=null;
+  document.getElementById('hashComp').innerHTML='Ready — hash computation will appear here';
+  render(); setStatus('Cleared.'); addLog('clear()','info');
+}
+
+async function loadExample() {
+  doClear();
+  const vals=['10','20','30','5','15','25','35'];
+  for(const v of vals) { document.getElementById('valInput').value=v; await doAdd(); await sleep(animSpeed*0.4); }
+  setStatus('Example loaded. Click iterate() to see insertion order preserved!');
+}
+
+render();
+</script>
+</body>
+</html>

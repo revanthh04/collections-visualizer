@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HashSet Visualizer — Hash Table</title>
+  <link rel="stylesheet" href="../visualizer-common.css">
+  <style>
+    .probing-highlight {
+      background: rgba(255, 193, 7, 0.2);
+      border-color: #ffc107;
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+<div class="viz-page">
+  <div class="viz-header">
+    <div class="viz-header-left">
+      <a href="../index.html" class="viz-home">← Home</a>
+      <div class="viz-icon" style="background:#ffc107">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+      </div>
+      <div class="viz-title-group">
+        <h1>HashSet Visualizer</h1>
+        <p>Java Collections — Hash Table with Open Addressing</p>
+      </div>
+    </div>
+    <div class="viz-header-badges">
+      <div class="viz-badge">BUCKET <code>hash(e) & (n-1)</code></div>
+      <div class="viz-badge">LOAD FACTOR <code>0.75</code></div>
+      <div class="viz-badge">AVG <code>O(1)</code></div>
+    </div>
+  </div>
+
+  <div class="viz-controls">
+    <div class="viz-input-group">
+      <button class="viz-input-btn" onclick="decVal()">−</button>
+      <input type="text" class="viz-input" id="valInput" value="10">
+      <button class="viz-input-btn" onclick="incVal()">+</button>
+    </div>
+    <button class="viz-op-btn primary" onclick="doAdd()">add(e)</button>
+    <button class="viz-op-btn danger" onclick="doRemove()">remove(e)</button>
+    <button class="viz-op-btn secondary" onclick="doContains()">contains(e)</button>
+    <button class="viz-op-btn secondary" onclick="doClear()">Clear</button>
+    <div class="viz-controls-right">
+      <button class="viz-load-btn" onclick="loadExample()">▶ Load Example</button>
+      <div class="viz-speed">Speed <input type="range" id="speedSlider" min="100" max="1500" value="500"></div>
+    </div>
+  </div>
+
+  <div class="viz-theory">
+    <button class="viz-theory-toggle" aria-expanded="false" onclick="toggleTheory(this)">
+      <span class="toggle-left">📖 What is a Hash Table? — HashSet Internals</span>
+      <span class="viz-theory-chevron">▼</span>
+    </button>
+    <div class="viz-theory-content" id="theoryContent">
+      <div class="viz-theory-inner">
+        <h3>How Hashing Works</h3>
+        <p>The element's <code>hashCode()</code> is processed to determine a bucket index: <code>index = hash(e) & (capacity - 1)</code>. This uses bitwise AND instead of modulo for efficiency (capacity is always a power of 2).</p>
+        <h3>Collision Handling (Open Addressing)</h3>
+        <p>When two elements hash to the same bucket, we use <strong>Linear Probing</strong>. If bucket <code>[i]</code> is full, we look at <code>[i+1]</code>, then <code>[i+2]</code>, wrapping around until an empty slot is found.</p>
+        <h3>Load Factor & Rehashing</h3>
+        <p>Default load factor is <code>0.75</code>. When <code>size > capacity × 0.75</code>, the table <strong>rehashes</strong> — capacity doubles and all elements are redistributed. This prevents probing sequences from becoming O(n).</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="viz-panel">
+    <div class="viz-panel-header">
+      <h2>📦 Bucket Array (Hash Table)</h2>
+      <div class="viz-panel-badges">
+        <span class="viz-panel-badge">capacity: <strong id="capBadge">16</strong></span>
+        <span class="viz-panel-badge">size: <strong id="sizeBadge">0</strong></span>
+        <span class="viz-panel-badge">load: <strong id="loadBadge">0.00</strong></span>
+      </div>
+    </div>
+    <div class="viz-panel-body" style="flex-direction:column;align-items:stretch">
+      <!-- Load factor bar -->
+      <div style="padding:0 0 8px;display:flex;align-items:center;gap:12px">
+        <span style="font-size:.78rem;color:var(--text-muted);font-family:var(--mono)">Load Factor: <strong id="loadText">0.00</strong> / 0.75</span>
+        <div class="load-factor-bar" style="flex:1">
+          <div class="load-factor-fill" id="loadFill" style="width:0%"></div>
+          <div class="load-factor-threshold" style="left:75%"></div>
+        </div>
+        <span style="font-size:.72rem;color:var(--text-muted);font-family:var(--mono)">Threshold: <strong id="threshBadge">12</strong></span>
+      </div>
+      <!-- Hash computation -->
+      <div class="hash-computation" id="hashComp">Ready — hash computation will appear here</div>
+      <!-- Bucket grid -->
+      <div class="hash-container">
+        <div class="hash-grid" id="bucketGrid" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="viz-status" id="statusBar"><span class="status-icon">ℹ️</span> Ready. Add elements or load the example.</div>
+
+  <div class="viz-log">
+    <div class="viz-log-header"><h2>📋 Operation Log</h2><button class="viz-log-clear" onclick="clearLog()">Clear</button></div>
+    <div class="viz-log-body" id="logBody"><div class="log-entry info">Visualizer ready. HashSet backed by Hash Table (Open Addressing / Linear Probing).</div></div>
+  </div>
+</div>
+
+<script>
+let capacity = 16;
+let buckets = new Array(capacity).fill(null);
+let size = 0;
+let animSpeed = 500;
+
+document.getElementById('speedSlider').addEventListener('input', e => { animSpeed = 1600 - parseInt(e.target.value); });
+function getVal() { return document.getElementById('valInput').value.trim(); }
+function incVal() { const i=document.getElementById('valInput'); const n=parseInt(i.value); if(!isNaN(n)) i.value=n+1; }
+function decVal() { const i=document.getElementById('valInput'); const n=parseInt(i.value); if(!isNaN(n)) i.value=n-1; }
+function setStatus(msg) { document.getElementById('statusBar').innerHTML='<span class="status-icon">ℹ️</span> '+msg; }
+function addLog(msg,type='info') { const d=document.createElement('div');d.className='log-entry '+type;d.textContent=msg;document.getElementById('logBody').insertBefore(d,document.getElementById('logBody').firstChild); }
+function clearLog() { document.getElementById('logBody').innerHTML=''; }
+function toggleTheory(btn) { const e=btn.getAttribute('aria-expanded')==='true';btn.setAttribute('aria-expanded',!e);document.getElementById('theoryContent').classList.toggle('open'); }
+function sleep(ms) { return new Promise(r=>setTimeout(r,ms)); }
+
+function hashCode(s) {
+  let h = 0;
+  s = String(s);
+  for (let i=0; i<s.length; i++) { h = ((h << 5) - h + s.charCodeAt(i)) | 0; }
+  return Math.abs(h);
+}
+
+function getInitialBucket(val) {
+  const h = hashCode(val);
+  return h & (capacity - 1);
+}
+
+function render(hlBucket=-1, isProbing=false, success=false) {
+  const grid = document.getElementById('bucketGrid');
+  let html = '';
+  for (let i=0; i<capacity; i++) {
+    html += `<div class="hash-bucket" style="flex:0 0 auto">`;
+    html += `<div class="hash-bucket-idx">[${i}]</div>`;
+    
+    let cls = buckets[i] === null ? 'empty' : 'filled';
+    if (i === hlBucket) {
+      if (isProbing) cls += ' probing-highlight';
+      else if (success) cls += ' highlight';
+      else cls += ' danger'; // Not found or error
+    }
+    
+    html += `<div class="hash-bucket-cell ${cls}" style="margin:0">${buckets[i] !== null ? buckets[i] : ''}</div>`;
+    html += `</div>`;
+  }
+  grid.innerHTML = html;
+
+  const loadFactor = size / capacity;
+  document.getElementById('capBadge').textContent = capacity;
+  document.getElementById('sizeBadge').textContent = size;
+  document.getElementById('loadBadge').textContent = loadFactor.toFixed(2);
+  document.getElementById('loadText').textContent = loadFactor.toFixed(2);
+  document.getElementById('threshBadge').textContent = Math.floor(capacity * 0.75);
+
+  const fill = document.getElementById('loadFill');
+  fill.style.width = Math.min(100, (loadFactor / 0.75) * 75) + '%';
+  fill.className = 'load-factor-fill' + (loadFactor > 0.75 ? ' danger' : '');
+}
+
+function showHash(val) {
+  const h = hashCode(val);
+  const idx = h & (capacity - 1);
+  document.getElementById('hashComp').innerHTML = `hash("${val}") = ${h} → <code>${h} & (${capacity}-1)</code> = initial bucket <strong style="color:var(--green)">[${idx}]</strong>`;
+  return idx;
+}
+
+async function rehash() {
+  const oldCap = capacity;
+  capacity *= 2;
+  const oldBuckets = buckets;
+  buckets = new Array(capacity).fill(null);
+  size = 0;
+
+  setStatus(`⚡ Rehashing! Capacity: ${oldCap} → ${capacity}. Redistributing elements...`);
+  addLog(`Rehash: ${oldCap} → ${capacity} (load factor exceeded 0.75)`, 'warn');
+  render();
+  await sleep(animSpeed);
+
+  for (const val of oldBuckets) {
+    if (val !== null) {
+      let idx = getInitialBucket(val);
+      while(buckets[idx] !== null) {
+        idx = (idx + 1) % capacity;
+      }
+      buckets[idx] = val;
+      size++;
+    }
+  }
+  render();
+  await sleep(animSpeed * 0.5);
+}
+
+async function doAdd() {
+  const val = getVal();
+  if (!val) { setStatus('Please enter a value'); return; }
+
+  let idx = showHash(val);
+  let initialIdx = idx;
+  let probes = 0;
+
+  while(buckets[idx] !== null && buckets[idx] !== val) {
+    setStatus(`Bucket [${idx}] is occupied by '${buckets[idx]}'. Linear probing to next slot...`);
+    render(idx, true, false);
+    await sleep(animSpeed * 0.8);
+    idx = (idx + 1) % capacity;
+    probes++;
+    if(probes >= capacity) break; // Should not happen with load factor < 1, but safety
+  }
+
+  // Check duplicate
+  if (buckets[idx] === val) {
+    setStatus(`add(${val}) → already exists at bucket [${idx}]. HashSet ignores duplicates.`);
+    addLog(`add(${val}) → duplicate found at [${idx}] after ${probes} probes`, 'warn');
+    render(idx, false, true);
+    return;
+  }
+
+  buckets[idx] = val;
+  size++;
+
+  if (probes > 0) {
+    setStatus(`add(${val}) → placed in bucket [${idx}] after ${probes} probes (COLLISION resolved).`);
+    addLog(`add(${val}) → bucket [${idx}] (linear probed ${probes} times)`, 'warn');
+  } else {
+    setStatus(`add(${val}) → placed directly in bucket [${idx}].`);
+    addLog(`add(${val}) → bucket [${idx}]`, 'add');
+  }
+
+  render(idx, false, true);
+  incVal();
+
+  // Check if rehash needed
+  if (size > capacity * 0.75) {
+    await sleep(animSpeed);
+    await rehash();
+  }
+}
+
+async function doRemove() {
+  const val = getVal();
+  if (!val) return;
+  let idx = showHash(val);
+  let probes = 0;
+
+  // Search using linear probing
+  while(buckets[idx] !== null) {
+    if (buckets[idx] === val) break;
+    setStatus(`Bucket [${idx}] contains '${buckets[idx]}', not '${val}'. Probing next...`);
+    render(idx, true, false);
+    await sleep(animSpeed * 0.8);
+    idx = (idx + 1) % capacity;
+    probes++;
+    if(probes >= capacity) break;
+  }
+
+  if (buckets[idx] === val) {
+    render(idx, false, true);
+    await sleep(animSpeed);
+    buckets[idx] = null; // Simplification: strictly we should mark as TOMBSTONE or rehash cluster
+    size--;
+    
+    // Simple rehash of cluster to fix linear probing chain
+    let curr = (idx + 1) % capacity;
+    while(buckets[curr] !== null) {
+      const reinsertVal = buckets[curr];
+      buckets[curr] = null;
+      size--;
+      // silent reinsert
+      let reIdx = getInitialBucket(reinsertVal);
+      while(buckets[reIdx] !== null) reIdx = (reIdx + 1) % capacity;
+      buckets[reIdx] = reinsertVal;
+      size++;
+      curr = (curr + 1) % capacity;
+    }
+
+    render();
+    setStatus(`remove(${val}) → removed from bucket [${idx}] after ${probes} probes.`);
+    addLog(`remove(${val}) → removed from bucket [${idx}]`, 'remove');
+  } else {
+    setStatus(`remove(${val}) → not found after ${probes} probes. Hit empty bucket.`);
+    addLog(`remove(${val}) → not found`, 'warn');
+    render(idx, false, false);
+  }
+}
+
+async function doContains() {
+  const val = getVal();
+  if (!val) return;
+  let idx = showHash(val);
+  let probes = 0;
+
+  while(buckets[idx] !== null) {
+    if (buckets[idx] === val) break;
+    setStatus(`Searching... Bucket [${idx}] is '${buckets[idx]}'. Probing next...`);
+    render(idx, true, false);
+    await sleep(animSpeed * 0.6);
+    idx = (idx + 1) % capacity;
+    probes++;
+    if(probes >= capacity) break;
+  }
+
+  const found = buckets[idx] === val;
+  render(idx, false, found);
+  setStatus(`contains(${val}) → ${found}. Found after ${probes} probes.`);
+  addLog(`contains(${val}) → ${found} (${probes} probes)`, 'info');
+}
+
+function doClear() {
+  capacity=16; buckets=new Array(capacity).fill(null); size=0;
+  document.getElementById('hashComp').innerHTML='Ready — hash computation will appear here';
+  render(); setStatus('Cleared.'); addLog('clear()','info');
+}
+
+async function loadExample() {
+  doClear();
+  // Values carefully chosen to cause collisions and trigger linear probing clusters
+  const vals = ['10', '26', '42', '5', '21', '37', '20', '36', '4', '12', '15', '31'];
+  for (const v of vals) {
+    document.getElementById('valInput').value = v;
+    await doAdd();
+    await sleep(animSpeed * 0.4);
+  }
+  setStatus('Example loaded. Notice how colliding elements (like 10, 26, 42) probe to adjacent empty buckets!');
+}
+
+render();
+</script>
+</body>
+</html>

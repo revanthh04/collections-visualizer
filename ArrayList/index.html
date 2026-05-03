@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ArrayList Visualizer — Dynamic Array</title>
+  <link rel="stylesheet" href="../visualizer-common.css">
+</head>
+<body>
+<div class="viz-page">
+  <!-- Header -->
+  <div class="viz-header">
+    <div class="viz-header-left">
+      <a href="../index.html" class="viz-home">← Home</a>
+      <div class="viz-icon" style="background:linear-gradient(135deg,#ff6d00,#ff9100)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>
+      </div>
+      <div class="viz-title-group">
+        <h1>ArrayList Visualizer</h1>
+        <p>Java Collections — Dynamic Resizable Array</p>
+      </div>
+    </div>
+    <div class="viz-header-badges">
+      <div class="viz-badge">INTERNAL <code>Object[]</code></div>
+      <div class="viz-badge">GROWTH <code>1.5×</code></div>
+      <div class="viz-badge">ACCESS <code>O(1)</code></div>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="viz-controls">
+    <div class="viz-input-group">
+      <button class="viz-input-btn" onclick="decVal()">−</button>
+      <input type="number" class="viz-input" id="valInput" value="10">
+      <button class="viz-input-btn" onclick="incVal()">+</button>
+    </div>
+    <button class="viz-op-btn primary" onclick="doAdd()">add(e)</button>
+    <span class="viz-idx-label">idx</span>
+    <input type="number" class="viz-input" id="idxInput" value="0" style="width:48px;border:1px solid var(--border);border-radius:6px">
+    <button class="viz-op-btn info" onclick="doAddAt()">add(i, e)</button>
+    <button class="viz-op-btn danger" onclick="doRemove()">remove(i)</button>
+    <button class="viz-op-btn secondary" onclick="doGet()">get(i)</button>
+    <button class="viz-op-btn warn" onclick="doSet()">set(i, e)</button>
+    <button class="viz-op-btn secondary" onclick="doClear()">Clear</button>
+    <div class="viz-controls-right">
+      <button class="viz-load-btn" onclick="loadExample()">▶ Load Example</button>
+      <div class="viz-speed">Speed <input type="range" id="speedSlider" min="100" max="1500" value="500"></div>
+    </div>
+  </div>
+
+  <!-- Theory -->
+  <div class="viz-theory">
+    <button class="viz-theory-toggle" aria-expanded="false" onclick="toggleTheory(this)">
+      <span class="toggle-left">📖 What is an ArrayList? — Dynamic Array Internals</span>
+      <span class="viz-theory-chevron">▼</span>
+    </button>
+    <div class="viz-theory-content" id="theoryContent">
+      <div class="viz-theory-inner">
+        <h3>Internal Structure</h3>
+        <p>ArrayList uses an internal <code>Object[] elementData</code> array. When elements are added beyond the current capacity, a new array is created with <code>newCapacity = oldCapacity + (oldCapacity >> 1)</code> — approximately <strong>1.5×</strong> the old size. Elements are copied using <code>System.arraycopy()</code>.</p>
+        <h3>Key Characteristics</h3>
+        <ul>
+          <li><strong>Random access:</strong> <code>get(i)</code> and <code>set(i, e)</code> are O(1)</li>
+          <li><strong>Add at end:</strong> Amortized O(1) — occasionally O(n) when resizing</li>
+          <li><strong>Add/Remove at index:</strong> O(n) — requires shifting elements</li>
+          <li><strong>Default capacity:</strong> 10 (when first element is added)</li>
+        </ul>
+        <h3>When to Use</h3>
+        <p>Use ArrayList when you need fast random access and mostly add/remove at the end. Avoid it for frequent insertions/removals in the middle — use LinkedList instead.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Array Visualization -->
+  <div class="viz-panel">
+    <div class="viz-panel-header">
+      <h2>📦 Internal Object[] Array</h2>
+      <div class="viz-panel-badges">
+        <span class="viz-panel-badge">capacity: <strong id="capBadge">10</strong></span>
+        <span class="viz-panel-badge">size: <strong id="sizeBadge">0</strong></span>
+      </div>
+    </div>
+    <div class="viz-panel-body" id="arrayView">
+      <div class="viz-empty">
+        <div class="viz-empty-icon">📦</div>
+        <p>Add elements to visualize the array</p>
+        <p>Or click <strong>"Load Example"</strong> for a demo</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Status -->
+  <div class="viz-status" id="statusBar">
+    <span class="status-icon">ℹ️</span> Ready. Add elements or load the example.
+  </div>
+
+  <!-- Operation Log -->
+  <div class="viz-log">
+    <div class="viz-log-header">
+      <h2>📋 Operation Log</h2>
+      <button class="viz-log-clear" onclick="clearLog()">Clear</button>
+    </div>
+    <div class="viz-log-body" id="logBody">
+      <div class="log-entry info">Visualizer ready. ArrayList backed by Object[] with initial capacity 10.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// --- ArrayList State ---
+let capacity = 10;
+let arr = [];
+let animSpeed = 500;
+
+document.getElementById('speedSlider').addEventListener('input', e => {
+  animSpeed = 1600 - parseInt(e.target.value);
+});
+
+function getVal() { return parseInt(document.getElementById('valInput').value) || 0; }
+function getIdx() { return parseInt(document.getElementById('idxInput').value) || 0; }
+function incVal() { const i = document.getElementById('valInput'); i.value = parseInt(i.value||0)+1; }
+function decVal() { const i = document.getElementById('valInput'); i.value = parseInt(i.value||0)-1; }
+function setStatus(msg) { document.getElementById('statusBar').innerHTML = '<span class="status-icon">ℹ️</span> ' + msg; }
+function addLog(msg, type='info') {
+  const log = document.getElementById('logBody');
+  const d = document.createElement('div');
+  d.className = 'log-entry ' + type;
+  d.textContent = msg;
+  log.insertBefore(d, log.firstChild);
+}
+function clearLog() { document.getElementById('logBody').innerHTML = ''; }
+
+function toggleTheory(btn) {
+  const expanded = btn.getAttribute('aria-expanded') === 'true';
+  btn.setAttribute('aria-expanded', !expanded);
+  document.getElementById('theoryContent').classList.toggle('open');
+}
+
+function render(highlightIdx = -1, highlightClass = 'highlight') {
+  const view = document.getElementById('arrayView');
+  let html = '<div style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center;width:100%">';
+  for (let i = 0; i < capacity; i++) {
+    const filled = i < arr.length;
+    let cls = filled ? 'filled' : 'empty';
+    if (i === highlightIdx) cls = highlightClass;
+    const val = filled ? arr[i] : '';
+    html += `<div class="array-cell ${i === highlightIdx ? 'anim-pulse' : ''}">
+      <span class="cell-index">[${i}]</span>
+      <div class="cell-box ${cls}">${val}</div>
+    </div>`;
+  }
+  html += '</div>';
+  view.innerHTML = html;
+  document.getElementById('capBadge').textContent = capacity;
+  document.getElementById('sizeBadge').textContent = arr.length;
+}
+
+async function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+async function doAdd() {
+  const val = getVal();
+  if (arr.length >= capacity) {
+    await grow();
+  }
+  arr.push(val);
+  render(arr.length - 1, 'highlight');
+  setStatus(`add(${val}) → inserted at index ${arr.length-1}. Size = ${arr.length}`);
+  addLog(`add(${val}) → index ${arr.length-1}`, 'add');
+  incVal();
+}
+
+async function doAddAt() {
+  const val = getVal();
+  const idx = getIdx();
+  if (idx < 0 || idx > arr.length) {
+    setStatus(`IndexOutOfBoundsException: index ${idx}, size ${arr.length}`);
+    addLog(`add(${idx}, ${val}) → IndexOutOfBoundsException`, 'remove');
+    return;
+  }
+  if (arr.length >= capacity) await grow();
+  // Show shifting
+  for (let i = arr.length; i > idx; i--) {
+    render(i, 'shifting');
+    await sleep(animSpeed * 0.5);
+  }
+  arr.splice(idx, 0, val);
+  render(idx, 'highlight');
+  setStatus(`add(${idx}, ${val}) → shifted ${arr.length - 1 - idx} elements right. Size = ${arr.length}`);
+  addLog(`add(${idx}, ${val}) → shifted elements, inserted at index ${idx}`, 'add');
+}
+
+async function doRemove() {
+  const idx = getIdx();
+  if (idx < 0 || idx >= arr.length) {
+    setStatus(`IndexOutOfBoundsException: index ${idx}, size ${arr.length}`);
+    addLog(`remove(${idx}) → IndexOutOfBoundsException`, 'remove');
+    return;
+  }
+  const removed = arr[idx];
+  render(idx, 'removing');
+  await sleep(animSpeed);
+  // Show shifting left
+  for (let i = idx; i < arr.length - 1; i++) {
+    arr[i] = arr[i + 1];
+    render(i, 'shifting');
+    await sleep(animSpeed * 0.4);
+  }
+  arr.pop();
+  render(-1);
+  setStatus(`remove(${idx}) → removed ${removed}, shifted ${arr.length - idx} elements left. Size = ${arr.length}`);
+  addLog(`remove(${idx}) → removed ${removed}`, 'remove');
+}
+
+async function doGet() {
+  const idx = getIdx();
+  if (idx < 0 || idx >= arr.length) {
+    setStatus(`IndexOutOfBoundsException: index ${idx}, size ${arr.length}`);
+    addLog(`get(${idx}) → IndexOutOfBoundsException`, 'remove');
+    return;
+  }
+  render(idx, 'accessed');
+  setStatus(`get(${idx}) → returned ${arr[idx]}. O(1) direct index access.`);
+  addLog(`get(${idx}) → ${arr[idx]}`, 'info');
+}
+
+async function doSet() {
+  const idx = getIdx();
+  const val = getVal();
+  if (idx < 0 || idx >= arr.length) {
+    setStatus(`IndexOutOfBoundsException: index ${idx}, size ${arr.length}`);
+    addLog(`set(${idx}, ${val}) → IndexOutOfBoundsException`, 'remove');
+    return;
+  }
+  const old = arr[idx];
+  arr[idx] = val;
+  render(idx, 'highlight');
+  setStatus(`set(${idx}, ${val}) → replaced ${old}. O(1) direct index access.`);
+  addLog(`set(${idx}, ${val}) → replaced ${old}`, 'warn');
+}
+
+async function grow() {
+  const oldCap = capacity;
+  capacity = Math.max(capacity + (capacity >> 1), capacity + 1);
+  setStatus(`⚡ Capacity exceeded! Growing: ${oldCap} → ${capacity} (1.5× formula). System.arraycopy() in progress...`);
+  addLog(`Resize: ${oldCap} → ${capacity} (newCap = oldCap + oldCap >> 1)`, 'warn');
+  // Flash all cells as "grow"
+  render(-1);
+  const cells = document.querySelectorAll('.cell-box');
+  cells.forEach(c => c.classList.add('grow'));
+  await sleep(animSpeed);
+  render(-1);
+}
+
+function doClear() {
+  arr = [];
+  capacity = 10;
+  render(-1);
+  setStatus('Cleared. ArrayList reset with capacity 10.');
+  addLog('clear() → size = 0, capacity reset to 10', 'info');
+}
+
+async function loadExample() {
+  doClear();
+  const vals = [10, 20, 30, 40, 50, 60, 70, 80];
+  for (const v of vals) {
+    document.getElementById('valInput').value = v;
+    await doAdd();
+    await sleep(animSpeed * 0.6);
+  }
+  setStatus('Example loaded: [10, 20, 30, 40, 50, 60, 70, 80]');
+}
+
+// Initial render
+render(-1);
+</script>
+</body>
+</html>

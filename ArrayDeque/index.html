@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ArrayDeque Visualizer — Circular Buffer</title>
+  <link rel="stylesheet" href="../visualizer-common.css">
+  <style>
+    .ring-svg { width: 100%; max-width: 500px; margin: 0 auto; }
+    .ring-slot { cursor: default; transition: all .3s; }
+    .ring-text { font-family: var(--mono); font-size: 13px; fill: var(--text-muted); }
+    .ring-text.filled { fill: var(--blue); font-weight: 600; }
+    .ring-idx { font-family: var(--mono); font-size: 10px; fill: var(--text-muted); opacity: .6; }
+    .ring-pointer { font-family: var(--mono); font-size: 12px; font-weight: 700; }
+    .ring-pointer.head { fill: var(--green); }
+    .ring-pointer.tail { fill: var(--amber); }
+  </style>
+</head>
+<body>
+<div class="viz-page">
+  <div class="viz-header">
+    <div class="viz-header-left">
+      <a href="../index.html" class="viz-home">← Home</a>
+      <div class="viz-icon" style="background:linear-gradient(135deg,#2979ff,#448aff)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M17 3l4 4-4 4"/><path d="M7 21l-4-4 4-4"/><line x1="21" y1="7" x2="3" y2="7"/><line x1="3" y1="17" x2="21" y2="17"/></svg>
+      </div>
+      <div class="viz-title-group">
+        <h1>ArrayDeque Visualizer</h1>
+        <p>Java Collections Framework — Circular Buffer</p>
+      </div>
+    </div>
+    <div class="viz-header-badges">
+      <div class="viz-badge">HEAD <code>elements[head]</code></div>
+      <div class="viz-badge">WRAP <code>(i + 1) & (len - 1)</code></div>
+      <div class="viz-badge">CAPACITY <code>Power of 2</code></div>
+    </div>
+  </div>
+
+  <div class="viz-modes">
+    <button class="viz-mode-tab active" onclick="setMode('deque',this)"><span class="mode-label">🔄 Deque</span><span class="mode-desc">Double-ended</span></button>
+    <button class="viz-mode-tab" onclick="setMode('queue',this)"><span class="mode-label">📥 Queue</span><span class="mode-desc">FIFO</span></button>
+    <button class="viz-mode-tab" onclick="setMode('stack',this)"><span class="mode-label">📚 Stack</span><span class="mode-desc">LIFO</span></button>
+  </div>
+
+  <div class="viz-controls">
+    <div class="viz-input-group">
+      <button class="viz-input-btn" onclick="decVal()">−</button>
+      <input type="number" class="viz-input" id="valInput" value="0">
+      <button class="viz-input-btn" onclick="incVal()">+</button>
+    </div>
+    <button class="viz-op-btn primary" id="btn1" onclick="op1()">⇐ addFirst</button>
+    <button class="viz-op-btn primary" id="btn2" onclick="op2()">addLast ⇒</button>
+    <button class="viz-op-btn danger" id="btn3" onclick="op3()">removeFirst</button>
+    <button class="viz-op-btn danger" id="btn4" onclick="op4()">removeLast</button>
+    <button class="viz-op-btn secondary" id="btn5" onclick="op5()">peekFirst</button>
+    <button class="viz-op-btn secondary" id="btn6" onclick="op6()">peekLast</button>
+    <button class="viz-op-btn secondary" onclick="doClear()">Clear</button>
+    <div class="viz-controls-right">
+      <button class="viz-load-btn" onclick="loadExample()">▶ Load Example</button>
+      <div class="viz-speed">Speed <input type="range" id="speedSlider" min="100" max="1500" value="500"></div>
+    </div>
+  </div>
+
+  <div class="viz-theory">
+    <button class="viz-theory-toggle" aria-expanded="false" onclick="toggleTheory(this)">
+      <span class="toggle-left">📖 What is an ArrayDeque? — Double-Ended Queue Internals</span>
+      <span class="viz-theory-chevron">▼</span>
+    </button>
+    <div class="viz-theory-content" id="theoryContent">
+      <div class="viz-theory-inner">
+        <h3>Circular Buffer</h3>
+        <p>ArrayDeque uses a resizable circular array. The <code>head</code> and <code>tail</code> indices wrap around using bitwise AND: <code>(index + 1) & (elements.length - 1)</code>. Capacity is always a power of 2 to make this wrapping efficient.</p>
+        <h3>Key Characteristics</h3>
+        <ul>
+          <li>All operations at both ends are O(1) amortized</li>
+          <li>Faster than LinkedList for Deque/Queue/Stack usage</li>
+          <li>Capacity doubles (power of 2) when full</li>
+          <li>Does NOT allow null elements</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="viz-panel">
+    <div class="viz-panel-header">
+      <h2>🔄 Circular Buffer View (Memory Layout)</h2>
+      <div class="viz-panel-badges">
+        <span class="viz-panel-badge">Head: <strong id="headBadge">0</strong></span>
+        <span class="viz-panel-badge">Tail: <strong id="tailBadge">0</strong></span>
+        <span class="viz-panel-badge">Size: <strong id="sizeBadge">0 / 16</strong></span>
+      </div>
+    </div>
+    <div class="viz-panel-body" style="flex-direction:column">
+      <svg id="ringSvg" class="ring-svg" viewBox="0 0 500 500"></svg>
+    </div>
+  </div>
+
+  <div class="viz-status" id="statusBar"><span class="status-icon">ℹ️</span> Ready. Add elements to visualize the circular buffer.</div>
+
+  <div class="viz-log">
+    <div class="viz-log-header"><h2>📋 Operation Log</h2><button class="viz-log-clear" onclick="clearLog()">Clear</button></div>
+    <div class="viz-log-body" id="logBody"><div class="log-entry info">Visualizer ready. ArrayDeque — circular buffer with capacity 16.</div></div>
+  </div>
+</div>
+
+<script>
+let cap = 16;
+let buf = new Array(cap).fill(null);
+let head = 0, tail = 0, size = 0;
+let mode = 'deque';
+let animSpeed = 500;
+
+document.getElementById('speedSlider').addEventListener('input', e => { animSpeed = 1600 - parseInt(e.target.value); });
+function getVal() { return parseInt(document.getElementById('valInput').value)||0; }
+function incVal() { const i=document.getElementById('valInput'); i.value=parseInt(i.value||0)+1; }
+function decVal() { const i=document.getElementById('valInput'); i.value=parseInt(i.value||0)-1; }
+function setStatus(msg) { document.getElementById('statusBar').innerHTML='<span class="status-icon">ℹ️</span> '+msg; }
+function addLog(msg,type='info') { const d=document.createElement('div'); d.className='log-entry '+type; d.textContent=msg; document.getElementById('logBody').insertBefore(d,document.getElementById('logBody').firstChild); }
+function clearLog() { document.getElementById('logBody').innerHTML=''; }
+function toggleTheory(btn) { const e=btn.getAttribute('aria-expanded')==='true'; btn.setAttribute('aria-expanded',!e); document.getElementById('theoryContent').classList.toggle('open'); }
+function sleep(ms) { return new Promise(r=>setTimeout(r,ms)); }
+
+function setMode(m, btn) {
+  mode = m;
+  document.querySelectorAll('.viz-mode-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  const b1=document.getElementById('btn1'),b2=document.getElementById('btn2'),b3=document.getElementById('btn3'),b4=document.getElementById('btn4'),b5=document.getElementById('btn5'),b6=document.getElementById('btn6');
+  if(m==='deque'){b1.textContent='⇐ addFirst';b2.textContent='addLast ⇒';b2.style.display='';b3.textContent='removeFirst';b4.textContent='removeLast';b4.style.display='';b5.textContent='peekFirst';b6.textContent='peekLast';b6.style.display='';}
+  else if(m==='queue'){b1.textContent='offer (enqueue)';b2.style.display='none';b3.textContent='poll (dequeue)';b4.style.display='none';b5.textContent='peek';b6.style.display='none';}
+  else{b1.textContent='push';b2.style.display='none';b3.textContent='pop';b4.style.display='none';b5.textContent='peek';b6.style.display='none';}
+}
+
+function render(hlIdx=-1) {
+  const svg = document.getElementById('ringSvg');
+  const cx=250,cy=250,r=180;
+  let html = '';
+  // Draw ring slots
+  for (let i=0;i<cap;i++) {
+    const angle = (i/cap)*2*Math.PI - Math.PI/2;
+    const x = cx + r*Math.cos(angle);
+    const y = cy + r*Math.sin(angle);
+    const ix = cx + (r+28)*Math.cos(angle);
+    const iy = cy + (r+28)*Math.sin(angle);
+
+    const filled = buf[i] !== null;
+    const isHead = (i===head && size>0);
+    const isTail = (i===((tail-1+cap)%cap) && size>0);
+    const isHl = i===hlIdx;
+
+    let stroke = 'rgba(255,255,255,0.1)';
+    let fill = 'rgba(255,255,255,0.02)';
+    if(filled){stroke='rgba(68,138,255,0.4)';fill='rgba(68,138,255,0.06)';}
+    if(isHead){stroke='#4cff91';fill='rgba(76,255,145,0.08)';}
+    if(isHl){stroke='#ffc107';fill='rgba(255,193,7,0.1)';}
+
+    html += `<rect x="${x-20}" y="${y-20}" width="40" height="40" rx="8" stroke="${stroke}" stroke-width="1.5" fill="${fill}" class="ring-slot"/>`;
+    html += `<text x="${x}" y="${y+5}" text-anchor="middle" class="ring-text ${filled?'filled':''}">${filled?buf[i]:''}</text>`;
+    html += `<text x="${ix}" y="${iy+4}" text-anchor="middle" class="ring-idx">${i}</text>`;
+  }
+  // Head pointer
+  if(size>0) {
+    const ha = (head/cap)*2*Math.PI - Math.PI/2;
+    const hx = cx + (r-36)*Math.cos(ha);
+    const hy = cy + (r-36)*Math.sin(ha);
+    html += `<text x="${hx}" y="${hy+4}" text-anchor="middle" class="ring-pointer head">H</text>`;
+    const ta = (tail/cap)*2*Math.PI - Math.PI/2;
+    const tx = cx + (r-36)*Math.cos(ta);
+    const ty = cy + (r-36)*Math.sin(ta);
+    html += `<text x="${tx}" y="${ty+4}" text-anchor="middle" class="ring-pointer tail">T</text>`;
+  }
+  // Center text
+  html += `<text x="${cx}" y="${cy-4}" text-anchor="middle" style="font-family:var(--mono);font-size:11px;fill:var(--text-muted)">${size===0?'empty':size+' elements'}</text>`;
+  svg.innerHTML = html;
+  document.getElementById('headBadge').textContent = head;
+  document.getElementById('tailBadge').textContent = tail;
+  document.getElementById('sizeBadge').textContent = size + ' / ' + cap;
+}
+
+async function addFirst(val) {
+  if(size>=cap) await grow();
+  head = (head - 1 + cap) % cap;
+  buf[head] = val;
+  size++;
+  render(head);
+  setStatus(`addFirst(${val}) → head moved to index ${head}. Wrap: (${head+1}-1) & (${cap}-1) = ${head}`);
+  addLog(`addFirst(${val}) → head=${head}`, 'add');
+}
+
+async function addLast(val) {
+  if(size>=cap) await grow();
+  buf[tail] = val;
+  const oldTail = tail;
+  tail = (tail + 1) % cap;
+  size++;
+  render(oldTail);
+  setStatus(`addLast(${val}) → placed at tail index ${oldTail}, tail moved to ${tail}`);
+  addLog(`addLast(${val}) → tail=${tail}`, 'add');
+}
+
+async function removeFirst() {
+  if(!size){setStatus('Deque is empty');return null;}
+  const val = buf[head];
+  buf[head] = null;
+  render(head);
+  await sleep(animSpeed*0.5);
+  head = (head + 1) % cap;
+  size--;
+  render();
+  return val;
+}
+
+async function removeLast() {
+  if(!size){setStatus('Deque is empty');return null;}
+  tail = (tail - 1 + cap) % cap;
+  const val = buf[tail];
+  buf[tail] = null;
+  size--;
+  render(tail);
+  await sleep(animSpeed*0.5);
+  render();
+  return val;
+}
+
+async function grow() {
+  const oldCap=cap; cap*=2;
+  const newBuf=new Array(cap).fill(null);
+  for(let i=0;i<size;i++) newBuf[i]=buf[(head+i)%oldCap];
+  buf=newBuf; head=0; tail=size;
+  setStatus(`⚡ Capacity doubled: ${oldCap} → ${cap} (power of 2). Elements copied linearly.`);
+  addLog(`Resize: ${oldCap} → ${cap}`, 'warn');
+  render(); await sleep(animSpeed);
+}
+
+// Op handlers
+async function op1() { const v=getVal(); if(mode==='queue'){await addLast(v);}else if(mode==='stack'){await addFirst(v);}else{await addFirst(v);} incVal(); }
+async function op2() { const v=getVal(); await addLast(v); incVal(); }
+async function op3() { const v=await removeFirst(); if(v!==null){setStatus(`${mode==='queue'?'poll':'removeFirst'}() → ${v}`);addLog(`${mode==='queue'?'poll':'removeFirst'}() → ${v}`,'remove');}}
+async function op4() { const v=await removeLast(); if(v!==null){setStatus(`removeLast() → ${v}`);addLog(`removeLast() → ${v}`,'remove');}}
+function op5() { if(!size){setStatus('Empty');return;} const v=buf[head]; render(head); setStatus(`peekFirst() → ${v}`); addLog(`peekFirst() → ${v}`,'info'); }
+function op6() { if(!size){setStatus('Empty');return;} const idx=(tail-1+cap)%cap; const v=buf[idx]; render(idx); setStatus(`peekLast() → ${v}`); addLog(`peekLast() → ${v}`,'info'); }
+
+function doClear() { cap=16;buf=new Array(cap).fill(null);head=0;tail=0;size=0;render();setStatus('Cleared.');addLog('clear()','info'); }
+
+async function loadExample() {
+  doClear();
+  const vals=[10,20,30,40,50];
+  for(const v of vals){document.getElementById('valInput').value=v;await addLast(v);await sleep(animSpeed*0.5);}
+  setStatus('Example loaded. Try addFirst/removeFirst to see wrapping!');
+}
+
+render();
+</script>
+</body>
+</html>

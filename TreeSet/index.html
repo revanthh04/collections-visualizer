@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TreeSet Visualizer — Red-Black Tree</title>
+  <link rel="stylesheet" href="../visualizer-common.css">
+  <style>
+    .rbt-svg { width: 100%; min-height: 350px; }
+    .rbt-circle { transition: all .4s var(--ease); cursor: default; }
+    .rbt-label { font-family: var(--mono); font-size: 13px; font-weight: 700; fill: #fff; }
+    .rbt-line { stroke: rgba(255,255,255,.12); stroke-width: 1.5; transition: all .3s; }
+    .rbt-legend { display: flex; gap: 16px; align-items: center; }
+    .rbt-legend-dot { width: 14px; height: 14px; border-radius: 50%; display: inline-block; }
+    .rbt-legend span { font-size: .78rem; color: var(--text-muted); }
+  </style>
+</head>
+<body>
+<div class="viz-page">
+  <div class="viz-header">
+    <div class="viz-header-left">
+      <a href="../index.html" class="viz-home">← Home</a>
+      <div class="viz-icon" style="background:linear-gradient(135deg,#d50000,#ff5252)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="5" r="3"/><circle cx="6" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><line x1="12" y1="8" x2="6" y2="14"/><line x1="12" y1="8" x2="18" y2="14"/></svg>
+      </div>
+      <div class="viz-title-group">
+        <h1>TreeSet Visualizer</h1>
+        <p>Java Collections Framework — Red-Black Tree (Sorted Set)</p>
+      </div>
+    </div>
+    <div class="viz-header-badges">
+      <div class="viz-badge">BACKED BY <code>TreeMap (RBT)</code></div>
+      <div class="viz-badge">ALL OPS <code>O(log n)</code></div>
+      <div class="viz-badge">ORDER <code>Natural / Comparator</code></div>
+    </div>
+  </div>
+
+  <div class="viz-controls">
+    <div class="viz-input-group">
+      <button class="viz-input-btn" onclick="decVal()">−</button>
+      <input type="number" class="viz-input" id="valInput" value="0">
+      <button class="viz-input-btn" onclick="incVal()">+</button>
+    </div>
+    <button class="viz-op-btn primary" onclick="doAdd()">add</button>
+    <button class="viz-op-btn danger" onclick="doRemove()">remove</button>
+    <button class="viz-op-btn secondary" onclick="doContains()">contains</button>
+    <button class="viz-op-btn secondary" onclick="doFirst()">first</button>
+    <button class="viz-op-btn secondary" onclick="doLast()">last</button>
+    <button class="viz-op-btn info" onclick="doFloor()">floor</button>
+    <button class="viz-op-btn info" onclick="doCeiling()">ceiling</button>
+    <button class="viz-op-btn secondary" onclick="doClear()">Clear</button>
+    <div class="viz-controls-right">
+      <button class="viz-load-btn" onclick="loadExample()">▶ Load Example</button>
+      <div class="viz-speed">Speed <input type="range" id="speedSlider" min="100" max="1500" value="500"></div>
+    </div>
+  </div>
+
+  <div class="viz-theory">
+    <button class="viz-theory-toggle" aria-expanded="false" onclick="toggleTheory(this)">
+      <span class="toggle-left">📖 What is a Red-Black Tree? — BST Theory & RBT Rules</span>
+      <span class="viz-theory-chevron">▼</span>
+    </button>
+    <div class="viz-theory-content" id="theoryContent">
+      <div class="viz-theory-inner">
+        <h3>Red-Black Tree Rules</h3>
+        <ul>
+          <li>Every node is either <strong style="color:#ff5252">RED</strong> or <strong>BLACK</strong></li>
+          <li>Root is always BLACK</li>
+          <li>No two consecutive RED nodes (red node cannot have a red parent)</li>
+          <li>Every path from root to null has the same number of BLACK nodes</li>
+          <li>Null nodes (NIL leaves) are considered BLACK</li>
+        </ul>
+        <h3>Self-Balancing</h3>
+        <p>After insertion/deletion, the tree rebalances using <strong>rotations</strong> (left/right) and <strong>recoloring</strong> to maintain the rules above, ensuring O(log n) height.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="viz-panel">
+    <div class="viz-panel-header">
+      <h2>🌲 Red-Black Tree (Internal Structure)</h2>
+      <div class="viz-panel-badges">
+        <div class="rbt-legend"><div class="rbt-legend-dot" style="background:#ff5252"></div><span>Red Node</span><div class="rbt-legend-dot" style="background:#444"></div><span>Black Node</span></div>
+        <span class="viz-panel-badge">Size: <strong id="sizeBadge">0</strong></span>
+        <span class="viz-panel-badge">Height: <strong id="heightBadge">0</strong></span>
+      </div>
+    </div>
+    <div class="viz-panel-body" style="flex-direction:column">
+      <svg id="treeSvg" class="rbt-svg" viewBox="0 0 900 400"></svg>
+      <div id="treeEmpty" class="viz-empty"><div class="viz-empty-icon">🌲</div><p>Add elements to visualize the Red-Black Tree</p><p>Or click <strong>"Load Example"</strong> for a demo</p></div>
+    </div>
+  </div>
+
+  <div class="viz-panel">
+    <div class="viz-panel-header">
+      <h2>📊 Sorted Set View (In-Order Traversal)</h2>
+      <div class="viz-panel-badges"><span class="viz-panel-badge"><code>for (Integer x : treeSet)</code> → sorted</span></div>
+    </div>
+    <div class="viz-panel-body" id="sortedView" style="justify-content:flex-start;padding:16px 24px">
+      <span class="sorted-view">{ empty }</span>
+    </div>
+  </div>
+
+  <div class="viz-status" id="statusBar"><span class="status-icon">ℹ️</span> Ready. Add elements to visualize the Red-Black Tree.</div>
+
+  <div class="viz-log">
+    <div class="viz-log-header"><h2>📋 Operation Log</h2><button class="viz-log-clear" onclick="clearLog()">Clear</button></div>
+    <div class="viz-log-body" id="logBody"><div class="log-entry info">Visualizer ready. TreeSet backed by TreeMap (Red-Black Tree).</div></div>
+  </div>
+</div>
+
+<script>
+const RED = true, BLACK = false;
+let root = null;
+let animSpeed = 500;
+let highlightVal = null;
+
+document.getElementById('speedSlider').addEventListener('input', e => { animSpeed = 1600 - parseInt(e.target.value); });
+function getVal() { return parseInt(document.getElementById('valInput').value)||0; }
+function incVal() { const i=document.getElementById('valInput'); i.value=parseInt(i.value||0)+1; }
+function decVal() { const i=document.getElementById('valInput'); i.value=parseInt(i.value||0)-1; }
+function setStatus(msg) { document.getElementById('statusBar').innerHTML='<span class="status-icon">ℹ️</span> '+msg; }
+function addLogEntry(msg,type='info') { const d=document.createElement('div');d.className='log-entry '+type;d.textContent=msg;document.getElementById('logBody').insertBefore(d,document.getElementById('logBody').firstChild); }
+function clearLog() { document.getElementById('logBody').innerHTML=''; }
+function toggleTheory(btn) { const e=btn.getAttribute('aria-expanded')==='true';btn.setAttribute('aria-expanded',!e);document.getElementById('theoryContent').classList.toggle('open'); }
+function sleep(ms) { return new Promise(r=>setTimeout(r,ms)); }
+
+// RBT Node
+class Node {
+  constructor(val) { this.val=val; this.color=RED; this.left=null; this.right=null; this.parent=null; }
+}
+
+function isRed(n) { return n && n.color === RED; }
+
+function rotateLeft(n) {
+  const r=n.right; n.right=r.left;
+  if(r.left) r.left.parent=n;
+  r.parent=n.parent;
+  if(!n.parent) root=r;
+  else if(n===n.parent.left) n.parent.left=r;
+  else n.parent.right=r;
+  r.left=n; n.parent=r;
+  addLogEntry(`  Rotate LEFT around ${n.val}`, 'warn');
+}
+
+function rotateRight(n) {
+  const l=n.left; n.left=l.right;
+  if(l.right) l.right.parent=n;
+  l.parent=n.parent;
+  if(!n.parent) root=l;
+  else if(n===n.parent.right) n.parent.right=l;
+  else n.parent.left=l;
+  l.right=n; n.parent=l;
+  addLogEntry(`  Rotate RIGHT around ${n.val}`, 'warn');
+}
+
+function fixInsert(n) {
+  while(n!==root && isRed(n.parent)) {
+    let p=n.parent, g=p.parent;
+    if(!g) break;
+    if(p===g.left) {
+      let u=g.right;
+      if(isRed(u)) { p.color=BLACK; u.color=BLACK; g.color=RED; addLogEntry(`  Recolor: ${p.val}→B, ${u.val}→B, ${g.val}→R`,'info'); n=g; }
+      else { if(n===p.right){rotateLeft(p);n=p;p=n.parent;} p.color=BLACK;g.color=RED;rotateRight(g); }
+    } else {
+      let u=g.left;
+      if(isRed(u)) { p.color=BLACK; u.color=BLACK; g.color=RED; addLogEntry(`  Recolor: ${p.val}→B, ${u.val}→B, ${g.val}→R`,'info'); n=g; }
+      else { if(n===p.left){rotateRight(p);n=p;p=n.parent;} p.color=BLACK;g.color=RED;rotateLeft(g); }
+    }
+  }
+  root.color = BLACK;
+}
+
+function insert(val) {
+  const nn = new Node(val);
+  if(!root) { root=nn; root.color=BLACK; return true; }
+  let cur=root, par=null;
+  while(cur) {
+    par=cur;
+    if(val<cur.val) cur=cur.left;
+    else if(val>cur.val) cur=cur.right;
+    else return false; // duplicate
+  }
+  nn.parent=par;
+  if(val<par.val) par.left=nn; else par.right=nn;
+  fixInsert(nn);
+  return true;
+}
+
+function treeSize(n) { return n ? 1+treeSize(n.left)+treeSize(n.right) : 0; }
+function treeHeight(n) { return n ? 1+Math.max(treeHeight(n.left),treeHeight(n.right)) : 0; }
+function inOrder(n, res=[]) { if(n){inOrder(n.left,res);res.push(n.val);inOrder(n.right,res);} return res; }
+function findNode(n, val) { if(!n) return null; if(val<n.val) return findNode(n.left,val); if(val>n.val) return findNode(n.right,val); return n; }
+function treeMin(n) { while(n.left) n=n.left; return n; }
+function treeMax(n) { while(n.right) n=n.right; return n; }
+function floorVal(n, val) { if(!n) return null; if(val===n.val) return n.val; if(val<n.val) return floorVal(n.left,val); const r=floorVal(n.right,val); return r!==null?r:n.val; }
+function ceilingVal(n, val) { if(!n) return null; if(val===n.val) return n.val; if(val>n.val) return ceilingVal(n.right,val); const l=ceilingVal(n.left,val); return l!==null?l:n.val; }
+
+// Simple removal: rebuild tree (simplified for visualization)
+function removeVal(val) {
+  const sorted = inOrder(root).filter(v=>v!==val);
+  if(sorted.length === inOrder(root).length) return false;
+  root = null;
+  for(const v of sorted) insert(v);
+  return true;
+}
+
+function render() {
+  const sz = treeSize(root), h = treeHeight(root);
+  document.getElementById('sizeBadge').textContent = sz;
+  document.getElementById('heightBadge').textContent = h;
+  const treeEmpty = document.getElementById('treeEmpty');
+  const svg = document.getElementById('treeSvg');
+  if(!root) { treeEmpty.style.display='block'; svg.innerHTML=''; renderSorted(); return; }
+  treeEmpty.style.display='none';
+
+  const w=900, ht=Math.max(350, h*90);
+  svg.setAttribute('viewBox', `0 0 ${w} ${ht}`);
+
+  let html = '';
+  function drawNode(n, x, y, dx) {
+    if(!n) return;
+    if(n.left) { const cx=x-dx, cy=y+80; html+=`<line x1="${x}" y1="${y}" x2="${cx}" y2="${cy}" class="rbt-line"/>`; drawNode(n.left,cx,cy,dx/2); }
+    if(n.right) { const cx=x+dx, cy=y+80; html+=`<line x1="${x}" y1="${y}" x2="${cx}" y2="${cy}" class="rbt-line"/>`; drawNode(n.right,cx,cy,dx/2); }
+    const fill = n.color===RED ? '#ff5252' : '#333';
+    const stroke = n.val===highlightVal ? '#4cff91' : (n.color===RED?'#ff8a80':'#666');
+    const sw = n.val===highlightVal ? 3 : 2;
+    html+=`<circle cx="${x}" cy="${y}" r="20" fill="${fill}" stroke="${stroke}" stroke-width="${sw}" class="rbt-circle"/>`;
+    html+=`<text x="${x}" y="${y+5}" text-anchor="middle" class="rbt-label">${n.val}</text>`;
+  }
+  const startDx = Math.min(200, w / (Math.pow(2, 1) + 1));
+  drawNode(root, w/2, 40, startDx);
+  svg.innerHTML = html;
+  renderSorted();
+}
+
+function renderSorted() {
+  const view = document.getElementById('sortedView');
+  const sorted = inOrder(root);
+  if(!sorted.length) { view.innerHTML='<span class="sorted-view">{ empty }</span>'; return; }
+  view.innerHTML = '<div class="sorted-view">{ ' + sorted.map(v =>
+    `<span style="${v===highlightVal?'color:var(--green);font-weight:700':''}">${v}</span>`
+  ).join(', ') + ' }</div>';
+}
+
+async function doAdd() {
+  const val = getVal();
+  if(insert(val)) {
+    highlightVal=val; render();
+    setStatus(`add(${val}) → inserted into Red-Black Tree. Size = ${treeSize(root)}`);
+    addLogEntry(`add(${val}) → inserted, tree rebalanced`, 'add');
+    await sleep(animSpeed); highlightVal=null; render();
+  } else {
+    setStatus(`add(${val}) → already exists (TreeSet ignores duplicates)`);
+    addLogEntry(`add(${val}) → duplicate, not added`, 'warn');
+  }
+  incVal();
+}
+
+async function doRemove() {
+  const val = getVal();
+  highlightVal=val; render(); await sleep(animSpeed);
+  if(removeVal(val)) {
+    highlightVal=null; render();
+    setStatus(`remove(${val}) → removed. Size = ${treeSize(root)}`);
+    addLogEntry(`remove(${val}) → removed, tree rebalanced`, 'remove');
+  } else {
+    highlightVal=null; render();
+    setStatus(`remove(${val}) → not found`);
+    addLogEntry(`remove(${val}) → not found`, 'warn');
+  }
+}
+
+function doContains() {
+  const val=getVal(); const found = findNode(root,val)!==null;
+  highlightVal=found?val:null; render();
+  setStatus(`contains(${val}) → ${found}. O(log n) search.`);
+  addLogEntry(`contains(${val}) → ${found}`, 'info');
+  setTimeout(()=>{highlightVal=null;render();}, animSpeed*2);
+}
+
+function doFirst() {
+  if(!root){setStatus('Set is empty');return;}
+  const v=treeMin(root).val; highlightVal=v; render();
+  setStatus(`first() → ${v} (leftmost node)`);
+  addLogEntry(`first() → ${v}`, 'info');
+  setTimeout(()=>{highlightVal=null;render();}, animSpeed*2);
+}
+
+function doLast() {
+  if(!root){setStatus('Set is empty');return;}
+  const v=treeMax(root).val; highlightVal=v; render();
+  setStatus(`last() → ${v} (rightmost node)`);
+  addLogEntry(`last() → ${v}`, 'info');
+  setTimeout(()=>{highlightVal=null;render();}, animSpeed*2);
+}
+
+function doFloor() {
+  const val=getVal(); const f=floorVal(root,val);
+  highlightVal=f; render();
+  setStatus(`floor(${val}) → ${f!==null?f:'null'} (greatest element ≤ ${val})`);
+  addLogEntry(`floor(${val}) → ${f!==null?f:'null'}`, 'info');
+  setTimeout(()=>{highlightVal=null;render();}, animSpeed*2);
+}
+
+function doCeiling() {
+  const val=getVal(); const c=ceilingVal(root,val);
+  highlightVal=c; render();
+  setStatus(`ceiling(${val}) → ${c!==null?c:'null'} (smallest element ≥ ${val})`);
+  addLogEntry(`ceiling(${val}) → ${c!==null?c:'null'}`, 'info');
+  setTimeout(()=>{highlightVal=null;render();}, animSpeed*2);
+}
+
+function doClear() { root=null;highlightVal=null;render();setStatus('Cleared.');addLogEntry('clear()','info');document.getElementById('valInput').value='0'; }
+
+async function loadExample() {
+  doClear();
+  const vals = [50,25,75,12,37,62,87];
+  for(const v of vals) { document.getElementById('valInput').value=v; await doAdd(); await sleep(animSpeed*0.4); }
+  setStatus('Example loaded: balanced Red-Black Tree with 7 nodes');
+}
+
+render();
+</script>
+</body>
+</html>

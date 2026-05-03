@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LinkedList Visualizer — Doubly-Linked List</title>
+  <link rel="stylesheet" href="../visualizer-common.css">
+</head>
+<body>
+<div class="viz-page">
+  <div class="viz-header">
+    <div class="viz-header-left">
+      <a href="../index.html" class="viz-home">← Home</a>
+      <div class="viz-icon" style="background:linear-gradient(135deg,#00b8d4,#18ffff)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="6" cy="12" r="3"/><circle cx="18" cy="12" r="3"/><line x1="9" y1="12" x2="15" y2="12"/></svg>
+      </div>
+      <div class="viz-title-group">
+        <h1>LinkedList Visualizer</h1>
+        <p>Java Collections — Doubly-Linked List (List, Deque, Queue, Stack)</p>
+      </div>
+    </div>
+    <div class="viz-header-badges">
+      <div class="viz-badge">NODE <code>prev | item | next</code></div>
+      <div class="viz-badge">ACCESS <code>O(n)</code> traversal</div>
+      <div class="viz-badge">ADD/REMOVE ENDS <code>O(1)</code></div>
+    </div>
+  </div>
+
+  <!-- Mode Tabs -->
+  <div class="viz-modes">
+    <button class="viz-mode-tab active" onclick="setMode('list',this)"><span class="mode-label">📋 List</span><span class="mode-desc">Indexed</span></button>
+    <button class="viz-mode-tab" onclick="setMode('deque',this)"><span class="mode-label">🔄 Deque</span><span class="mode-desc">Double-ended</span></button>
+    <button class="viz-mode-tab" onclick="setMode('queue',this)"><span class="mode-label">📥 Queue</span><span class="mode-desc">FIFO</span></button>
+    <button class="viz-mode-tab" onclick="setMode('stack',this)"><span class="mode-label">📚 Stack</span><span class="mode-desc">LIFO</span></button>
+  </div>
+
+  <!-- Controls -->
+  <div class="viz-controls" id="controlBar">
+    <div class="viz-input-group">
+      <button class="viz-input-btn" onclick="decVal()">−</button>
+      <input type="text" class="viz-input" id="valInput" value="A">
+      <button class="viz-input-btn" onclick="incVal()">+</button>
+    </div>
+    <button class="viz-op-btn primary" id="btn1" onclick="op1()">addFirst ⇐</button>
+    <button class="viz-op-btn primary" id="btn2" onclick="op2()">addLast ⇒</button>
+    <span class="viz-idx-label" id="idxLabel">idx</span>
+    <input type="number" class="viz-input" id="idxInput" value="0" style="width:48px;border:1px solid var(--border);border-radius:6px" id="idxGroup">
+    <button class="viz-op-btn info" id="btn3" onclick="op3()">add(i,e)</button>
+    <button class="viz-op-btn danger" id="btn4" onclick="op4()">remove(i)</button>
+    <button class="viz-op-btn secondary" id="btn5" onclick="op5()">get(i)</button>
+    <button class="viz-op-btn secondary" onclick="doClear()">Clear</button>
+    <div class="viz-controls-right">
+      <button class="viz-load-btn" onclick="loadExample()">▶ Load Example</button>
+      <div class="viz-speed">Speed <input type="range" id="speedSlider" min="100" max="1500" value="500"></div>
+    </div>
+  </div>
+
+  <!-- Theory -->
+  <div class="viz-theory">
+    <button class="viz-theory-toggle" aria-expanded="false" onclick="toggleTheory(this)">
+      <span class="toggle-left">📖 What is a LinkedList? — Doubly-Linked Architecture</span>
+      <span class="viz-theory-chevron">▼</span>
+    </button>
+    <div class="viz-theory-content" id="theoryContent">
+      <div class="viz-theory-inner">
+        <h3>Internal Structure</h3>
+        <p>Each node has three fields: <code>prev</code>, <code>item</code>, and <code>next</code>. The list maintains pointers to the <code>first</code> and <code>last</code> nodes, enabling O(1) operations at both ends.</p>
+        <h3>Key Characteristics</h3>
+        <ul>
+          <li><strong>addFirst / addLast:</strong> O(1) — direct pointer manipulation</li>
+          <li><strong>get(index):</strong> O(n) — must traverse from nearest end</li>
+          <li><strong>Implements:</strong> List, Deque, Queue, and can act as Stack</li>
+          <li><strong>Memory:</strong> Each node stores 3 references (prev, item, next)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Visualization -->
+  <div class="viz-panel">
+    <div class="viz-panel-header">
+      <h2>🔗 Doubly-Linked List (Memory Level)</h2>
+      <div class="viz-panel-badges">
+        <span class="viz-panel-badge">first: <strong id="firstBadge">null</strong></span>
+        <span class="viz-panel-badge">last: <strong id="lastBadge">null</strong></span>
+        <span class="viz-panel-badge">size: <strong id="sizeBadge">0</strong></span>
+      </div>
+    </div>
+    <div class="viz-panel-body" id="listView">
+      <div class="viz-empty"><div class="viz-empty-icon">🔗</div><p>Add elements to visualize the linked list</p><p>Or click <strong>"Load Example"</strong> for a demo</p></div>
+    </div>
+  </div>
+
+  <!-- Mode Info -->
+  <div class="viz-status" id="modeInfo"><span class="status-icon">📋</span> Mode: <strong>List</strong> — Indexed access</div>
+
+  <!-- Status -->
+  <div class="viz-status" id="statusBar"><span class="status-icon">ℹ️</span> Ready. Add elements or load the example.</div>
+
+  <!-- Log -->
+  <div class="viz-log">
+    <div class="viz-log-header"><h2>📋 Operation Log</h2><button class="viz-log-clear" onclick="clearLog()">Clear</button></div>
+    <div class="viz-log-body" id="logBody">
+      <div class="log-entry info">Visualizer ready. LinkedList — doubly-linked with first/last pointers.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+let list = [];
+let mode = 'list';
+let animSpeed = 500;
+let charCode = 65; // 'A'
+
+document.getElementById('speedSlider').addEventListener('input', e => { animSpeed = 1600 - parseInt(e.target.value); });
+
+function getVal() { return document.getElementById('valInput').value || '?'; }
+function getIdx() { return parseInt(document.getElementById('idxInput').value) || 0; }
+function incVal() { const i = document.getElementById('valInput'); charCode++; i.value = String.fromCharCode(((charCode-65)%26)+65); }
+function decVal() { const i = document.getElementById('valInput'); charCode = Math.max(65,charCode-1); i.value = String.fromCharCode(((charCode-65)%26)+65); }
+function setStatus(msg) { document.getElementById('statusBar').innerHTML = '<span class="status-icon">ℹ️</span> ' + msg; }
+function addLog(msg, type='info') { const d = document.createElement('div'); d.className='log-entry '+type; d.textContent=msg; document.getElementById('logBody').insertBefore(d, document.getElementById('logBody').firstChild); }
+function clearLog() { document.getElementById('logBody').innerHTML = ''; }
+function toggleTheory(btn) { const e = btn.getAttribute('aria-expanded')==='true'; btn.setAttribute('aria-expanded',!e); document.getElementById('theoryContent').classList.toggle('open'); }
+function sleep(ms) { return new Promise(r=>setTimeout(r,ms)); }
+
+function setMode(m, btn) {
+  mode = m;
+  document.querySelectorAll('.viz-mode-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  const mi = document.getElementById('modeInfo');
+  const labels = {list:'📋 Mode: <strong>List</strong> — Indexed access', deque:'🔄 Mode: <strong>Deque</strong> — Double-ended operations', queue:'📥 Mode: <strong>Queue</strong> — FIFO (First-In, First-Out)', stack:'📚 Mode: <strong>Stack</strong> — LIFO (Last-In, First-Out)'};
+  mi.innerHTML = '<span class="status-icon">' + labels[m].charAt(0) + '</span> ' + labels[m];
+  updateButtons();
+}
+
+function updateButtons() {
+  const b1=document.getElementById('btn1'), b2=document.getElementById('btn2'), b3=document.getElementById('btn3'), b4=document.getElementById('btn4'), b5=document.getElementById('btn5');
+  const idxL=document.getElementById('idxLabel'), idxI=document.getElementById('idxInput');
+  if(mode==='list'){ b1.textContent='addFirst ⇐'; b2.textContent='addLast ⇒'; b3.style.display=''; b4.textContent='remove(i)'; b5.textContent='get(i)'; idxL.style.display=''; idxI.style.display=''; }
+  else if(mode==='deque'){ b1.textContent='addFirst ⇐'; b2.textContent='addLast ⇒'; b3.style.display='none'; b4.textContent='removeFirst'; b5.textContent='removeLast'; idxL.style.display='none'; idxI.style.display='none'; }
+  else if(mode==='queue'){ b1.textContent='offer (enqueue)'; b2.style.display='none'; b3.style.display='none'; b4.textContent='poll (dequeue)'; b5.textContent='peek'; idxL.style.display='none'; idxI.style.display='none'; }
+  else if(mode==='stack'){ b1.textContent='push'; b2.style.display='none'; b3.style.display='none'; b4.textContent='pop'; b5.textContent='peek'; idxL.style.display='none'; idxI.style.display='none'; }
+  if(mode!=='queue') b2.style.display='';
+}
+
+function render(hlIdx=-1, hlClass='highlight') {
+  const view = document.getElementById('listView');
+  if (!list.length) { view.innerHTML = '<div class="viz-empty"><div class="viz-empty-icon">🔗</div><p>Add elements to visualize the linked list</p></div>'; updateBadges(); return; }
+  let html = '<div class="ll-container">';
+  html += '<div class="ll-node"><span class="ll-pointer-label">null ←</span></div>';
+  list.forEach((val, i) => {
+    const cls = i===hlIdx ? hlClass : '';
+    const prev = i===0 ? 'null' : '←';
+    const next = i===list.length-1 ? 'null' : '→';
+    html += `<div class="ll-node anim-fadeIn" style="animation-delay:${i*60}ms">
+      <div class="ll-node-box ${cls}">
+        <div class="ll-prev">${prev}</div>
+        <div class="ll-item">${val}</div>
+        <div class="ll-next">${next}</div>
+      </div>`;
+    if (i===0) html += '<span class="ll-pointer-label">first</span>';
+    if (i===list.length-1) html += '<span class="ll-pointer-label">last</span>';
+    html += '</div>';
+    if (i < list.length-1) html += '<div class="ll-arrow">⇄</div>';
+  });
+  html += '<div class="ll-node"><span class="ll-pointer-label">→ null</span></div>';
+  html += '</div>';
+  view.innerHTML = html;
+  updateBadges();
+}
+
+function updateBadges() {
+  document.getElementById('firstBadge').textContent = list.length ? list[0] : 'null';
+  document.getElementById('lastBadge').textContent = list.length ? list[list.length-1] : 'null';
+  document.getElementById('sizeBadge').textContent = list.length;
+}
+
+async function traverseTo(idx) {
+  const fromEnd = idx > list.length / 2;
+  setStatus(`Traversing from ${fromEnd?'last':'first'} — O(n) access for index ${idx}`);
+  if (fromEnd) {
+    for (let i = list.length-1; i >= idx; i--) { render(i, 'traversing'); await sleep(animSpeed*0.4); }
+  } else {
+    for (let i = 0; i <= idx; i++) { render(i, 'traversing'); await sleep(animSpeed*0.4); }
+  }
+}
+
+// Operation handlers based on mode
+async function op1() {
+  const val = getVal();
+  if (mode==='queue') { list.push(val); render(list.length-1); setStatus(`offer(${val}) → enqueued at tail`); addLog(`offer(${val})`, 'add'); }
+  else if (mode==='stack') { list.push(val); render(list.length-1); setStatus(`push(${val}) → pushed to top`); addLog(`push(${val})`, 'add'); }
+  else { list.unshift(val); render(0); setStatus(`addFirst(${val}) → O(1)`); addLog(`addFirst(${val})`, 'add'); }
+  incVal();
+}
+
+async function op2() {
+  const val = getVal();
+  list.push(val);
+  render(list.length-1);
+  setStatus(`addLast(${val}) → O(1)`);
+  addLog(`addLast(${val})`, 'add');
+  incVal();
+}
+
+async function op3() {
+  const val = getVal(); const idx = getIdx();
+  if (idx<0||idx>list.length) { setStatus(`IndexOutOfBoundsException`); addLog(`add(${idx},${val}) → Error`,'remove'); return; }
+  await traverseTo(idx);
+  list.splice(idx, 0, val);
+  render(idx);
+  setStatus(`add(${idx}, ${val}) → inserted after traversal`);
+  addLog(`add(${idx}, ${val})`, 'add');
+  incVal();
+}
+
+async function op4() {
+  if (!list.length) { setStatus('List is empty'); return; }
+  if (mode==='deque') { const v=list.shift(); render(-1); setStatus(`removeFirst() → ${v}`); addLog(`removeFirst() → ${v}`,'remove'); }
+  else if (mode==='queue') { const v=list.shift(); render(-1); setStatus(`poll() → ${v} (dequeued from head)`); addLog(`poll() → ${v}`,'remove'); }
+  else if (mode==='stack') { const v=list.pop(); render(-1); setStatus(`pop() → ${v}`); addLog(`pop() → ${v}`,'remove'); }
+  else { const idx=getIdx(); if(idx<0||idx>=list.length){setStatus('IndexOutOfBoundsException');return;} await traverseTo(idx); const v=list.splice(idx,1)[0]; render(-1); setStatus(`remove(${idx}) → ${v}`); addLog(`remove(${idx}) → ${v}`,'remove'); }
+}
+
+async function op5() {
+  if (!list.length) { setStatus('List is empty'); return; }
+  if (mode==='deque') { const v=list.pop(); render(-1); setStatus(`removeLast() → ${v}`); addLog(`removeLast() → ${v}`,'remove'); }
+  else if (mode==='queue'||mode==='stack') { const v = mode==='queue'?list[0]:list[list.length-1]; render(mode==='queue'?0:list.length-1,'accessed'); setStatus(`peek() → ${v}`); addLog(`peek() → ${v}`,'info'); }
+  else { const idx=getIdx(); if(idx<0||idx>=list.length){setStatus('IndexOutOfBoundsException');return;} await traverseTo(idx); render(idx,'accessed'); setStatus(`get(${idx}) → ${list[idx]} (after O(n) traversal)`); addLog(`get(${idx}) → ${list[idx]}`,'info'); }
+}
+
+function doClear() { list=[]; charCode=65; document.getElementById('valInput').value='A'; render(); setStatus('Cleared.'); addLog('clear()','info'); }
+
+async function loadExample() {
+  doClear();
+  const vals = ['A','B','C','D','E'];
+  for (const v of vals) { document.getElementById('valInput').value = v; charCode = v.charCodeAt(0)+1; list.push(v); render(list.length-1); await sleep(animSpeed*0.6); addLog(`addLast(${v})`,'add'); }
+  setStatus('Example loaded: A ⇄ B ⇄ C ⇄ D ⇄ E');
+}
+
+render();
+</script>
+</body>
+</html>
