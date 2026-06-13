@@ -1,245 +1,606 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LinkedList Visualizer — Doubly-Linked List</title>
-  <link rel="stylesheet" href="../visualizer-common.css">
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='j' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23f89820'/%3E%3Cstop offset='1' stop-color='%23e25303'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M24 4c0 0 -4 12 8 16s12 12 4 20' fill='none' stroke='url(%23j)' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M32 4c0 0 -4 12 8 16s12 12 4 20' fill='none' stroke='url(%23j)' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M12 30h34v8c0 14-34 14-34 0z' fill='url(%23j)'/%3E%3Cpath d='M46 33h6c6 0 6 10 0 10h-6' fill='none' stroke='url(%23j)' stroke-width='3'/%3E%3Cpath d='M8 52h48' stroke='url(%23j)' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M14 56h36' stroke='url(%23j)' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkedList Visualizer — Doubly-Linked List</title>
+    <meta name="description" content="Interactive doubly-linked list visualizer for Java LinkedList. Animated List, Queue, Deque, and Stack operations with node traversal.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+:root{
+    --bg-primary:#000;--bg-secondary:#0a0a0a;--bg-panel:#0d0d0d;
+    --border:rgba(255,255,255,0.06);--border-subtle:rgba(255,255,255,0.04);--border-glow:rgba(255,255,255,0.12);
+    --text-primary:#f0f0f0;--text-secondary:#8a8a8a;--text-muted:#555;
+    --accent-green:#4cff91;--accent-green-bg:rgba(76,255,145,0.10);
+    --accent-red:#ff5252;--accent-red-bg:rgba(255,82,82,0.08);
+    --accent-blue:#448aff;--accent-blue-bg:rgba(68,138,255,0.08);
+    --accent-amber:#ffc107;--accent-amber-bg:rgba(255,193,7,0.08);
+    --accent-purple:#b388ff;--accent-purple-bg:rgba(179,136,255,0.08);
+    --accent-cyan:#18ffff;--accent-cyan-bg:rgba(24,255,255,0.08);
+    --accent-teal:#64ffda;
+    --radius-sm:8px;--radius-md:12px;--radius-lg:16px;--radius-xl:20px;--radius-full:999px;
+    --shadow-md:0 4px 16px rgba(0,0,0,0.6);
+    --font:'Inter',-apple-system,sans-serif;--font-mono:'JetBrains Mono','Fira Code',monospace;
+    --transition:0.25s cubic-bezier(0.4,0,0.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg-primary);color:var(--text-primary);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+.app{max-width:1440px;margin:0 auto;padding:20px 24px;display:flex;flex-direction:column;gap:16px}
+
+/* Header */
+.header{display:flex;align-items:center;justify-content:space-between;padding:20px 28px;background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--radius-xl);flex-wrap:wrap;gap:16px;backdrop-filter:blur(20px)}
+.header-left{display:flex;align-items:center;gap:16px}
+.logo-icon{width:48px;height:48px;border-radius:var(--radius-md);background:linear-gradient(135deg,var(--accent-teal),var(--accent-blue));display:flex;align-items:center;justify-content:center;color:#000;box-shadow:0 0 24px rgba(100,255,218,0.3);transition:transform var(--transition)}
+.logo-icon:hover{transform:scale(1.08) rotate(-3deg)}
+.header h1{font-size:1.35rem;font-weight:800;letter-spacing:-0.03em;background:linear-gradient(135deg,#fff,#888);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.subtitle{font-size:0.72rem;color:var(--text-muted);font-weight:500;margin-top:3px}
+.header-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.formula-badge{display:flex;align-items:center;gap:6px;padding:7px 14px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:var(--radius-full);font-size:0.72rem;transition:all var(--transition)}
+.formula-badge:hover{background:rgba(255,255,255,0.06);border-color:var(--border-glow)}
+.formula-label{color:var(--text-muted);font-weight:600;text-transform:uppercase;font-size:0.58rem;letter-spacing:0.1em}
+.formula-badge code{font-family:var(--font-mono);color:var(--accent-cyan);font-weight:600;font-size:0.72rem}
+
+/* Mode Tabs */
+.mode-bar{display:flex;align-items:center;gap:6px;padding:6px;background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--radius-xl);backdrop-filter:blur(20px)}
+.mode-tab{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:10px 18px;border:none;border-radius:var(--radius-lg);background:transparent;color:var(--text-muted);font-family:var(--font);font-size:0.82rem;font-weight:600;cursor:pointer;transition:all var(--transition)}
+.mode-tab:hover{color:var(--text-secondary);background:rgba(255,255,255,0.03)}
+.mode-tab.active{color:var(--text-primary);background:rgba(255,255,255,0.06);border:1px solid var(--border-glow)}
+.mode-tag{font-size:0.55rem;font-weight:700;padding:2px 6px;border-radius:var(--radius-sm);text-transform:uppercase;letter-spacing:0.08em}
+.mode-tab.active .mode-tag{background:var(--accent-blue-bg);color:var(--accent-blue)}
+
+/* Controls */
+.controls-bar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--radius-xl);gap:14px;flex-wrap:wrap;backdrop-filter:blur(20px)}
+.controls-left,.controls-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.input-group{display:flex;align-items:center;gap:0}
+.stepper-btn{width:36px;height:40px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.04);border:1px solid var(--border);color:var(--text-secondary);cursor:pointer;transition:all var(--transition);font-size:1.1rem;font-weight:600;user-select:none}
+.stepper-btn:first-child{border-radius:var(--radius-sm) 0 0 var(--radius-sm)}
+.stepper-btn:hover{background:rgba(255,255,255,0.08);color:var(--text-primary)}
+.stepper-btn:active{transform:scale(0.95)}
+.input-group input{width:72px;padding:9px 8px;background:var(--bg-secondary);border:1px solid var(--border);border-left:none;border-right:none;color:var(--text-primary);font-family:var(--font-mono);font-size:0.9rem;font-weight:700;outline:none;text-align:center;transition:border-color var(--transition)}
+.input-group input:focus{border-color:var(--accent-blue)}
+.input-group input::placeholder{color:var(--text-muted);font-weight:400}
+.input-group input::-webkit-outer-spin-button,.input-group input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.input-group input[type=number]{-moz-appearance:textfield;appearance:textfield}
+.idx-input{width:52px!important;border-left:1px solid var(--border)!important;border-right:1px solid var(--border)!important;border-radius:0!important}
+
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;font-family:var(--font);font-size:0.78rem;font-weight:600;border:1px solid transparent;border-radius:var(--radius-sm);cursor:pointer;transition:all var(--transition);white-space:nowrap;position:relative;overflow:hidden}
+.btn::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,0.06) 0%,transparent 100%);pointer-events:none;opacity:0;transition:opacity var(--transition)}
+.btn:hover::after{opacity:1}
+.btn:active{transform:scale(0.96)}
+.btn:disabled{opacity:0.3;cursor:not-allowed;pointer-events:none}
+.btn-addFirst{background:var(--accent-cyan);color:#000;font-weight:700;border-radius:0 var(--radius-sm) var(--radius-sm) 0}
+.btn-addFirst:hover{box-shadow:0 0 20px rgba(24,255,255,0.25)}
+.btn-addLast{background:var(--accent-green);color:#000;font-weight:700}
+.btn-addLast:hover{box-shadow:0 0 20px rgba(76,255,145,0.25)}
+.btn-addAt{background:var(--accent-blue);color:#fff;font-weight:700}
+.btn-addAt:hover{box-shadow:0 0 20px rgba(68,138,255,0.25)}
+.btn-removeFirst{background:var(--accent-red-bg);color:var(--accent-red);border:1px solid rgba(255,82,82,0.2)}
+.btn-removeFirst:hover{box-shadow:0 0 20px rgba(255,82,82,0.25)}
+.btn-removeLast{background:var(--accent-amber-bg);color:var(--accent-amber);border:1px solid rgba(255,193,7,0.2)}
+.btn-removeLast:hover{box-shadow:0 0 20px rgba(255,193,7,0.25)}
+.btn-removeAt{background:var(--accent-red-bg);color:var(--accent-red);border:1px solid rgba(255,82,82,0.2)}
+.btn-removeAt:hover{box-shadow:0 0 20px rgba(255,82,82,0.25)}
+.btn-get{background:var(--accent-amber-bg);color:var(--accent-amber);border:1px solid rgba(255,193,7,0.2)}
+.btn-get:hover{box-shadow:0 0 20px rgba(255,193,7,0.25)}
+.btn-peek{background:var(--accent-purple-bg);color:var(--accent-purple);border:1px solid rgba(179,136,255,0.2)}
+.btn-peek:hover{box-shadow:0 0 20px rgba(179,136,255,0.25)}
+.btn-clear{background:rgba(255,255,255,0.03);color:var(--text-muted);border:1px solid var(--border)}
+.btn-clear:hover{color:var(--text-secondary);background:rgba(255,255,255,0.06)}
+.btn-sample{background:linear-gradient(135deg,var(--accent-blue),var(--accent-purple));color:white;padding:9px 18px;font-weight:700}
+.btn-sample:hover{box-shadow:0 0 24px rgba(68,138,255,0.25);filter:brightness(1.15)}
+.btn-clear-log{background:rgba(255,255,255,0.03);color:var(--text-muted);border:1px solid var(--border);padding:5px 12px;font-size:0.7rem}
+.speed-control{display:flex;align-items:center;gap:7px}
+.speed-control label{font-size:0.7rem;color:var(--text-muted);font-weight:600}
+.speed-control input[type="range"]{width:64px;height:4px;-webkit-appearance:none;appearance:none;background:rgba(255,255,255,0.08);border-radius:2px;outline:none}
+.speed-control input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--accent-blue);cursor:pointer;box-shadow:0 0 8px rgba(68,138,255,0.4)}
+
+/* Panels */
+.panel{background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--radius-xl);overflow:hidden;backdrop-filter:blur(20px)}
+.panel-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border-subtle);background:rgba(255,255,255,0.01);flex-wrap:wrap;gap:8px}
+.panel-header h2{font-size:0.82rem;font-weight:700;color:var(--text-secondary)}
+.badge{font-size:0.68rem;font-weight:600;padding:4px 12px;border-radius:var(--radius-full);border:1px solid}
+.badge-blue{background:var(--accent-blue-bg);color:var(--accent-blue);border-color:rgba(68,138,255,0.15)}
+.badge-cyan{background:var(--accent-cyan-bg);color:var(--accent-cyan);border-color:rgba(24,255,255,0.15)}
+.badge-purple{background:var(--accent-purple-bg);color:var(--accent-purple);border-color:rgba(179,136,255,0.15)}
+
+/* ===== Node Chain View ===== */
+.chain-viewport{padding:28px 20px;overflow-x:auto;min-height:160px}
+.chain-container{display:flex;align-items:flex-end;gap:0;min-width:fit-content;padding:10px 0}
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--text-muted);font-size:0.85rem;padding:30px;width:100%;text-align:center}
+.empty-state .hint{font-size:0.72rem;opacity:0.5}
+.empty-state.hidden{display:none}
+
+/* DLL Node */
+.dll-node{display:flex;flex-direction:column;align-items:center;gap:5px;transition:all 0.4s cubic-bezier(0.34,1.56,0.64,1);padding-bottom:8px}
+.node-box{display:flex;border-radius:10px;overflow:hidden;border:2px solid rgba(68,138,255,0.25);background:rgba(68,138,255,0.04);transition:all 0.3s ease;min-width:120px}
+.node-ptr{width:40px;display:flex;align-items:center;justify-content:center;font-size:0.52rem;font-weight:600;font-family:var(--font-mono);transition:all 0.3s ease;padding:4px 2px}
+.node-ptr.prev{background:rgba(24,255,255,0.06);color:var(--accent-cyan);border-right:1px solid rgba(255,255,255,0.06)}
+.node-ptr.next{background:rgba(179,136,255,0.06);color:var(--accent-purple);border-left:1px solid rgba(255,255,255,0.06)}
+.node-data{flex:1;display:flex;align-items:center;justify-content:center;padding:12px 10px;font-family:var(--font-mono);font-size:0.92rem;font-weight:700;color:var(--text-primary);min-width:34px}
+.node-addr{font-size:0.55rem;font-weight:700;font-family:var(--font-mono);color:var(--accent-amber);opacity:0.7;letter-spacing:0.03em}
+.node-label{font-size:0.55rem;font-weight:700;font-family:var(--font-mono);padding:2px 8px;border-radius:4px;letter-spacing:0.05em}
+.node-label.first-label{color:var(--accent-cyan);background:var(--accent-cyan-bg)}
+.node-label.last-label{color:var(--accent-purple);background:var(--accent-purple-bg)}
+.node-label.idx-label{color:var(--text-muted)}
+
+/* Node Highlights */
+.dll-node.hl-add .node-box{border-color:rgba(76,255,145,0.5);background:rgba(76,255,145,0.06);animation:nodePopIn .4s ease}
+.dll-node.hl-remove .node-box{border-color:rgba(255,82,82,0.5);background:rgba(255,82,82,0.06);opacity:0.6}
+.dll-node.hl-traverse .node-box{border-color:rgba(255,193,7,0.5);background:rgba(255,193,7,0.06);animation:traversePulse .5s ease}
+.dll-node.hl-peek .node-box{border-color:rgba(179,136,255,0.5);background:rgba(179,136,255,0.06);animation:peekPulse .8s ease infinite}
+.dll-node.hl-found .node-box{border-color:rgba(76,255,145,0.5);background:rgba(76,255,145,0.06);box-shadow:0 0 20px rgba(76,255,145,0.2)}
+@keyframes nodePopIn{0%{transform:scale(0);opacity:0}60%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+@keyframes traversePulse{0%{transform:scale(1)}50%{transform:scale(1.06)}100%{transform:scale(1)}}
+@keyframes peekPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05);box-shadow:0 0 16px rgba(179,136,255,0.3)}}
+
+/* Arrow between nodes */
+.arrow-connector{display:flex;flex-direction:column;align-items:center;justify-content:center;width:52px;flex-shrink:0;padding-bottom:28px;gap:4px}
+.arrow-line{position:relative;width:100%;height:3px;border-radius:1.5px}
+.arrow-line.fwd{background:rgba(255,255,255,0.8)}
+.arrow-line.bwd{background:rgba(255,255,255,0.5)}
+.arrow-line.fwd::after{content:'';position:absolute;right:-1px;top:50%;transform:translateY(-50%);width:0;height:0;border-left:8px solid rgba(255,255,255,0.9);border-top:5px solid transparent;border-bottom:5px solid transparent}
+.arrow-line.bwd::before{content:'';position:absolute;left:-1px;top:50%;transform:translateY(-50%);width:0;height:0;border-right:8px solid rgba(255,255,255,0.6);border-top:5px solid transparent;border-bottom:5px solid transparent}
+
+/* Null marker */
+.null-marker{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 10px;color:var(--text-muted);font-family:var(--font-mono);font-size:0.62rem;font-weight:700;opacity:0.5;border:1.5px dashed rgba(255,255,255,0.1);border-radius:6px;background:rgba(255,255,255,0.02);height:46px;margin-bottom:28px}
+
+/* Info Bar */
+.info-bar{display:flex;align-items:center;gap:12px;padding:12px 20px;background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--radius-md);font-size:0.8rem;color:var(--text-secondary);min-height:48px;transition:all 0.3s ease;backdrop-filter:blur(20px)}
+.info-bar.action-add{border-color:rgba(76,255,145,0.2);background:rgba(76,255,145,0.03)}
+.info-bar.action-remove{border-color:rgba(255,82,82,0.2);background:rgba(255,82,82,0.03)}
+.info-bar.action-peek{border-color:rgba(179,136,255,0.2);background:rgba(179,136,255,0.03)}
+.info-bar.action-get{border-color:rgba(255,193,7,0.2);background:rgba(255,193,7,0.03)}
+.info-text{font-weight:500;line-height:1.5}
+.info-text strong{color:var(--text-primary);font-weight:700}
+
+/* Log */
+.log-panel{max-height:220px}
+.log-container{padding:10px 16px;max-height:160px;overflow-y:auto;display:flex;flex-direction:column;gap:3px}
+.log-container::-webkit-scrollbar{width:3px}
+.log-container::-webkit-scrollbar-track{background:transparent}
+.log-container::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:2px}
+.log-entry{font-family:var(--font-mono);font-size:0.68rem;padding:4px 10px;border-radius:var(--radius-sm);line-height:1.6}
+.log-entry.log-add{color:var(--accent-green);background:var(--accent-green-bg)}
+.log-entry.log-remove{color:var(--accent-red);background:var(--accent-red-bg)}
+.log-entry.log-peek{color:var(--accent-purple);background:var(--accent-purple-bg)}
+.log-entry.log-get{color:var(--accent-amber);background:var(--accent-amber-bg)}
+.log-entry.log-info{color:var(--text-muted)}
+
+/* ===== Theory Section ===== */
+.theory-section{background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--radius-xl);overflow:hidden;backdrop-filter:blur(20px)}
+.theory-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;padding:16px 24px;cursor:pointer;background:none;border:none;color:var(--text-primary);font-family:var(--font);transition:background var(--transition)}
+.theory-toggle:hover{background:rgba(255,255,255,0.02)}
+.theory-toggle h2{font-size:0.88rem;font-weight:700;display:flex;align-items:center;gap:10px;color:var(--text-secondary)}
+.theory-toggle h2 .accent{color:var(--accent-orange)}
+.toggle-chevron{width:20px;height:20px;color:var(--text-muted);transition:transform 0.3s ease}
+.theory-section.open .toggle-chevron{transform:rotate(180deg)}
+.theory-body{max-height:0;overflow:hidden;transition:max-height 0.5s cubic-bezier(0.4,0,0.2,1)}
+.theory-section.open .theory-body{max-height:3500px}
+.theory-inner{padding:0 24px 24px;display:flex;flex-direction:column;gap:20px}
+.theory-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:800px){.theory-grid{grid-template-columns:1fr}}
+.theory-card{background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;transition:border-color var(--transition)}
+.theory-card:hover{border-color:var(--border-glow)}
+.theory-card h3{font-size:0.82rem;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.theory-card h3 .icon{width:28px;height:28px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:0.85rem;flex-shrink:0}
+.theory-card p,.theory-card li{font-size:0.76rem;color:var(--text-secondary);line-height:1.7}
+.theory-card ul{padding-left:16px;display:flex;flex-direction:column;gap:4px}
+.theory-card code{font-family:var(--font-mono);font-size:0.72rem;color:var(--accent-cyan);background:rgba(24,255,255,0.06);padding:1px 6px;border-radius:4px}
+.theory-full{grid-column:1/-1}
+.complexity-table{width:100%;border-collapse:collapse;margin-top:8px}
+.complexity-table th,.complexity-table td{padding:8px 12px;font-size:0.72rem;text-align:left;border-bottom:1px solid var(--border-subtle)}
+.complexity-table th{color:var(--text-muted);font-weight:600;text-transform:uppercase;font-size:0.62rem;letter-spacing:0.08em}
+.complexity-table td{font-family:var(--font-mono);color:var(--text-primary);font-weight:600}
+.complexity-table td:first-child{font-family:var(--font);color:var(--text-secondary)}
+.complexity-table .good{color:var(--accent-green)}
+.complexity-table .warn{color:var(--accent-amber)}
+.complexity-table .bad{color:var(--accent-red)}
+
+@media(max-width:900px){.header,.controls-bar{flex-direction:column;align-items:flex-start}.controls-left,.controls-right{width:100%}}
+@media(max-width:600px){.app{padding:12px 14px;gap:12px}.formula-badge{display:none}.node-box{min-width:90px}.node-ptr{width:32px;font-size:0.45rem}.node-data{font-size:0.78rem;padding:10px 6px}.arrow-connector{width:32px}}
+.home-link{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-secondary);font-size:0.72rem;font-weight:600;text-decoration:none;transition:all var(--transition)}
+.home-link:hover{background:rgba(255,255,255,0.08);color:var(--text-primary);border-color:var(--border-glow)}
+    </style>
 </head>
 <body>
-<div class="viz-page">
-  <div class="viz-header">
-    <div class="viz-header-left">
-      <a href="../index.html" class="viz-home">← Home</a>
-      <div class="viz-icon" style="background:linear-gradient(135deg,#00b8d4,#18ffff)">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="6" cy="12" r="3"/><circle cx="18" cy="12" r="3"/><line x1="9" y1="12" x2="15" y2="12"/></svg>
-      </div>
-      <div class="viz-title-group">
-        <h1>LinkedList Visualizer</h1>
-        <p>Java Collections — Doubly-Linked List (List, Deque, Queue, Stack)</p>
-      </div>
-    </div>
-    <div class="viz-header-badges">
-      <div class="viz-badge">NODE <code>prev | item | next</code></div>
-      <div class="viz-badge">ACCESS <code>O(n)</code> traversal</div>
-      <div class="viz-badge">ADD/REMOVE ENDS <code>O(1)</code></div>
-    </div>
-  </div>
+<div class="app">
+    <header class="header">
+        <div class="header-left">
+            <a href="../index.html" class="home-link" aria-label="Back to Home" title="Back to Home">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+                Home
+            </a>
+            <div class="logo-icon">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="5" cy="12" r="2.5"/><circle cx="19" cy="12" r="2.5"/><line x1="7.5" y1="12" x2="16.5" y2="12"/>
+                    <polyline points="14 9 16.5 12 14 15"/>
+                </svg>
+            </div>
+            <div>
+                <h1>LinkedList Visualizer</h1>
+                <p class="subtitle">Java Collections — Doubly-Linked List (List, Deque, Queue, Stack)</p>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="formula-badge"><span class="formula-label">Node</span><code>prev | item | next</code></div>
+            <div class="formula-badge"><span class="formula-label">Access</span><code>O(n) traversal</code></div>
+            <div class="formula-badge"><span class="formula-label">Add/Remove ends</span><code>O(1)</code></div>
+        </div>
+    </header>
 
-  <!-- Mode Tabs -->
-  <div class="viz-modes">
-    <button class="viz-mode-tab active" onclick="setMode('list',this)"><span class="mode-label">📋 List</span><span class="mode-desc">Indexed</span></button>
-    <button class="viz-mode-tab" onclick="setMode('deque',this)"><span class="mode-label">🔄 Deque</span><span class="mode-desc">Double-ended</span></button>
-    <button class="viz-mode-tab" onclick="setMode('queue',this)"><span class="mode-label">📥 Queue</span><span class="mode-desc">FIFO</span></button>
-    <button class="viz-mode-tab" onclick="setMode('stack',this)"><span class="mode-label">📚 Stack</span><span class="mode-desc">LIFO</span></button>
-  </div>
-
-  <!-- Controls -->
-  <div class="viz-controls" id="controlBar">
-    <div class="viz-input-group">
-      <button class="viz-input-btn" onclick="decVal()">−</button>
-      <input type="text" class="viz-input" id="valInput" value="A">
-      <button class="viz-input-btn" onclick="incVal()">+</button>
+    <!-- Mode Tabs -->
+    <div class="mode-bar">
+        <button class="mode-tab active" data-mode="list">📋 List <span class="mode-tag">Indexed</span></button>
+        <button class="mode-tab" data-mode="deque">🔄 Deque <span class="mode-tag">Double-Ended</span></button>
+        <button class="mode-tab" data-mode="queue">➡️ Queue <span class="mode-tag">FIFO</span></button>
+        <button class="mode-tab" data-mode="stack">📚 Stack <span class="mode-tag">LIFO</span></button>
     </div>
-    <button class="viz-op-btn primary" id="btn1" onclick="op1()">addFirst ⇐</button>
-    <button class="viz-op-btn primary" id="btn2" onclick="op2()">addLast ⇒</button>
-    <span class="viz-idx-label" id="idxLabel">idx</span>
-    <input type="number" class="viz-input" id="idxInput" value="0" style="width:48px;border:1px solid var(--border);border-radius:6px" id="idxGroup">
-    <button class="viz-op-btn info" id="btn3" onclick="op3()">add(i,e)</button>
-    <button class="viz-op-btn danger" id="btn4" onclick="op4()">remove(i)</button>
-    <button class="viz-op-btn secondary" id="btn5" onclick="op5()">get(i)</button>
-    <button class="viz-op-btn secondary" onclick="doClear()">Clear</button>
-    <div class="viz-controls-right">
-      <button class="viz-load-btn" onclick="loadExample()">▶ Load Example</button>
-      <div class="viz-speed">Speed <input type="range" id="speedSlider" min="100" max="1500" value="500"></div>
-    </div>
-  </div>
 
-  <!-- Theory -->
-  <div class="viz-theory">
-    <button class="viz-theory-toggle" aria-expanded="false" onclick="toggleTheory(this)">
-      <span class="toggle-left">📖 What is a LinkedList? — Doubly-Linked Architecture</span>
-      <span class="viz-theory-chevron">▼</span>
-    </button>
-    <div class="viz-theory-content" id="theoryContent">
-      <div class="viz-theory-inner">
-        <h3>Internal Structure</h3>
-        <p>Each node has three fields: <code>prev</code>, <code>item</code>, and <code>next</code>. The list maintains pointers to the <code>first</code> and <code>last</code> nodes, enabling O(1) operations at both ends.</p>
-        <h3>Key Characteristics</h3>
-        <ul>
-          <li><strong>addFirst / addLast:</strong> O(1) — direct pointer manipulation</li>
-          <li><strong>get(index):</strong> O(n) — must traverse from nearest end</li>
-          <li><strong>Implements:</strong> List, Deque, Queue, and can act as Stack</li>
-          <li><strong>Memory:</strong> Each node stores 3 references (prev, item, next)</li>
-        </ul>
-      </div>
+    <!-- Controls -->
+    <div class="controls-bar">
+        <div class="controls-left">
+            <div class="input-group">
+                <button class="stepper-btn" id="decBtn" type="button">−</button>
+                <input type="number" id="valueInput" placeholder="val" min="-999" max="999">
+                <button class="stepper-btn" id="incBtn" type="button" style="border-radius:0">+</button>
+                <button id="addFirstBtn" class="btn btn-addFirst">⬅ addFirst</button>
+            </div>
+            <button id="addLastBtn" class="btn btn-addLast">addLast ➡</button>
+            <div class="input-group" style="margin-left:4px">
+                <input type="number" id="idxInput" class="idx-input" placeholder="idx" min="0">
+                <button id="addAtBtn" class="btn btn-addAt" style="border-radius:0 var(--radius-sm) var(--radius-sm) 0">add(i,e)</button>
+            </div>
+            <button id="removeFirstBtn" class="btn btn-removeFirst">removeFirst</button>
+            <button id="removeLastBtn" class="btn btn-removeLast">removeLast</button>
+            <button id="removeAtBtn" class="btn btn-removeAt">remove(i)</button>
+            <button id="getBtn" class="btn btn-get">get(i)</button>
+            <button id="peekFirstBtn" class="btn btn-peek">peekFirst</button>
+            <button id="peekLastBtn" class="btn btn-peek">peekLast</button>
+            <button id="clearBtn" class="btn btn-clear">Clear</button>
+        </div>
+        <div class="controls-right">
+            <button id="sampleBtn" class="btn btn-sample">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                Load Example
+            </button>
+            <div class="speed-control"><label>Speed</label><input type="range" id="speedSlider" min="1" max="5" value="3" step="1"></div>
+        </div>
     </div>
-  </div>
 
-  <!-- Visualization -->
-  <div class="viz-panel">
-    <div class="viz-panel-header">
-      <h2>🔗 Doubly-Linked List (Memory Level)</h2>
-      <div class="viz-panel-badges">
-        <span class="viz-panel-badge">first: <strong id="firstBadge">null</strong></span>
-        <span class="viz-panel-badge">last: <strong id="lastBadge">null</strong></span>
-        <span class="viz-panel-badge">size: <strong id="sizeBadge">0</strong></span>
-      </div>
+    <!-- Theory Section -->
+    <div class="theory-section" id="theorySection">
+        <button class="theory-toggle" id="theoryToggle" type="button">
+            <h2>📖 <span class="accent" style="color:var(--accent-orange)">What is a LinkedList?</span> — Doubly-Linked Architecture</h2>
+            <svg class="toggle-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="theory-body">
+            <div class="theory-inner">
+                <div class="theory-grid">
+                    <div class="theory-card">
+                        <h3><span class="icon" style="background:var(--accent-cyan-bg);color:var(--accent-cyan)">🔗</span> Node-Based Storage</h3>
+                        <p style="margin-bottom:10px">Unlike an ArrayList, a LinkedList does not store elements in contiguous memory. Instead, it creates a wrapper object (a Node) for each element:</p>
+                        <ul>
+                            <li><strong>Scattered Memory:</strong> Nodes live wherever there is free space in the heap.</li>
+                            <li><strong>Doubly-Linked:</strong> Each node holds 3 things: a reference to the <code>prev</code> node, its <code>item</code>, and a reference to the <code>next</code> node.</li>
+                        </ul>
+                    </div>
+
+                    <div class="theory-card">
+                        <h3><span class="icon" style="background:var(--accent-green-bg);color:var(--accent-green)">⚡</span> The O(1) Operations</h3>
+                        <p style="margin-bottom:10px">Because it holds pointers to the <code>first</code> (head) and <code>last</code> (tail) elements, endpoint operations are incredibly fast:</p>
+                        <ul>
+                            <li><strong>Adding/Removing at Ends:</strong> <code>addFirst()</code>, <code>addLast()</code>, <code>removeFirst()</code>, and <code>removeLast()</code> take exactly <strong>O(1)</strong> time. They only require updating a few pointers.</li>
+                            <li>This makes it excellent for <strong>Queue</strong> and <strong>Deque</strong> implementations.</li>
+                        </ul>
+                    </div>
+
+                    <div class="theory-card">
+                        <h3><span class="icon" style="background:var(--accent-red-bg);color:var(--accent-red)">📉</span> The Traversal Cost</h3>
+                        <p style="margin-bottom:10px">LinkedList loses the O(1) random access advantage of arrays:</p>
+                        <ul>
+                            <li><strong>No Direct Indexing:</strong> To find <code>get(i)</code>, it must iterate node-by-node from the head (or tail), taking <strong>O(N)</strong> time.</li>
+                            <li><strong>Worse Cache Locality:</strong> Because nodes are scattered, the CPU cache will miss frequently, making iteration slower in practice than an ArrayList.</li>
+                            <li><strong>Memory Overhead:</strong> Every item requires an extra Node object with pointers.</li>
+                        </ul>
+                    </div>
+
+                    <div class="theory-card theory-full">
+                        <h3><span class="icon" style="background:rgba(255,255,255,0.05);color:var(--text-primary)">⚙️</span> Common Methods & Time Complexity</h3>
+                        <table class="complexity-table">
+                            <thead>
+                                <tr>
+                                    <th>Method</th>
+                                    <th>Description</th>
+                                    <th>Origin</th>
+                                    <th>Time Comp.</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>void addFirst(E e)</code></td>
+                                    <td>Inserts element at the beginning. Used in Stack (push)/Deque.</td>
+                                    <td>Deque</td>
+                                    <td><span class="good">O(1)</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>void addLast(E e)</code> / <code>add(E e)</code></td>
+                                    <td>Appends element to the end. Used in Queue/List.</td>
+                                    <td>Deque/List</td>
+                                    <td><span class="good">O(1)</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>E removeFirst()</code> / <code>poll()</code></td>
+                                    <td>Removes and returns the first element. Used in Queue/Stack/Deque.</td>
+                                    <td>Deque/Queue</td>
+                                    <td><span class="good">O(1)</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>E get(int i)</code></td>
+                                    <td>Returns element at index <code>i</code> by traversing node links.</td>
+                                    <td>List</td>
+                                    <td><span class="bad">O(n)</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>void add(int i, E e)</code></td>
+                                    <td>Inserts at index <code>i</code>. Traversal is O(n), but insertion is O(1).</td>
+                                    <td>List</td>
+                                    <td><span class="bad">O(n)</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p style="margin-top:10px;font-size:0.65rem;color:var(--text-muted)">* The visualizer demonstrates that finding the exact node takes O(n) traversal, but the actual operation of 'unlinking' and 'linking' nodes is instantaneous O(1), no shifting required.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="viz-panel-body" id="listView">
-      <div class="viz-empty"><div class="viz-empty-icon">🔗</div><p>Add elements to visualize the linked list</p><p>Or click <strong>"Load Example"</strong> for a demo</p></div>
+
+    <!-- Chain View -->
+    <div class="panel">
+        <div class="panel-header">
+            <h2>🔗 Doubly-Linked List (Memory Level)</h2>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                <span class="badge badge-cyan" id="firstLabel">first: null</span>
+                <span class="badge badge-purple" id="lastLabel">last: null</span>
+                <span class="badge badge-blue" id="sizeLabel">size: 0</span>
+            </div>
+        </div>
+        <div class="chain-viewport" id="chainViewport">
+            <div class="chain-container" id="chainContainer">
+                <div class="empty-state" id="emptyState">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4">
+                        <circle cx="5" cy="12" r="2.5"/><circle cx="19" cy="12" r="2.5"/><line x1="7.5" y1="12" x2="16.5" y2="12"/>
+                    </svg>
+                    <p>Add elements to visualize the linked list</p>
+                    <p class="hint">Or click <strong>"Load Example"</strong> for a demo</p>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <!-- Mode Info -->
-  <div class="viz-status" id="modeInfo"><span class="status-icon">📋</span> Mode: <strong>List</strong> — Indexed access</div>
-
-  <!-- Status -->
-  <div class="viz-status" id="statusBar"><span class="status-icon">ℹ️</span> Ready. Add elements or load the example.</div>
-
-  <!-- Log -->
-  <div class="viz-log">
-    <div class="viz-log-header"><h2>📋 Operation Log</h2><button class="viz-log-clear" onclick="clearLog()">Clear</button></div>
-    <div class="viz-log-body" id="logBody">
-      <div class="log-entry info">Visualizer ready. LinkedList — doubly-linked with first/last pointers.</div>
+    <!-- Info Bar -->
+    <div class="info-bar" id="infoBar">
+        <div>ℹ️</div>
+        <div class="info-text" id="infoText">Ready. Add elements or load the example. Mode: <strong>List</strong></div>
     </div>
-  </div>
+
+    <!-- Log -->
+    <div class="panel log-panel">
+        <div class="panel-header">
+            <h2>📋 Operation Log</h2>
+            <button id="clearLogBtn" class="btn btn-clear-log">Clear</button>
+        </div>
+        <div class="log-container" id="logContainer">
+            <div class="log-entry log-info">Visualizer ready. LinkedList backed by Doubly-Linked List.</div>
+        </div>
+    </div>
 </div>
 
 <script>
-let list = [];
-let mode = 'list';
-let animSpeed = 500;
-let charCode = 65; // 'A'
+/* ===== Doubly-Linked List ===== */
+class DLLNode { constructor(val) { this.val = val; this.prev = null; this.next = null; } }
+class DoublyLinkedList {
+    constructor() { this.first = null; this.last = null; this._size = 0; }
+    get size() { return this._size; }
+    get isEmpty() { return this._size === 0; }
 
-document.getElementById('speedSlider').addEventListener('input', e => { animSpeed = 1600 - parseInt(e.target.value); });
+    addFirst(val) { const n = new DLLNode(val); if (!this.first) { this.first = this.last = n; } else { n.next = this.first; this.first.prev = n; this.first = n; } this._size++; }
+    addLast(val) { const n = new DLLNode(val); if (!this.last) { this.first = this.last = n; } else { n.prev = this.last; this.last.next = n; this.last = n; } this._size++; }
 
-function getVal() { return document.getElementById('valInput').value || '?'; }
-function getIdx() { return parseInt(document.getElementById('idxInput').value) || 0; }
-function incVal() { const i = document.getElementById('valInput'); charCode++; i.value = String.fromCharCode(((charCode-65)%26)+65); }
-function decVal() { const i = document.getElementById('valInput'); charCode = Math.max(65,charCode-1); i.value = String.fromCharCode(((charCode-65)%26)+65); }
-function setStatus(msg) { document.getElementById('statusBar').innerHTML = '<span class="status-icon">ℹ️</span> ' + msg; }
-function addLog(msg, type='info') { const d = document.createElement('div'); d.className='log-entry '+type; d.textContent=msg; document.getElementById('logBody').insertBefore(d, document.getElementById('logBody').firstChild); }
-function clearLog() { document.getElementById('logBody').innerHTML = ''; }
-function toggleTheory(btn) { const e = btn.getAttribute('aria-expanded')==='true'; btn.setAttribute('aria-expanded',!e); document.getElementById('theoryContent').classList.toggle('open'); }
-function sleep(ms) { return new Promise(r=>setTimeout(r,ms)); }
+    addAt(idx, val) {
+        if (idx < 0 || idx > this._size) return false;
+        if (idx === 0) { this.addFirst(val); return true; }
+        if (idx === this._size) { this.addLast(val); return true; }
+        const n = new DLLNode(val); let cur = this._nodeAt(idx);
+        n.prev = cur.prev; n.next = cur; cur.prev.next = n; cur.prev = n; this._size++;
+        return true;
+    }
 
-function setMode(m, btn) {
-  mode = m;
-  document.querySelectorAll('.viz-mode-tab').forEach(t=>t.classList.remove('active'));
-  btn.classList.add('active');
-  const mi = document.getElementById('modeInfo');
-  const labels = {list:'📋 Mode: <strong>List</strong> — Indexed access', deque:'🔄 Mode: <strong>Deque</strong> — Double-ended operations', queue:'📥 Mode: <strong>Queue</strong> — FIFO (First-In, First-Out)', stack:'📚 Mode: <strong>Stack</strong> — LIFO (Last-In, First-Out)'};
-  mi.innerHTML = '<span class="status-icon">' + labels[m].charAt(0) + '</span> ' + labels[m];
-  updateButtons();
+    removeFirst() { if (!this.first) return null; const v = this.first.val; if (this.first === this.last) { this.first = this.last = null; } else { this.first = this.first.next; this.first.prev = null; } this._size--; return v; }
+    removeLast() { if (!this.last) return null; const v = this.last.val; if (this.first === this.last) { this.first = this.last = null; } else { this.last = this.last.prev; this.last.next = null; } this._size--; return v; }
+    removeAt(idx) { if (idx < 0 || idx >= this._size) return null; if (idx === 0) return this.removeFirst(); if (idx === this._size - 1) return this.removeLast(); const n = this._nodeAt(idx); n.prev.next = n.next; n.next.prev = n.prev; this._size--; return n.val; }
+
+    get(idx) { const n = this._nodeAt(idx); return n ? n.val : null; }
+    peekFirst() { return this.first ? this.first.val : null; }
+    peekLast() { return this.last ? this.last.val : null; }
+    clear() { this.first = null; this.last = null; this._size = 0; }
+    toArray() { const a = []; let n = this.first; while (n) { a.push(n.val); n = n.next; } return a; }
+
+    _nodeAt(idx) {
+        if (idx < 0 || idx >= this._size) return null;
+        let n;
+        if (idx < this._size / 2) { n = this.first; for (let i = 0; i < idx; i++) n = n.next; }
+        else { n = this.last; for (let i = this._size - 1; i > idx; i--) n = n.prev; }
+        return n;
+    }
+    // Returns which end traversal starts from
+    _traverseDir(idx) { return idx < this._size / 2 ? 'first' : 'last'; }
 }
 
-function updateButtons() {
-  const b1=document.getElementById('btn1'), b2=document.getElementById('btn2'), b3=document.getElementById('btn3'), b4=document.getElementById('btn4'), b5=document.getElementById('btn5');
-  const idxL=document.getElementById('idxLabel'), idxI=document.getElementById('idxInput');
-  if(mode==='list'){ b1.textContent='addFirst ⇐'; b2.textContent='addLast ⇒'; b3.style.display=''; b4.textContent='remove(i)'; b5.textContent='get(i)'; idxL.style.display=''; idxI.style.display=''; }
-  else if(mode==='deque'){ b1.textContent='addFirst ⇐'; b2.textContent='addLast ⇒'; b3.style.display='none'; b4.textContent='removeFirst'; b5.textContent='removeLast'; idxL.style.display='none'; idxI.style.display='none'; }
-  else if(mode==='queue'){ b1.textContent='offer (enqueue)'; b2.style.display='none'; b3.style.display='none'; b4.textContent='poll (dequeue)'; b5.textContent='peek'; idxL.style.display='none'; idxI.style.display='none'; }
-  else if(mode==='stack'){ b1.textContent='push'; b2.style.display='none'; b3.style.display='none'; b4.textContent='pop'; b5.textContent='peek'; idxL.style.display='none'; idxI.style.display='none'; }
-  if(mode!=='queue') b2.style.display='';
-}
+/* ===== Visualizer ===== */
+(function() {
+    'use strict';
+    const $ = id => document.getElementById(id);
+    const decBtn=$('decBtn'),incBtn=$('incBtn'),valueInput=$('valueInput'),idxInput=$('idxInput');
+    const addFirstBtn=$('addFirstBtn'),addLastBtn=$('addLastBtn'),addAtBtn=$('addAtBtn');
+    const removeFirstBtn=$('removeFirstBtn'),removeLastBtn=$('removeLastBtn'),removeAtBtn=$('removeAtBtn');
+    const getBtn=$('getBtn'),peekFirstBtn=$('peekFirstBtn'),peekLastBtn=$('peekLastBtn');
+    const clearBtn=$('clearBtn'),sampleBtn=$('sampleBtn'),clearLogBtn=$('clearLogBtn'),speedSlider=$('speedSlider');
+    const chainContainer=$('chainContainer'),emptyState=$('emptyState');
+    const infoBar=$('infoBar'),infoText=$('infoText'),logContainer=$('logContainer');
+    const firstLabel=$('firstLabel'),lastLabel=$('lastLabel'),sizeLabel=$('sizeLabel');
+    const allBtns=[addFirstBtn,addLastBtn,addAtBtn,removeFirstBtn,removeLastBtn,removeAtBtn,getBtn,peekFirstBtn,peekLastBtn,clearBtn,sampleBtn];
 
-function render(hlIdx=-1, hlClass='highlight') {
-  const view = document.getElementById('listView');
-  if (!list.length) { view.innerHTML = '<div class="viz-empty"><div class="viz-empty-icon">🔗</div><p>Add elements to visualize the linked list</p></div>'; updateBadges(); return; }
-  let html = '<div class="ll-container">';
-  html += '<div class="ll-node"><span class="ll-pointer-label">null ←</span></div>';
-  list.forEach((val, i) => {
-    const cls = i===hlIdx ? hlClass : '';
-    const prev = i===0 ? 'null' : '←';
-    const next = i===list.length-1 ? 'null' : '→';
-    html += `<div class="ll-node anim-fadeIn" style="animation-delay:${i*60}ms">
-      <div class="ll-node-box ${cls}">
-        <div class="ll-prev">${prev}</div>
-        <div class="ll-item">${val}</div>
-        <div class="ll-next">${next}</div>
-      </div>`;
-    if (i===0) html += '<span class="ll-pointer-label">first</span>';
-    if (i===list.length-1) html += '<span class="ll-pointer-label">last</span>';
-    html += '</div>';
-    if (i < list.length-1) html += '<div class="ll-arrow">⇄</div>';
-  });
-  html += '<div class="ll-node"><span class="ll-pointer-label">→ null</span></div>';
-  html += '</div>';
-  view.innerHTML = html;
-  updateBadges();
-}
+    let dll = new DoublyLinkedList();
+    let animating = false;
+    let currentMode = 'list';
 
-function updateBadges() {
-  document.getElementById('firstBadge').textContent = list.length ? list[0] : 'null';
-  document.getElementById('lastBadge').textContent = list.length ? list[list.length-1] : 'null';
-  document.getElementById('sizeBadge').textContent = list.length;
-}
+    const modeConfig = {
+        list: { addFirstBtn:['addFirst ⬅',true], addLastBtn:['addLast ➡',true], addAtBtn:['add(i,e)',true], removeFirstBtn:['',false], removeLastBtn:['',false], removeAtBtn:['remove(i)',true], getBtn:['get(i)',true], peekFirstBtn:['',false], peekLastBtn:['',false] },
+        deque: { addFirstBtn:['⬅ addFirst',true], addLastBtn:['addLast ➡',true], addAtBtn:['',false], removeFirstBtn:['removeFirst',true], removeLastBtn:['removeLast',true], removeAtBtn:['',false], getBtn:['',false], peekFirstBtn:['peekFirst',true], peekLastBtn:['peekLast',true] },
+        queue: { addFirstBtn:['',false], addLastBtn:['offer ➡',true], addAtBtn:['',false], removeFirstBtn:['poll',true], removeLastBtn:['',false], removeAtBtn:['',false], getBtn:['',false], peekFirstBtn:['peek',true], peekLastBtn:['',false] },
+        stack: { addFirstBtn:['push ⬅',true], addLastBtn:['',false], addAtBtn:['',false], removeFirstBtn:['pop',true], removeLastBtn:['',false], removeAtBtn:['',false], getBtn:['',false], peekFirstBtn:['peek',true], peekLastBtn:['',false] }
+    };
 
-async function traverseTo(idx) {
-  const fromEnd = idx > list.length / 2;
-  setStatus(`Traversing from ${fromEnd?'last':'first'} — O(n) access for index ${idx}`);
-  if (fromEnd) {
-    for (let i = list.length-1; i >= idx; i--) { render(i, 'traversing'); await sleep(animSpeed*0.4); }
-  } else {
-    for (let i = 0; i <= idx; i++) { render(i, 'traversing'); await sleep(animSpeed*0.4); }
-  }
-}
+    function applyMode(mode) {
+        currentMode = mode;
+        document.querySelectorAll('.mode-tab').forEach(t => t.classList.toggle('active', t.dataset.mode === mode));
+        const cfg = modeConfig[mode];
+        const btnMap = {addFirstBtn,addLastBtn,addAtBtn,removeFirstBtn,removeLastBtn,removeAtBtn,getBtn,peekFirstBtn,peekLastBtn};
+        for (const [id,[label,visible]] of Object.entries(cfg)) {
+            const b = btnMap[id]; if (!b) continue; b.style.display = visible ? '' : 'none'; if (label) b.textContent = label;
+        }
+        // Show/hide idx input based on mode
+        idxInput.parentElement.style.display = (mode === 'list') ? '' : 'none';
+        setInfo(`Mode: <strong>${mode.charAt(0).toUpperCase()+mode.slice(1)}</strong> — ${mode==='list'?'Indexed access':mode==='deque'?'Double-ended queue':mode==='queue'?'FIFO queue':'LIFO stack'}`, '');
+    }
 
-// Operation handlers based on mode
-async function op1() {
-  const val = getVal();
-  if (mode==='queue') { list.push(val); render(list.length-1); setStatus(`offer(${val}) → enqueued at tail`); addLog(`offer(${val})`, 'add'); }
-  else if (mode==='stack') { list.push(val); render(list.length-1); setStatus(`push(${val}) → pushed to top`); addLog(`push(${val})`, 'add'); }
-  else { list.unshift(val); render(0); setStatus(`addFirst(${val}) → O(1)`); addLog(`addFirst(${val})`, 'add'); }
-  incVal();
-}
+    function getDelay(){const s=[1200,800,550,350,200];return s[parseInt(speedSlider.value)-1]||550}
+    function setAnimating(v){animating=v;allBtns.forEach(b=>b.disabled=v);updateBtns()}
+    function updateBtns(){[removeFirstBtn,removeLastBtn,removeAtBtn,getBtn,peekFirstBtn,peekLastBtn].forEach(b=>{if(b.style.display!=='none')b.disabled=animating||dll.isEmpty})}
 
-async function op2() {
-  const val = getVal();
-  list.push(val);
-  render(list.length-1);
-  setStatus(`addLast(${val}) → O(1)`);
-  addLog(`addLast(${val})`, 'add');
-  incVal();
-}
+    function logMsg(msg,type='info'){const e=document.createElement('div');e.className=`log-entry log-${type}`;const t=new Date().toLocaleTimeString('en-US',{hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'});e.textContent=`[${t}] ${msg}`;logContainer.appendChild(e);logContainer.scrollTop=logContainer.scrollHeight}
+    function setInfo(msg,cls=''){infoText.innerHTML=msg;infoBar.className='info-bar'+(cls?` action-${cls}`:'')}
+    function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
 
-async function op3() {
-  const val = getVal(); const idx = getIdx();
-  if (idx<0||idx>list.length) { setStatus(`IndexOutOfBoundsException`); addLog(`add(${idx},${val}) → Error`,'remove'); return; }
-  await traverseTo(idx);
-  list.splice(idx, 0, val);
-  render(idx);
-  setStatus(`add(${idx}, ${val}) → inserted after traversal`);
-  addLog(`add(${idx}, ${val})`, 'add');
-  incVal();
-}
+    /* ===== Render Chain ===== */
+    function renderChain(hlIdx = -1, hlType = '') {
+        const arr = dll.toArray();
+        const sz = dll.size;
+        // Assign dummy addresses: 0x1000, 0x2000, etc.
+        const addrs = arr.map((_, i) => '0x' + ((i + 1) * 1000).toString(16).toUpperCase());
+        firstLabel.textContent = `first: ${sz > 0 ? addrs[0] : 'null'}`;
+        lastLabel.textContent = `last: ${sz > 0 ? addrs[sz - 1] : 'null'}`;
+        sizeLabel.textContent = `size: ${sz}`;
 
-async function op4() {
-  if (!list.length) { setStatus('List is empty'); return; }
-  if (mode==='deque') { const v=list.shift(); render(-1); setStatus(`removeFirst() → ${v}`); addLog(`removeFirst() → ${v}`,'remove'); }
-  else if (mode==='queue') { const v=list.shift(); render(-1); setStatus(`poll() → ${v} (dequeued from head)`); addLog(`poll() → ${v}`,'remove'); }
-  else if (mode==='stack') { const v=list.pop(); render(-1); setStatus(`pop() → ${v}`); addLog(`pop() → ${v}`,'remove'); }
-  else { const idx=getIdx(); if(idx<0||idx>=list.length){setStatus('IndexOutOfBoundsException');return;} await traverseTo(idx); const v=list.splice(idx,1)[0]; render(-1); setStatus(`remove(${idx}) → ${v}`); addLog(`remove(${idx}) → ${v}`,'remove'); }
-}
+        if (sz === 0) { emptyState.classList.remove('hidden'); chainContainer.innerHTML = ''; chainContainer.appendChild(emptyState); return; }
+        emptyState.classList.add('hidden');
 
-async function op5() {
-  if (!list.length) { setStatus('List is empty'); return; }
-  if (mode==='deque') { const v=list.pop(); render(-1); setStatus(`removeLast() → ${v}`); addLog(`removeLast() → ${v}`,'remove'); }
-  else if (mode==='queue'||mode==='stack') { const v = mode==='queue'?list[0]:list[list.length-1]; render(mode==='queue'?0:list.length-1,'accessed'); setStatus(`peek() → ${v}`); addLog(`peek() → ${v}`,'info'); }
-  else { const idx=getIdx(); if(idx<0||idx>=list.length){setStatus('IndexOutOfBoundsException');return;} await traverseTo(idx); render(idx,'accessed'); setStatus(`get(${idx}) → ${list[idx]} (after O(n) traversal)`); addLog(`get(${idx}) → ${list[idx]}`,'info'); }
-}
+        let html = '<div class="null-marker">null</div>';
+        // CSS arrow — bold white, centered
+        const cssArrow = '<div class="arrow-connector"><div class="arrow-line fwd"></div><div class="arrow-line bwd"></div></div>';
 
-function doClear() { list=[]; charCode=65; document.getElementById('valInput').value='A'; render(); setStatus('Cleared.'); addLog('clear()','info'); }
+        for (let i = 0; i < arr.length; i++) {
+            const isFirst = i === 0, isLast = i === arr.length - 1;
+            let cls = '';
+            if (i === hlIdx) cls = `hl-${hlType}`;
+            // Pointer addresses
+            const prevAddr = isFirst ? 'null' : addrs[i - 1];
+            const nextAddr = isLast ? 'null' : addrs[i + 1];
+            // Labels
+            let labels = '';
+            if (isFirst && isLast) labels = '<span class="node-label first-label">first</span><span class="node-label last-label">last</span>';
+            else if (isFirst) labels = '<span class="node-label first-label">first</span>';
+            else if (isLast) labels = '<span class="node-label last-label">last</span>';
+            labels += `<span class="node-label idx-label">[${i}]</span>`;
 
-async function loadExample() {
-  doClear();
-  const vals = ['A','B','C','D','E'];
-  for (const v of vals) { document.getElementById('valInput').value = v; charCode = v.charCodeAt(0)+1; list.push(v); render(list.length-1); await sleep(animSpeed*0.6); addLog(`addLast(${v})`,'add'); }
-  setStatus('Example loaded: A ⇄ B ⇄ C ⇄ D ⇄ E');
-}
+            html += `<div class="dll-node ${cls}">
+                <div style="display:flex;gap:4px;min-height:18px;align-items:center">${labels}</div>
+                <span class="node-addr">${addrs[i]}</span>
+                <div class="node-box">
+                    <div class="node-ptr prev">${prevAddr}</div>
+                    <div class="node-data">${arr[i]}</div>
+                    <div class="node-ptr next">${nextAddr}</div>
+                </div>
+            </div>`;
+            if (!isLast) html += cssArrow;
+        }
+        html += '<div class="null-marker">null</div>';
+        chainContainer.innerHTML = html;
+    }
 
-render();
+    /* ===== Handlers ===== */
+    function getVal(){const v=parseInt(valueInput.value);if(isNaN(v)){setInfo('⚠️ Enter a valid integer.','');return null}valueInput.value='';valueInput.focus();return v}
+    function getIdx(){const v=parseInt(idxInput.value);if(isNaN(v)||v<0){setInfo('⚠️ Enter a valid index ≥ 0.','');return null}return v}
+
+    async function handleAddFirst(){const v=getVal();if(v===null)return;setAnimating(true);dll.addFirst(v);logMsg(`addFirst(${v}). size=${dll.size}`,'add');renderChain(0,'add');setInfo(`✅ <strong>addFirst(${v})</strong> — new node at head. O(1). Size: <strong>${dll.size}</strong>`,'add');await sleep(getDelay());renderChain();setAnimating(false)}
+
+    async function handleAddLast(){const v=getVal();if(v===null)return;setAnimating(true);dll.addLast(v);logMsg(`addLast(${v}). size=${dll.size}`,'add');renderChain(dll.size-1,'add');setInfo(`✅ <strong>addLast(${v})</strong> — new node at tail. O(1). Size: <strong>${dll.size}</strong>`,'add');await sleep(getDelay());renderChain();setAnimating(false)}
+
+    async function handleAddAt(){const v=getVal();const i=getIdx();if(v===null||i===null)return;if(i>dll.size){setInfo(`⚠️ Index ${i} out of bounds. Size = ${dll.size}`,'');return}setAnimating(true);const d=getDelay();
+        // Animate traversal
+        if(i>0&&i<dll.size){const dir=dll._traverseDir(i);const steps=dir==='first'?i:dll.size-i;setInfo(`🔍 Traversing from <strong>${dir}</strong> (${steps} steps)...`,'get');
+        const start=dir==='first'?0:dll.size-1;const step=dir==='first'?1:-1;
+        for(let s=start;dir==='first'?s<i:s>i;s+=step){renderChain(s,'traverse');await sleep(d*0.35)}}
+        dll.addAt(i,v);logMsg(`add(${i}, ${v}). size=${dll.size}`,'add');renderChain(i,'add');
+        setInfo(`✅ <strong>add(${i}, ${v})</strong> — inserted. ${i===0||i===dll.size-1?'O(1)':'O(n) traversal'}. Size: <strong>${dll.size}</strong>`,'add');await sleep(d);renderChain();setAnimating(false)}
+
+    async function handleRemoveFirst(){if(dll.isEmpty)return;setAnimating(true);renderChain(0,'remove');await sleep(getDelay());const v=dll.removeFirst();logMsg(`removeFirst() → ${v}. size=${dll.size}`,'remove');setInfo(`🗑️ <strong>removeFirst()</strong> → <strong>${v}</strong>. O(1). Size: <strong>${dll.size}</strong>`,'remove');renderChain();setAnimating(false)}
+
+    async function handleRemoveLast(){if(dll.isEmpty)return;setAnimating(true);renderChain(dll.size-1,'remove');await sleep(getDelay());const v=dll.removeLast();logMsg(`removeLast() → ${v}. size=${dll.size}`,'remove');setInfo(`🗑️ <strong>removeLast()</strong> → <strong>${v}</strong>. O(1). Size: <strong>${dll.size}</strong>`,'remove');renderChain();setAnimating(false)}
+
+    async function handleRemoveAt(){const i=getIdx();if(i===null)return;if(i>=dll.size){setInfo(`⚠️ Index ${i} out of bounds. Size = ${dll.size}`,'');return}setAnimating(true);const d=getDelay();
+        if(i>0&&i<dll.size-1){const dir=dll._traverseDir(i);const steps=dir==='first'?i:dll.size-1-i;setInfo(`🔍 Traversing from <strong>${dir}</strong> (${steps} steps)...`,'get');
+        const start=dir==='first'?0:dll.size-1;const step=dir==='first'?1:-1;
+        for(let s=start;dir==='first'?s<i:s>i;s+=step){renderChain(s,'traverse');await sleep(d*0.35)}}
+        renderChain(i,'remove');await sleep(d);const v=dll.removeAt(i);logMsg(`remove(${i}) → ${v}. size=${dll.size}`,'remove');
+        setInfo(`🗑️ <strong>remove(${i})</strong> → <strong>${v}</strong>. Size: <strong>${dll.size}</strong>`,'remove');renderChain();setAnimating(false)}
+
+    async function handleGet(){const i=getIdx();if(i===null)return;if(i>=dll.size){setInfo(`⚠️ Index ${i} out of bounds. Size = ${dll.size}`,'');return}setAnimating(true);const d=getDelay();
+        const dir=dll._traverseDir(i);const steps=dir==='first'?i:dll.size-1-i;
+        setInfo(`🔍 <strong>get(${i})</strong>: traversing from <strong>${dir}</strong> (${steps} hops)...`,'get');
+        const start=dir==='first'?0:dll.size-1;const step=dir==='first'?1:-1;
+        for(let s=start;dir==='first'?s<=i:s>=i;s+=step){renderChain(s,s===i?'found':'traverse');
+        if(s===i)setInfo(`✅ <strong>get(${i})</strong> → <strong>${dll.get(i)}</strong>. O(n) — took ${steps} step(s) from ${dir}.`,'get');
+        await sleep(d*0.4)}
+        logMsg(`get(${i}) → ${dll.get(i)}`,'get');await sleep(800);renderChain();setAnimating(false)}
+
+    async function handlePeekFirst(){if(dll.isEmpty)return;setAnimating(true);const v=dll.peekFirst();logMsg(`peekFirst() → ${v}`,'peek');setInfo(`🔍 <strong>peekFirst()</strong> → <strong>${v}</strong>. O(1) — just return first.item`,'peek');renderChain(0,'peek');await sleep(1200);renderChain();setAnimating(false)}
+
+    async function handlePeekLast(){if(dll.isEmpty)return;setAnimating(true);const v=dll.peekLast();logMsg(`peekLast() → ${v}`,'peek');setInfo(`🔍 <strong>peekLast()</strong> → <strong>${v}</strong>. O(1) — just return last.item`,'peek');renderChain(dll.size-1,'peek');await sleep(1200);renderChain();setAnimating(false)}
+
+    function handleClear(){dll.clear();logMsg('clear()','info');setInfo('🧹 LinkedList cleared.','');renderChain()}
+
+    async function handleSample(){dll=new DoublyLinkedList();renderChain();setAnimating(true);const vals=[10,20,30,40,50];logMsg(`Loading: addLast(${vals.join(', ')}) then addFirst(5)`,'info');const d=getDelay();
+        for(const v of vals){dll.addLast(v);renderChain(dll.size-1,'add');await sleep(d*0.4);renderChain();await sleep(80)}
+        dll.addFirst(5);renderChain(0,'add');await sleep(d*0.4);renderChain();
+        setInfo(`✅ Loaded: [${dll.toArray().join(' ↔ ')}]. Try <strong>get(3)</strong> to see traversal!`,'add');renderChain();setAnimating(false)}
+
+    /* Events */
+    decBtn.addEventListener('click',()=>{const v=parseInt(valueInput.value)||0;valueInput.value=v-1});
+    incBtn.addEventListener('click',()=>{const v=parseInt(valueInput.value)||0;valueInput.value=v+1});
+    valueInput.addEventListener('keydown',e=>{if(e.key==='Enter'&&!animating){if(currentMode==='stack')handleAddFirst();else handleAddLast()}});
+    addFirstBtn.addEventListener('click',handleAddFirst);
+    addLastBtn.addEventListener('click',handleAddLast);
+    addAtBtn.addEventListener('click',handleAddAt);
+    removeFirstBtn.addEventListener('click',handleRemoveFirst);
+    removeLastBtn.addEventListener('click',handleRemoveLast);
+    removeAtBtn.addEventListener('click',handleRemoveAt);
+    getBtn.addEventListener('click',handleGet);
+    peekFirstBtn.addEventListener('click',handlePeekFirst);
+    peekLastBtn.addEventListener('click',handlePeekLast);
+    clearBtn.addEventListener('click',handleClear);
+    sampleBtn.addEventListener('click',handleSample);
+    clearLogBtn.addEventListener('click',()=>{logContainer.innerHTML='';logMsg('Log cleared.','info')});
+    document.querySelectorAll('.mode-tab').forEach(tab=>{tab.addEventListener('click',()=>{if(animating)return;applyMode(tab.dataset.mode);logMsg(`Switched to ${tab.dataset.mode.toUpperCase()} mode`,'info')})});
+    
+    /* Theory section toggle */
+    const theorySection = $('theorySection'), theoryToggle = $('theoryToggle');
+    theoryToggle.addEventListener('click', () => theorySection.classList.toggle('open'));
+
+    applyMode('list'); renderChain();
+})();
 </script>
 </body>
 </html>

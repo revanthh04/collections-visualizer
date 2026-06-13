@@ -1,260 +1,681 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LinkedHashSet Visualizer — Insertion-Order Hash Table</title>
-  <link rel="stylesheet" href="../visualizer-common.css">
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='j' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23f89820'/%3E%3Cstop offset='1' stop-color='%23e25303'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M24 4c0 0 -4 12 8 16s12 12 4 20' fill='none' stroke='url(%23j)' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M32 4c0 0 -4 12 8 16s12 12 4 20' fill='none' stroke='url(%23j)' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M12 30h34v8c0 14-34 14-34 0z' fill='url(%23j)'/%3E%3Cpath d='M46 33h6c6 0 6 10 0 10h-6' fill='none' stroke='url(%23j)' stroke-width='3'/%3E%3Cpath d='M8 52h48' stroke='url(%23j)' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M14 56h36' stroke='url(%23j)' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkedHashSet Visualizer — Insertion-Order Hash Table</title>
+    <meta name="description" content="Interactive visualizer for Java LinkedHashSet. See bucket array with collision chaining plus the doubly-linked list that preserves insertion order.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+:root{
+    --bg-primary:#000;--bg-secondary:#0a0a0a;--bg-panel:#0d0d0d;
+    --border:rgba(255,255,255,0.06);--border-subtle:rgba(255,255,255,0.04);--border-glow:rgba(255,255,255,0.12);
+    --text-primary:#f0f0f0;--text-secondary:#8a8a8a;--text-muted:#555;
+    --accent-green:#4cff91;--accent-green-bg:rgba(76,255,145,0.10);
+    --accent-red:#ff5252;--accent-red-bg:rgba(255,82,82,0.08);
+    --accent-blue:#448aff;--accent-blue-bg:rgba(68,138,255,0.08);
+    --accent-amber:#ffc107;--accent-amber-bg:rgba(255,193,7,0.08);
+    --accent-purple:#b388ff;--accent-purple-bg:rgba(179,136,255,0.08);
+    --accent-cyan:#18ffff;--accent-cyan-bg:rgba(24,255,255,0.08);
+    --accent-teal:#64ffda;--accent-orange:#ff9100;
+    --radius-sm:8px;--radius-md:12px;--radius-lg:16px;--radius-xl:20px;--radius-full:999px;
+    --shadow-md:0 4px 16px rgba(0,0,0,0.6);
+    --font:'Inter',-apple-system,sans-serif;--font-mono:'JetBrains Mono','Fira Code',monospace;
+    --transition:0.25s cubic-bezier(0.4,0,0.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg-primary);color:var(--text-primary);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+.app{max-width:1440px;margin:0 auto;padding:20px 24px;display:flex;flex-direction:column;gap:16px}
+
+/* Header */
+.header{display:flex;align-items:center;justify-content:space-between;padding:20px 28px;background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--radius-xl);flex-wrap:wrap;gap:16px;backdrop-filter:blur(20px)}
+.header-left{display:flex;align-items:center;gap:16px}
+.logo-icon{width:48px;height:48px;border-radius:var(--radius-md);background:linear-gradient(135deg,#e91e63,var(--accent-purple));display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 0 24px rgba(233,30,99,0.3);transition:transform var(--transition)}
+.logo-icon:hover{transform:scale(1.08) rotate(-3deg)}
+.header h1{font-size:1.3rem;font-weight:800;letter-spacing:-0.03em;background:linear-gradient(135deg,#fff,#888);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.subtitle{font-size:0.72rem;color:var(--text-muted);font-weight:500;margin-top:3px}
+.header-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.formula-badge{display:flex;align-items:center;gap:6px;padding:7px 14px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:var(--radius-full);font-size:0.72rem;transition:all var(--transition)}
+.formula-badge:hover{background:rgba(255,255,255,0.06);border-color:var(--border-glow)}
+.formula-label{color:var(--text-muted);font-weight:600;text-transform:uppercase;font-size:0.58rem;letter-spacing:0.1em}
+.formula-badge code{font-family:var(--font-mono);color:var(--accent-cyan);font-weight:600;font-size:0.72rem}
+
+/* Controls */
+.controls-bar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--radius-xl);gap:14px;flex-wrap:wrap;backdrop-filter:blur(20px)}
+.controls-left,.controls-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.input-group{display:flex;align-items:center;gap:0}
+.stepper-btn{width:36px;height:40px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.04);border:1px solid var(--border);color:var(--text-secondary);cursor:pointer;transition:all var(--transition);font-size:1.1rem;font-weight:600;user-select:none}
+.stepper-btn:first-child{border-radius:var(--radius-sm) 0 0 var(--radius-sm)}
+.stepper-btn:hover{background:rgba(255,255,255,0.08);color:var(--text-primary)}
+.stepper-btn:active{transform:scale(0.95)}
+.input-group input{width:72px;padding:9px 8px;background:var(--bg-secondary);border:1px solid var(--border);border-left:none;border-right:none;color:var(--text-primary);font-family:var(--font-mono);font-size:0.9rem;font-weight:700;outline:none;text-align:center;transition:border-color var(--transition)}
+.input-group input:focus{border-color:var(--accent-blue)}
+.input-group input::placeholder{color:var(--text-muted);font-weight:400}
+.input-group input::-webkit-outer-spin-button,.input-group input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.input-group input[type=number]{-moz-appearance:textfield;appearance:textfield}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;font-family:var(--font);font-size:0.78rem;font-weight:600;border:1px solid transparent;border-radius:var(--radius-sm);cursor:pointer;transition:all var(--transition);white-space:nowrap;position:relative;overflow:hidden}
+.btn::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,0.06) 0%,transparent 100%);pointer-events:none;opacity:0;transition:opacity var(--transition)}
+.btn:hover::after{opacity:1}.btn:active{transform:scale(0.96)}
+.btn:disabled{opacity:0.3;cursor:not-allowed;pointer-events:none}
+.btn-add{background:var(--accent-green);color:#000;font-weight:700;border-radius:0 var(--radius-sm) var(--radius-sm) 0}
+.btn-add:hover{box-shadow:0 0 20px rgba(76,255,145,0.25)}
+.btn-remove{background:var(--accent-red-bg);color:var(--accent-red);border:1px solid rgba(255,82,82,0.2)}
+.btn-remove:hover{box-shadow:0 0 20px rgba(255,82,82,0.25)}
+.btn-contains{background:var(--accent-amber-bg);color:var(--accent-amber);border:1px solid rgba(255,193,7,0.2)}
+.btn-contains:hover{box-shadow:0 0 20px rgba(255,193,7,0.25)}
+.btn-iter{background:var(--accent-purple-bg);color:var(--accent-purple);border:1px solid rgba(179,136,255,0.2)}
+.btn-iter:hover{box-shadow:0 0 20px rgba(179,136,255,0.25)}
+.btn-clear{background:rgba(255,255,255,0.03);color:var(--text-muted);border:1px solid var(--border)}
+.btn-clear:hover{color:var(--text-secondary);background:rgba(255,255,255,0.06)}
+.btn-sample{background:linear-gradient(135deg,#e91e63,var(--accent-purple));color:#fff;padding:9px 18px;font-weight:700}
+.btn-sample:hover{box-shadow:0 0 24px rgba(233,30,99,0.3);filter:brightness(1.15)}
+.btn-clear-log{background:rgba(255,255,255,0.03);color:var(--text-muted);border:1px solid var(--border);padding:5px 12px;font-size:0.7rem}
+.speed-control{display:flex;align-items:center;gap:7px}
+.speed-control label{font-size:0.7rem;color:var(--text-muted);font-weight:600}
+.speed-control input[type="range"]{width:64px;height:4px;-webkit-appearance:none;appearance:none;background:rgba(255,255,255,0.08);border-radius:2px;outline:none}
+.speed-control input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--accent-blue);cursor:pointer;box-shadow:0 0 8px rgba(68,138,255,0.4)}
+
+/* Panels */
+.panel{background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--radius-xl);overflow:hidden;backdrop-filter:blur(20px)}
+.panel-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border-subtle);background:rgba(255,255,255,0.01);flex-wrap:wrap;gap:8px}
+.panel-header h2{font-size:0.82rem;font-weight:700;color:var(--text-secondary)}
+.badge{font-size:0.68rem;font-weight:600;padding:4px 12px;border-radius:var(--radius-full);border:1px solid}
+.badge-blue{background:var(--accent-blue-bg);color:var(--accent-blue);border-color:rgba(68,138,255,0.15)}
+.badge-green{background:var(--accent-green-bg);color:var(--accent-green);border-color:rgba(76,255,145,0.15)}
+.badge-amber{background:var(--accent-amber-bg);color:var(--accent-amber);border-color:rgba(255,193,7,0.15)}
+.badge-pink{background:rgba(233,30,99,0.08);color:#f48fb1;border-color:rgba(233,30,99,0.15)}
+
+/* Load Factor Bar */
+.lf-bar-wrap{margin:0 20px 16px;display:flex;flex-direction:column;gap:6px}
+.lf-info{display:flex;justify-content:space-between;font-size:0.68rem;font-weight:600;color:var(--text-muted)}
+.lf-info strong{color:var(--text-secondary)}
+.lf-track{height:8px;background:rgba(255,255,255,0.04);border-radius:4px;overflow:hidden;position:relative}
+.lf-fill{height:100%;border-radius:4px;transition:width 0.5s ease,background 0.3s ease;background:linear-gradient(90deg,var(--accent-green),var(--accent-teal))}
+.lf-fill.warn{background:linear-gradient(90deg,var(--accent-amber),var(--accent-orange))}
+.lf-fill.critical{background:linear-gradient(90deg,var(--accent-red),#ff1744)}
+.lf-threshold{position:absolute;top:-1px;bottom:-1px;width:2px;background:var(--accent-amber);border-radius:1px;opacity:0.7}
+
+/* Hash Display */
+.hash-display{padding:12px 20px;font-family:var(--font-mono);font-size:0.75rem;color:var(--text-secondary);border-top:1px solid var(--border-subtle);min-height:40px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.hash-display .hl{color:var(--accent-cyan);font-weight:700}
+.hash-display .op{color:var(--text-muted)}
+.hash-display .result{color:var(--accent-green);font-weight:700}
+
+/* Bucket Table */
+.bucket-viewport{padding:20px;overflow-x:auto}
+.bucket-grid{display:flex;gap:6px;min-width:fit-content;align-items:flex-start}
+.bucket-col{display:flex;flex-direction:column;align-items:center;gap:0;min-width:72px}
+.bucket-idx{font-family:var(--font-mono);font-size:0.6rem;font-weight:700;color:var(--text-muted);padding:4px 0;text-align:center}
+.bucket-slot{width:72px;min-height:44px;border:1.5px solid rgba(255,255,255,0.08);border-radius:8px;background:rgba(255,255,255,0.02);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:0;transition:all 0.3s ease;padding:0;overflow:hidden}
+.bucket-slot.empty{border-style:dashed;opacity:0.5}
+.bucket-slot.hl-target{border-color:rgba(76,255,145,0.5);background:rgba(76,255,145,0.04);box-shadow:0 0 12px rgba(76,255,145,0.15)}
+.bucket-slot.hl-search{border-color:rgba(255,193,7,0.5);background:rgba(255,193,7,0.04);box-shadow:0 0 12px rgba(255,193,7,0.15)}
+.bucket-slot.hl-remove{border-color:rgba(255,82,82,0.5);background:rgba(255,82,82,0.04)}
+.chain-node{width:100%;padding:8px 4px;text-align:center;font-family:var(--font-mono);font-size:0.8rem;font-weight:700;color:var(--text-primary);border-bottom:1px solid rgba(255,255,255,0.04);transition:all 0.3s ease}
+.chain-node:last-child{border-bottom:none}
+.chain-node.hl-add{background:rgba(76,255,145,0.12);color:var(--accent-green);animation:nodeFlash .5s ease}
+.chain-node.hl-found{background:rgba(255,193,7,0.12);color:var(--accent-amber)}
+.chain-node.hl-remove{background:rgba(255,82,82,0.12);color:var(--accent-red);opacity:0.6}
+.chain-node.hl-traverse{background:rgba(68,138,255,0.08);color:var(--accent-blue)}
+.chain-arrow{width:100%;display:flex;justify-content:center;padding:0;line-height:1;font-size:0.5rem;color:var(--text-muted);opacity:0.4}
+@keyframes nodeFlash{0%{transform:scale(0.8);opacity:0}50%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+
+/* ===== Insertion Order Chain ===== */
+.order-viewport{padding:20px;overflow-x:auto;min-height:80px}
+.order-chain{display:flex;align-items:center;gap:0;min-width:fit-content}
+.order-node{display:flex;flex-direction:column;align-items:center;gap:3px}
+.order-node-box{padding:10px 14px;border-radius:8px;border:2px solid rgba(233,30,99,0.25);background:rgba(233,30,99,0.04);font-family:var(--font-mono);font-size:0.85rem;font-weight:700;color:var(--text-primary);transition:all 0.3s ease;min-width:42px;text-align:center}
+.order-node-idx{font-size:0.5rem;font-weight:700;color:var(--text-muted);font-family:var(--font-mono)}
+.order-node.hl-add .order-node-box{border-color:rgba(76,255,145,0.5);background:rgba(76,255,145,0.06);animation:nodeFlash .5s ease}
+.order-node.hl-found .order-node-box{border-color:rgba(255,193,7,0.5);background:rgba(255,193,7,0.06)}
+.order-node.hl-remove .order-node-box{border-color:rgba(255,82,82,0.5);background:rgba(255,82,82,0.06);opacity:0.5}
+.order-node.hl-iter .order-node-box{border-color:rgba(179,136,255,0.5);background:rgba(179,136,255,0.08);box-shadow:0 0 12px rgba(179,136,255,0.2)}
+.order-arrow{display:flex;align-items:center;justify-content:center;width:28px;flex-shrink:0}
+.order-arrow-line{width:100%;height:2.5px;background:rgba(255,255,255,0.5);position:relative;border-radius:1px}
+.order-arrow-line::after{content:'';position:absolute;right:-1px;top:50%;transform:translateY(-50%);width:0;height:0;border-left:6px solid rgba(255,255,255,0.6);border-top:4px solid transparent;border-bottom:4px solid transparent}
+.order-empty{color:var(--text-muted);font-size:0.82rem;padding:16px;text-align:center;width:100%}
+.order-label{font-size:0.5rem;font-weight:700;font-family:var(--font-mono);padding:2px 6px;border-radius:4px;letter-spacing:0.05em;color:var(--accent-purple);background:var(--accent-purple-bg)}
+
+/* Rehash overlay */
+.rehash-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:1000;backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity 0.3s ease}
+.rehash-overlay.active{opacity:1;pointer-events:auto}
+.rehash-msg{padding:28px 40px;background:var(--bg-panel);border:1px solid rgba(233,30,99,0.3);border-radius:var(--radius-xl);text-align:center;box-shadow:0 0 40px rgba(233,30,99,0.15)}
+.rehash-msg h3{font-size:1.1rem;font-weight:800;color:#f48fb1;margin-bottom:8px}
+.rehash-msg p{font-size:0.82rem;color:var(--text-secondary)}
+
+/* Info Bar */
+.info-bar{display:flex;align-items:center;gap:12px;padding:12px 20px;background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--radius-md);font-size:0.8rem;color:var(--text-secondary);min-height:48px;transition:all 0.3s ease;backdrop-filter:blur(20px)}
+.info-bar.action-add{border-color:rgba(76,255,145,0.2);background:rgba(76,255,145,0.03)}
+.info-bar.action-remove{border-color:rgba(255,82,82,0.2);background:rgba(255,82,82,0.03)}
+.info-bar.action-search{border-color:rgba(255,193,7,0.2);background:rgba(255,193,7,0.03)}
+.info-bar.action-iter{border-color:rgba(179,136,255,0.2);background:rgba(179,136,255,0.03)}
+.info-bar.action-rehash{border-color:rgba(233,30,99,0.2);background:rgba(233,30,99,0.03)}
+.info-text{font-weight:500;line-height:1.5}.info-text strong{color:var(--text-primary);font-weight:700}
+
+/* Log */
+.log-panel{max-height:220px}
+.log-container{padding:10px 16px;max-height:160px;overflow-y:auto;display:flex;flex-direction:column;gap:3px}
+.log-container::-webkit-scrollbar{width:3px}.log-container::-webkit-scrollbar-track{background:transparent}.log-container::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:2px}
+.log-entry{font-family:var(--font-mono);font-size:0.68rem;padding:4px 10px;border-radius:var(--radius-sm);line-height:1.6}
+.log-entry.log-add{color:var(--accent-green);background:var(--accent-green-bg)}
+.log-entry.log-remove{color:var(--accent-red);background:var(--accent-red-bg)}
+.log-entry.log-search{color:var(--accent-amber);background:var(--accent-amber-bg)}
+.log-entry.log-iter{color:var(--accent-purple);background:var(--accent-purple-bg)}
+.log-entry.log-rehash{color:#f48fb1;background:rgba(233,30,99,0.08)}
+.log-entry.log-info{color:var(--text-muted)}
+
+/* ===== Theory Section ===== */
+.theory-section{background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--radius-xl);overflow:hidden;backdrop-filter:blur(20px)}
+.theory-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;padding:16px 24px;cursor:pointer;background:none;border:none;color:var(--text-primary);font-family:var(--font);transition:background var(--transition)}
+.theory-toggle:hover{background:rgba(255,255,255,0.02)}
+.theory-toggle h2{font-size:0.88rem;font-weight:700;display:flex;align-items:center;gap:10px;color:var(--text-secondary)}
+.theory-toggle h2 .accent{color:#f48fb1}
+.toggle-chevron{width:20px;height:20px;color:var(--text-muted);transition:transform 0.3s ease}
+.theory-section.open .toggle-chevron{transform:rotate(180deg)}
+.theory-body{max-height:0;overflow:hidden;transition:max-height 0.5s cubic-bezier(0.4,0,0.2,1)}
+.theory-section.open .theory-body{max-height:3500px}
+.theory-inner{padding:0 24px 24px;display:flex;flex-direction:column;gap:20px}
+.theory-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:800px){.theory-grid{grid-template-columns:1fr}}
+.theory-card{background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;transition:border-color var(--transition)}
+.theory-card:hover{border-color:var(--border-glow)}
+.theory-card h3{font-size:0.82rem;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.theory-card h3 .icon{width:28px;height:28px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:0.85rem;flex-shrink:0}
+.theory-card p,.theory-card li{font-size:0.76rem;color:var(--text-secondary);line-height:1.7}
+.theory-card ul{padding-left:16px;display:flex;flex-direction:column;gap:4px}
+.theory-card code{font-family:var(--font-mono);font-size:0.72rem;color:var(--accent-cyan);background:rgba(24,255,255,0.06);padding:1px 6px;border-radius:4px}
+.theory-full{grid-column:1/-1}
+.complexity-table{width:100%;border-collapse:collapse;margin-top:8px}
+.complexity-table th,.complexity-table td{padding:8px 12px;font-size:0.72rem;text-align:left;border-bottom:1px solid var(--border-subtle)}
+.complexity-table th{color:var(--text-muted);font-weight:600;text-transform:uppercase;font-size:0.62rem;letter-spacing:0.08em}
+.complexity-table td{font-family:var(--font-mono);color:var(--text-primary);font-weight:600}
+.complexity-table td:first-child{font-family:var(--font);color:var(--text-secondary)}
+.complexity-table .good{color:var(--accent-green)}
+.complexity-table .warn{color:var(--accent-amber)}
+.complexity-table .bad{color:var(--accent-red)}
+
+@media(max-width:900px){.header,.controls-bar{flex-direction:column;align-items:flex-start}.controls-left,.controls-right{width:100%}}
+@media(max-width:600px){.app{padding:12px 14px;gap:12px}.formula-badge{display:none}.bucket-col{min-width:56px}.bucket-slot{width:56px}.chain-node{font-size:0.7rem;padding:6px 2px}.order-node-box{padding:8px 10px;font-size:0.75rem}}
+.home-link{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-secondary);font-size:0.72rem;font-weight:600;text-decoration:none;transition:all var(--transition)}
+.home-link:hover{background:rgba(255,255,255,0.08);color:var(--text-primary);border-color:var(--border-glow)}
+    </style>
 </head>
 <body>
-<div class="viz-page">
-  <div class="viz-header">
-    <div class="viz-header-left">
-      <a href="../index.html" class="viz-home">← Home</a>
-      <div class="viz-icon" style="background:linear-gradient(135deg,#d500f9,#ea80fc)">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-      </div>
-      <div class="viz-title-group">
-        <h1>LinkedHashSet Visualizer</h1>
-        <p>Java Collections — Hash Table + Insertion-Order Doubly-Linked List</p>
-      </div>
-    </div>
-    <div class="viz-header-badges">
-      <div class="viz-badge">BACKED BY <code>LinkedHashMap</code></div>
-      <div class="viz-badge">ORDER <code>Insertion Order</code></div>
-      <div class="viz-badge">AVG <code>O(1)</code></div>
-    </div>
-  </div>
+<div class="app">
+    <header class="header">
+        <div class="header-left">
+            <a href="../index.html" class="home-link" aria-label="Back to Home" title="Back to Home">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+                Home
+            </a>
+            <div class="logo-icon">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+                    <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+                </svg>
+            </div>
+            <div>
+                <h1>LinkedHashSet Visualizer</h1>
+                <p class="subtitle">Java Collections — Hash Table + Insertion-Order Doubly-Linked List</p>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="formula-badge"><span class="formula-label">Backed by</span><code>LinkedHashMap</code></div>
+            <div class="formula-badge"><span class="formula-label">Order</span><code>Insertion Order</code></div>
+            <div class="formula-badge"><span class="formula-label">Avg</span><code>O(1)</code></div>
+        </div>
+    </header>
 
-  <div class="viz-controls">
-    <div class="viz-input-group">
-      <button class="viz-input-btn" onclick="decVal()">−</button>
-      <input type="text" class="viz-input" id="valInput" value="10">
-      <button class="viz-input-btn" onclick="incVal()">+</button>
+    <!-- Controls -->
+    <div class="controls-bar">
+        <div class="controls-left">
+            <div class="input-group">
+                <button class="stepper-btn" id="decBtn" type="button">−</button>
+                <input type="number" id="valueInput" placeholder="val" min="-999" max="999">
+                <button class="stepper-btn" id="incBtn" type="button" style="border-radius:0">+</button>
+                <button id="addBtn" class="btn btn-add">add(e)</button>
+            </div>
+            <button id="removeBtn" class="btn btn-remove">remove(e)</button>
+            <button id="containsBtn" class="btn btn-contains">contains(e)</button>
+            <button id="iterBtn" class="btn btn-iter">iterate()</button>
+            <button id="clearBtn" class="btn btn-clear">Clear</button>
+        </div>
+        <div class="controls-right">
+            <button id="sampleBtn" class="btn btn-sample">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                Load Example
+            </button>
+            <div class="speed-control"><label>Speed</label><input type="range" id="speedSlider" min="1" max="5" value="3" step="1"></div>
+        </div>
     </div>
-    <button class="viz-op-btn primary" onclick="doAdd()">add(e)</button>
-    <button class="viz-op-btn danger" onclick="doRemove()">remove(e)</button>
-    <button class="viz-op-btn secondary" onclick="doContains()">contains(e)</button>
-    <button class="viz-op-btn info" onclick="doIterate()">iterate()</button>
-    <button class="viz-op-btn secondary" onclick="doClear()">Clear</button>
-    <div class="viz-controls-right">
-      <button class="viz-load-btn" onclick="loadExample()">▶ Load Example</button>
-      <div class="viz-speed">Speed <input type="range" id="speedSlider" min="100" max="1500" value="500"></div>
-    </div>
-  </div>
 
-  <div class="viz-theory">
-    <button class="viz-theory-toggle" aria-expanded="false" onclick="toggleTheory(this)">
-      <span class="toggle-left">📖 What is a LinkedHashSet? — Order-Preserving Hash Table</span>
-      <span class="viz-theory-chevron">▼</span>
-    </button>
-    <div class="viz-theory-content" id="theoryContent">
-      <div class="viz-theory-inner">
-        <h3>How It Works</h3>
-        <p>LinkedHashSet extends HashSet but maintains a <strong>doubly-linked list</strong> threading through all entries in <strong>insertion order</strong>. When you iterate, elements come out in the order they were added.</p>
-        <h3>Key Differences from HashSet</h3>
-        <ul>
-          <li>Iteration order = insertion order (HashSet has no guaranteed order)</li>
-          <li>Slightly slower than HashSet due to linked list maintenance</li>
-          <li>Uses more memory (extra before/after pointers per entry)</li>
-        </ul>
-      </div>
-    </div>
-  </div>
+    <!-- Theory Section -->
+    <div class="theory-section" id="theorySection">
+        <button class="theory-toggle" id="theoryToggle" type="button">
+            <h2>📖 <span class="accent">What is a LinkedHashSet?</span> — Order-Preserving Hash Table</h2>
+            <svg class="toggle-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="theory-body">
+            <div class="theory-inner">
+                <div class="theory-grid">
+                    <div class="theory-card">
+                        <h3><span class="icon" style="background:rgba(233,30,99,0.1);color:#e91e63">🔗</span> HashSet + Doubly-Linked List</h3>
+                        <p style="margin-bottom:10px">A <strong>LinkedHashSet</strong> provides all the benefits of a HashSet, but with predictability:</p>
+                        <ul>
+                            <li>Internally uses a <strong>Hash Table</strong> for <code>O(1)</code> average lookups and mutations.</li>
+                            <li><strong>Crucial Addition:</strong> Every entry is also a node in a <strong>Doubly-Linked List</strong>.</li>
+                            <li>This linked list naturally acts as a timeline, recording the exact sequence in which items were inserted.</li>
+                        </ul>
+                    </div>
 
-  <!-- Bucket Array -->
-  <div class="viz-panel">
-    <div class="viz-panel-header">
-      <h2>📦 Bucket Array (Hash Table)</h2>
-      <div class="viz-panel-badges">
-        <span class="viz-panel-badge">capacity: <strong id="capBadge">16</strong></span>
-        <span class="viz-panel-badge">size: <strong id="sizeBadge">0</strong></span>
-        <span class="viz-panel-badge">load: <strong id="loadBadge">0.00</strong></span>
-      </div>
-    </div>
-    <div class="viz-panel-body" style="flex-direction:column;align-items:stretch">
-      <div style="padding:0 0 8px;display:flex;align-items:center;gap:12px">
-        <span style="font-size:.78rem;color:var(--text-muted);font-family:var(--mono)">Load Factor: <strong id="loadText">0.00</strong> / 0.75</span>
-        <div class="load-factor-bar" style="flex:1"><div class="load-factor-fill" id="loadFill" style="width:0%"></div><div class="load-factor-threshold" style="left:75%"></div></div>
-        <span style="font-size:.72rem;color:var(--text-muted);font-family:var(--mono)">Threshold: <strong id="threshBadge">12</strong></span>
-      </div>
-      <div class="hash-computation" id="hashComp">Ready — hash computation will appear here</div>
-      <div class="hash-container"><div class="hash-grid" id="bucketGrid"></div></div>
-    </div>
-  </div>
+                    <div class="theory-card">
+                        <h3><span class="icon" style="background:var(--accent-green-bg);color:var(--accent-green)">⏱️</span> Insertion Order vs Access Order</h3>
+                        <ul>
+                            <li><strong>Insertion Order (Default):</strong> Iterating returns elements in the exact order they were <em>first</em> added. Re-inserting an existing element does NOT change its position.</li>
+                            <li>Backed internally by a <code>LinkedHashMap</code>.</li>
+                            <li>Perfect for cases where you want to remove duplicates from a list but <strong style="color:var(--text-primary)">must not scramble the order</strong>!</li>
+                        </ul>
+                    </div>
 
-  <!-- Insertion Order Chain -->
-  <div class="viz-panel">
-    <div class="viz-panel-header">
-      <h2>🔗 Insertion Order (Doubly-Linked List)</h2>
-      <div class="viz-panel-badges"><span class="viz-panel-badge" style="color:var(--green)">iteration order preserved</span></div>
-    </div>
-    <div class="viz-panel-body" id="chainView" style="justify-content:flex-start">
-      <span style="color:var(--text-muted);font-size:.85rem">Elements will appear here in insertion order</span>
-    </div>
-  </div>
+                    <div class="theory-card">
+                        <h3><span class="icon" style="background:var(--accent-purple-bg);color:var(--accent-purple)">⚡</span> Performance & Memory Overhead</h3>
+                        <p style="margin-bottom:10px">The predictability comes at a small cost:</p>
+                        <ul>
+                            <li><strong>Memory:</strong> Higher overhead. Every node has two extra pointers (<code>before</code> and <code>after</code>).</li>
+                            <li><strong>Iteration:</strong> <code>O(Size)</code>. This is actually <strong style="color:var(--accent-green)">faster</strong> than HashSet's <code>O(Capacity + Size)</code> because it walks the linked list directly instead of scanning empty buckets!</li>
+                        </ul>
+                    </div>
 
-  <div class="viz-status" id="statusBar"><span class="status-icon">ℹ️</span> Ready. Add elements or load the example.</div>
+                    <div class="theory-card">
+                        <h3><span class="icon" style="background:var(--accent-amber-bg);color:var(--accent-amber)">🔄</span> How Rehashing Works</h3>
+                        <p style="margin-bottom:10px">When the load factor (0.75) is reached, the capacity doubles.</p>
+                        <ul>
+                            <li>The array of buckets is rebuilt.</li>
+                            <li>Rehashing walks through the <strong>Linked List</strong> to redistribute elements into the new buckets.</li>
+                            <li><strong>The linked list structure is preserved perfectly</strong>, so iteration order remains identical before and after a rehash!</li>
+                        </ul>
+                    </div>
 
-  <div class="viz-log">
-    <div class="viz-log-header"><h2>📋 Operation Log</h2><button class="viz-log-clear" onclick="clearLog()">Clear</button></div>
-    <div class="viz-log-body" id="logBody"><div class="log-entry info">Visualizer ready. LinkedHashSet preserves insertion order via doubly-linked list.</div></div>
-  </div>
+                    <div class="theory-card theory-full">
+                        <h3><span class="icon" style="background:rgba(255,255,255,0.05);color:var(--text-primary)">⚙️</span> Common Methods & Time Complexity</h3>
+                        <table class="complexity-table">
+                            <thead>
+                                <tr>
+                                    <th>Method</th>
+                                    <th>Description</th>
+                                    <th>Origin</th>
+                                    <th>Time Comp.</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>boolean add(E e)</code></td>
+                                    <td>Adds the specified element if it is not already present, appending it to the insertion list.</td>
+                                    <td>Collection</td>
+                                    <td><span class="good">O(1)</span>*</td>
+                                </tr>
+                                <tr>
+                                    <td><code>boolean remove(Object o)</code></td>
+                                    <td>Removes the element from the hash table and unlinks it from the list.</td>
+                                    <td>Collection</td>
+                                    <td><span class="good">O(1)</span>*</td>
+                                </tr>
+                                <tr>
+                                    <td><code>boolean contains(Object o)</code></td>
+                                    <td>Returns true if this set contains the specified element.</td>
+                                    <td>Collection</td>
+                                    <td><span class="good">O(1)</span>*</td>
+                                </tr>
+                                <tr>
+                                    <td><code>Iterator&lt;E&gt; iterator()</code></td>
+                                    <td>Returns an iterator over the elements in insertion order.</td>
+                                    <td>Iterable</td>
+                                    <td><span class="good">O(1)</span> (to get)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p style="margin-top:10px;font-size:0.65rem;color:var(--text-muted)">* Average case. LinkedHashSet operations have slightly higher constant factor over HashSet due to maintaining the doubly-linked list. Iterating is O(Size), not O(Capacity).</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bucket Table -->
+    <div class="panel">
+        <div class="panel-header">
+            <h2>#️⃣ Bucket Array (Hash Table)</h2>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                <span class="badge badge-pink" id="capLabel">capacity: 16</span>
+                <span class="badge badge-blue" id="sizeLabel">size: 0</span>
+                <span class="badge badge-amber" id="lfLabel">load: 0.00</span>
+            </div>
+        </div>
+        <div class="lf-bar-wrap">
+            <div class="lf-info">
+                <span>Load Factor: <strong id="lfValue">0.00 / 0.75</strong></span>
+                <span>Threshold: <strong id="threshValue">12</strong></span>
+            </div>
+            <div class="lf-track">
+                <div class="lf-fill" id="lfFill" style="width:0%"></div>
+                <div class="lf-threshold" id="lfThresh" style="left:75%"></div>
+            </div>
+        </div>
+        <div class="hash-display" id="hashDisplay"><span class="op">Ready — hash computation will appear here</span></div>
+        <div class="bucket-viewport"><div class="bucket-grid" id="bucketGrid"></div></div>
+    </div>
+
+    <!-- Insertion Order Chain -->
+    <div class="panel">
+        <div class="panel-header">
+            <h2>🔗 Insertion Order (Doubly-Linked List)</h2>
+            <span class="badge badge-green" id="orderBadge">iteration order preserved</span>
+        </div>
+        <div class="order-viewport" id="orderViewport">
+            <div class="order-chain" id="orderChain">
+                <div class="order-empty">Elements will appear here in insertion order</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info Bar -->
+    <div class="info-bar" id="infoBar">
+        <div>ℹ️</div>
+        <div class="info-text" id="infoText">Ready. Add elements or load the example.</div>
+    </div>
+
+    <!-- Log -->
+    <div class="panel log-panel">
+        <div class="panel-header">
+            <h2>📋 Operation Log</h2>
+            <button id="clearLogBtn" class="btn btn-clear-log">Clear</button>
+        </div>
+        <div class="log-container" id="logContainer">
+            <div class="log-entry log-info">Visualizer ready. LinkedHashSet = HashSet + insertion-order doubly-linked list.</div>
+        </div>
+    </div>
+</div>
+
+<div class="rehash-overlay" id="rehashOverlay">
+    <div class="rehash-msg"><h3>🔄 Rehashing...</h3><p id="rehashText">Doubling capacity. Insertion order is preserved.</p></div>
 </div>
 
 <script>
-let capacity = 16;
-let buckets = Array.from({length:capacity}, ()=>[]);
-let insertionOrder = []; // maintains insertion order
-let size = 0;
-let animSpeed = 500;
-let highlightChainVal = null;
-
-document.getElementById('speedSlider').addEventListener('input', e => { animSpeed = 1600 - parseInt(e.target.value); });
-function getVal() { return document.getElementById('valInput').value.trim(); }
-function incVal() { const i=document.getElementById('valInput'); const n=parseInt(i.value); if(!isNaN(n)) i.value=n+1; }
-function decVal() { const i=document.getElementById('valInput'); const n=parseInt(i.value); if(!isNaN(n)) i.value=n-1; }
-function setStatus(msg) { document.getElementById('statusBar').innerHTML='<span class="status-icon">ℹ️</span> '+msg; }
-function addLog(msg,type='info') { const d=document.createElement('div');d.className='log-entry '+type;d.textContent=msg;document.getElementById('logBody').insertBefore(d,document.getElementById('logBody').firstChild); }
-function clearLog() { document.getElementById('logBody').innerHTML=''; }
-function toggleTheory(btn) { const e=btn.getAttribute('aria-expanded')==='true';btn.setAttribute('aria-expanded',!e);document.getElementById('theoryContent').classList.toggle('open'); }
-function sleep(ms) { return new Promise(r=>setTimeout(r,ms)); }
-
-function hashCode(s) { let h=0; s=String(s); for(let i=0;i<s.length;i++){h=((h<<5)-h+s.charCodeAt(i))|0;} return Math.abs(h); }
-function getBucket(val) { return hashCode(val) & (capacity-1); }
-
-function render(hlBucket=-1, hlVal=null) {
-  // Buckets
-  const grid = document.getElementById('bucketGrid');
-  let html = '';
-  for(let i=0;i<capacity;i++) {
-    html += '<div class="hash-bucket">';
-    html += `<div class="hash-bucket-idx">[${i}]</div>`;
-    if(!buckets[i].length) { html += '<div class="hash-bucket-cell empty"></div>'; }
-    else {
-      buckets[i].forEach((val,j) => {
-        if(j>0) html += '<div class="hash-chain-arrow">↓</div>';
-        let cls = 'filled';
-        if(i===hlBucket && val===hlVal) cls = 'highlight';
-        else if(buckets[i].length>1) cls = 'collision filled';
-        html += `<div class="hash-bucket-cell ${cls}">${val}</div>`;
-      });
+/* ===== SimLinkedHashSet — open addressing (one value per bucket) + insertion-order list ===== */
+class SimLinkedHashSet {
+    constructor() { this.capacity = 16; this.loadFactor = 0.75; this.buckets = new Array(16).fill(null); this._size = 0; this.order = []; }
+    get size() { return this._size; }
+    get threshold() { return Math.floor(this.capacity * this.loadFactor); }
+    get currentLoadFactor() { return this._size / this.capacity; }
+    _hash(v) { let h = v | 0; h ^= (h >>> 16); return h; }
+    _initialIdx(v) { return this._hash(v) & (this.capacity - 1); }
+    _findSlot(v) {
+        const n = this.capacity, start = this._initialIdx(v);
+        for (let step = 0; step < n; step++) {
+            const i = (start + step) & (n - 1);
+            if (this.buckets[i] === null) return { foundIdx: -1, emptyIdx: i };
+            if (this.buckets[i] === v) return { foundIdx: i, emptyIdx: -1 };
+        }
+        return { foundIdx: -1, emptyIdx: -1 };
     }
-    html += '</div>';
-  }
-  grid.innerHTML = html;
 
-  // Insertion order chain
-  const chain = document.getElementById('chainView');
-  if(!insertionOrder.length) { chain.innerHTML = '<span style="color:var(--text-muted);font-size:.85rem">Elements will appear here in insertion order</span>'; }
-  else {
-    let ch = '<div class="insert-chain">';
-    insertionOrder.forEach((val,i) => {
-      if(i>0) ch += '<div class="insert-chain-arrow">→</div>';
-      const cls = val===highlightChainVal ? 'highlight' : '';
-      ch += `<div class="insert-chain-node"><div class="insert-chain-val ${cls}">${val}</div></div>`;
-    });
-    ch += '</div>';
-    chain.innerHTML = ch;
-  }
-
-  // Badges
-  const loadFactor = size / capacity;
-  document.getElementById('capBadge').textContent = capacity;
-  document.getElementById('sizeBadge').textContent = size;
-  document.getElementById('loadBadge').textContent = loadFactor.toFixed(2);
-  document.getElementById('loadText').textContent = loadFactor.toFixed(2);
-  document.getElementById('threshBadge').textContent = Math.floor(capacity * 0.75);
-  const fill = document.getElementById('loadFill');
-  fill.style.width = Math.min(100, (loadFactor/0.75)*75)+'%';
-  fill.className = 'load-factor-fill'+(loadFactor>0.75?' danger':'');
+    add(v) {
+        const r = this._findSlot(v);
+        if (r.foundIdx !== -1) return { added: false, placedIdx: r.foundIdx, rehashed: false };
+        const placedIdx = r.emptyIdx;
+        this.buckets[placedIdx] = v;
+        this.order.push(v);
+        this._size++;
+        if (this._size > this.threshold) {
+            const oldCap = this.capacity;
+            this._rehash();
+            const newPlacedIdx = this.buckets.indexOf(v);
+            return { added: true, placedIdx, rehashed: true, oldCap, newCap: this.capacity, newPlacedIdx };
+        }
+        return { added: true, placedIdx, rehashed: false };
+    }
+    remove(v) {
+        const r = this._findSlot(v);
+        if (r.foundIdx === -1) return { removed: false };
+        const removedIdx = r.foundIdx;
+        this.buckets[removedIdx] = null;
+        this._size--;
+        const oi = this.order.indexOf(v);
+        if (oi >= 0) this.order.splice(oi, 1);
+        // Fix probe chain: re-insert subsequent elements until we hit an empty slot
+        const n = this.capacity;
+        let i = (removedIdx + 1) & (n - 1);
+        while (this.buckets[i] !== null) {
+            const moved = this.buckets[i];
+            this.buckets[i] = null;
+            this._size--;
+            const rr = this._findSlot(moved);
+            this.buckets[rr.emptyIdx] = moved;
+            this._size++;
+            i = (i + 1) & (n - 1);
+        }
+        return { removed: true, placedIdx: removedIdx, orderIdx: oi };
+    }
+    contains(v) {
+        const r = this._findSlot(v);
+        return { found: r.foundIdx !== -1, placedIdx: r.foundIdx };
+    }
+    _rehash() {
+        this.capacity *= 2;
+        this.buckets = new Array(this.capacity).fill(null);
+        this._size = 0;
+        // LinkedHashSet rehashes by walking the doubly-linked list (insertion order preserved)
+        for (const v of this.order) {
+            const r = this._findSlot(v);
+            this.buckets[r.emptyIdx] = v;
+            this._size++;
+        }
+    }
+    clear() { this.capacity = 16; this.buckets = new Array(16).fill(null); this._size = 0; this.order = []; }
 }
 
-function showHash(val) {
-  const h=hashCode(val), idx=h&(capacity-1);
-  document.getElementById('hashComp').innerHTML = `hash("${val}") = ${h} → <code>${h} & ${capacity-1}</code> = bucket <strong style="color:var(--green)">[${idx}]</strong>`;
-  return idx;
-}
+/* ===== Visualizer ===== */
+(function() {
+    'use strict';
+    const $ = id => document.getElementById(id);
+    const decBtn=$('decBtn'),incBtn=$('incBtn'),valueInput=$('valueInput');
+    const addBtn=$('addBtn'),removeBtn=$('removeBtn'),containsBtn=$('containsBtn'),iterBtn=$('iterBtn');
+    const clearBtn=$('clearBtn'),sampleBtn=$('sampleBtn'),clearLogBtn=$('clearLogBtn'),speedSlider=$('speedSlider');
+    const bucketGrid=$('bucketGrid'),hashDisplay=$('hashDisplay'),orderChain=$('orderChain');
+    const infoBar=$('infoBar'),infoText=$('infoText'),logContainer=$('logContainer');
+    const capLabel=$('capLabel'),sizeLabel=$('sizeLabel'),lfLabel=$('lfLabel');
+    const lfValue=$('lfValue'),threshValue=$('threshValue'),lfFill=$('lfFill'),lfThresh=$('lfThresh');
+    const rehashOverlay=$('rehashOverlay'),rehashText=$('rehashText');
+    const allBtns=[addBtn,removeBtn,containsBtn,iterBtn,clearBtn,sampleBtn];
 
-async function rehash() {
-  const oldCap=capacity; capacity*=2;
-  const oldBuckets=buckets;
-  buckets=Array.from({length:capacity},()=>[]);
-  size=0;
-  setStatus(`⚡ Rehashing! ${oldCap} → ${capacity}`);
-  addLog(`Rehash: ${oldCap} → ${capacity}`, 'warn');
-  render(); await sleep(animSpeed);
-  for(const b of oldBuckets) for(const v of b) { buckets[getBucket(v)].push(v); size++; }
-  render(); await sleep(animSpeed*0.5);
-}
+    let lhs = new SimLinkedHashSet();
+    let animating = false;
 
-async function doAdd() {
-  const val=getVal(); if(!val){setStatus('Enter a value');return;}
-  const idx=showHash(val);
-  if(buckets[idx].includes(val)) {
-    setStatus(`add(${val}) → duplicate, not added`);
-    addLog(`add(${val}) → duplicate`, 'warn');
-    render(idx,val); return;
-  }
-  buckets[idx].push(val); insertionOrder.push(val); size++;
-  highlightChainVal=val;
-  const isCollision = buckets[idx].length > 1;
-  setStatus(`add(${val}) → bucket [${idx}]${isCollision?' (collision!)':''}. Appended to insertion-order chain.`);
-  addLog(`add(${val}) → bucket [${idx}]`, 'add');
-  render(idx,val); incVal();
-  await sleep(animSpeed*0.5); highlightChainVal=null;
-  if(size>capacity*0.75) { await sleep(animSpeed); await rehash(); }
-}
+    function getDelay(){const s=[1200,800,550,350,200];return s[parseInt(speedSlider.value)-1]||550}
+    function setAnimating(v){animating=v;allBtns.forEach(b=>b.disabled=v);updateBtns()}
+    function updateBtns(){[removeBtn,containsBtn,iterBtn].forEach(b=>b.disabled=animating||lhs.size===0)}
+    function logMsg(m,t='info'){const e=document.createElement('div');e.className=`log-entry log-${t}`;const ts=new Date().toLocaleTimeString('en-US',{hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'});e.textContent=`[${ts}] ${m}`;logContainer.appendChild(e);logContainer.scrollTop=logContainer.scrollHeight}
+    function setInfo(m,c=''){infoText.innerHTML=m;infoBar.className='info-bar'+(c?` action-${c}`:'')}
+    function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
 
-async function doRemove() {
-  const val=getVal(); const idx=showHash(val);
-  const pos=buckets[idx].indexOf(val);
-  if(pos===-1) { setStatus(`remove(${val}) → not found`); addLog(`remove(${val}) → not found`,'warn'); render(idx); return; }
-  render(idx,val); await sleep(animSpeed);
-  buckets[idx].splice(pos,1); insertionOrder=insertionOrder.filter(v=>v!==val); size--;
-  render();
-  setStatus(`remove(${val}) → removed. Insertion-order chain updated.`);
-  addLog(`remove(${val}) → removed`, 'remove');
-}
+    function updateStats() {
+        capLabel.textContent = `capacity: ${lhs.capacity}`;
+        sizeLabel.textContent = `size: ${lhs.size}`;
+        const lf = lhs.currentLoadFactor;
+        lfLabel.textContent = `load: ${lf.toFixed(2)}`;
+        lfValue.textContent = `${lf.toFixed(2)} / ${lhs.loadFactor}`;
+        threshValue.textContent = lhs.threshold;
+        const pct = Math.min((lf / 1.0) * 100, 100);
+        lfFill.style.width = pct + '%';
+        lfFill.className = 'lf-fill' + (lf > 0.9 ? ' critical' : lf > 0.6 ? ' warn' : '');
+        lfThresh.style.left = (lhs.loadFactor * 100) + '%';
+    }
 
-function doContains() {
-  const val=getVal(); const idx=showHash(val);
-  const found=buckets[idx].includes(val);
-  highlightChainVal=found?val:null;
-  render(idx,found?val:null);
-  setStatus(`contains(${val}) → ${found}`);
-  addLog(`contains(${val}) → ${found}`, 'info');
-  setTimeout(()=>{highlightChainVal=null;render();}, animSpeed*2);
-}
+    function showHash(v, placedIdx) {
+        const h = lhs._hash(v);
+        hashDisplay.innerHTML = `<span class="hl">${v}</span> <span class="op">→ hash =</span> <span class="hl">${h}</span> <span class="op">→</span> <span class="result">bucket[${placedIdx}]</span>`;
+    }
 
-async function doIterate() {
-  if(!insertionOrder.length) { setStatus('Set is empty'); return; }
-  setStatus('iterate() → walking the insertion-order linked list...');
-  addLog('iterate() → traversing insertion order', 'info');
-  for(let i=0;i<insertionOrder.length;i++) {
-    highlightChainVal=insertionOrder[i];
-    render(-1, null);
-    await sleep(animSpeed*0.5);
-  }
-  highlightChainVal=null; render();
-  setStatus(`iterate() → [${insertionOrder.join(', ')}] — insertion order preserved!`);
-  addLog(`iterate() → [${insertionOrder.join(', ')}]`, 'add');
-}
+    function renderBuckets(hlBucket=-1, hlType='') {
+        let html = '';
+        for (let i = 0; i < lhs.capacity; i++) {
+            const val = lhs.buckets[i];
+            const isHl = i === hlBucket;
+            const isEmpty = val === null;
+            let sc = isEmpty ? 'empty' : '';
+            if (isHl) sc += ` hl-${hlType}`;
+            html += `<div class="bucket-col"><div class="bucket-idx">[${i}]</div><div class="bucket-slot ${sc}">`;
+            if (isEmpty) {
+                html += `<div class="chain-node" style="color:var(--text-muted);opacity:0.3;font-size:0.6rem">—</div>`;
+            } else {
+                let nc = '';
+                if (isHl) nc = `hl-${hlType==='target'?'add':hlType==='search'?'found':'remove'}`;
+                html += `<div class="chain-node ${nc}">${val}</div>`;
+            }
+            html += '</div></div>';
+        }
+        bucketGrid.innerHTML = html; updateStats();
+    }
 
-function doClear() {
-  capacity=16; buckets=Array.from({length:capacity},()=>[]); insertionOrder=[]; size=0; highlightChainVal=null;
-  document.getElementById('hashComp').innerHTML='Ready — hash computation will appear here';
-  render(); setStatus('Cleared.'); addLog('clear()','info');
-}
+    function renderOrder(hlIdx=-1, hlType='') {
+        if (lhs.order.length === 0) { orderChain.innerHTML = '<div class="order-empty">Elements will appear here in insertion order</div>'; return; }
+        let html = '';
+        for (let i = 0; i < lhs.order.length; i++) {
+            const cls = i === hlIdx ? `hl-${hlType}` : '';
+            html += `<div class="order-node ${cls}">`;
+            if (i === 0) html += `<span class="order-label">head</span>`;
+            else if (i === lhs.order.length - 1) html += `<span class="order-label">tail</span>`;
+            else html += `<span class="order-node-idx">#${i}</span>`;
+            html += `<div class="order-node-box">${lhs.order[i]}</div></div>`;
+            if (i < lhs.order.length - 1) html += `<div class="order-arrow"><div class="order-arrow-line"></div></div>`;
+        }
+        orderChain.innerHTML = html;
+    }
 
-async function loadExample() {
-  doClear();
-  const vals=['10','20','30','5','15','25','35'];
-  for(const v of vals) { document.getElementById('valInput').value=v; await doAdd(); await sleep(animSpeed*0.4); }
-  setStatus('Example loaded. Click iterate() to see insertion order preserved!');
-}
+    function renderAll(hlB=-1, hlT='', hlO=-1, hlOT='') { renderBuckets(hlB,hlT); renderOrder(hlO,hlOT); }
 
-render();
+    function getVal(){const v=parseInt(valueInput.value);if(isNaN(v)){setInfo('⚠️ Enter a valid integer.','');return null}return v}
+
+    async function handleAdd(){
+        const v=getVal();if(v===null)return; setAnimating(true); const d=getDelay();
+
+        const probe = lhs.contains(v);
+        if (probe.found) {
+            showHash(v, probe.placedIdx);
+            renderAll(probe.placedIdx,'search');
+            setInfo(`⚠️ <strong>${v}</strong> already exists at bucket[${probe.placedIdx}]. No duplicates in Set.`,'search');
+            logMsg(`add(${v}) → false (dup)`,'search');
+            await sleep(d); renderAll(); setAnimating(false); return;
+        }
+
+        const r = lhs.add(v);
+        const idx = r.rehashed ? r.newPlacedIdx : r.placedIdx;
+        showHash(v, idx);
+
+        if (r.rehashed) {
+            rehashText.textContent = `Capacity: ${r.oldCap} → ${r.newCap}. Order preserved.`;
+            rehashOverlay.classList.add('active'); logMsg(`Rehash! ${r.oldCap} → ${r.newCap}`,'rehash');
+            setInfo(`🔄 <strong>Rehash!</strong> ${r.oldCap} → <strong>${r.newCap}</strong>. Insertion order preserved.`,'rehash');
+            await sleep(d*2); rehashOverlay.classList.remove('active'); showHash(v, idx);
+        }
+
+        renderAll(idx,'target',lhs.order.length-1,'add');
+        setInfo(`✅ <strong>add(${v})</strong> → bucket[<strong>${idx}</strong>]. Appended to tail of insertion-order list. Size: <strong>${lhs.size}</strong>`,'add');
+        logMsg(`add(${v}) → true. bucket[${idx}]. size=${lhs.size}`,'add');
+        await sleep(d); renderAll(); valueInput.value=''; valueInput.focus(); setAnimating(false);
+    }
+
+    async function handleRemove(){
+        const v=getVal();if(v===null)return; setAnimating(true); const d=getDelay();
+        const probe = lhs.contains(v);
+
+        if (!probe.found) {
+            setInfo(`⚠️ <strong>${v}</strong> not found.`,'search');
+            logMsg(`remove(${v}) → false`,'search');
+            await sleep(d); renderAll(); setAnimating(false); return;
+        }
+
+        const foundIdx = probe.placedIdx;
+        showHash(v, foundIdx);
+        renderAll(foundIdx,'remove');
+        setInfo(`🗑️ Found <strong>${v}</strong> at bucket[${foundIdx}]. Removing and unlinking from order chain...`,'remove');
+        await sleep(d);
+
+        lhs.remove(v);
+        setInfo(`🗑️ <strong>remove(${v})</strong> — cleared bucket[${foundIdx}]. Size: <strong>${lhs.size}</strong>`,'remove');
+        logMsg(`remove(${v}) → true. size=${lhs.size}`,'remove');
+        await sleep(d*0.5); renderAll(); valueInput.value=''; valueInput.focus(); setAnimating(false);
+    }
+
+    async function handleContains(){
+        const v=getVal();if(v===null)return; setAnimating(true); const d=getDelay();
+        const probe = lhs.contains(v);
+
+        if (probe.found) {
+            showHash(v, probe.placedIdx);
+            renderAll(probe.placedIdx,'search');
+            setInfo(`✅ <strong>contains(${v})</strong> → <strong>true</strong>. Found at bucket[${probe.placedIdx}].`,'search');
+            logMsg(`contains(${v}) → true`,'search');
+        } else {
+            hashDisplay.innerHTML = `<span class="hl">${v}</span> <span class="op">→ not in set</span>`;
+            setInfo(`❌ <strong>contains(${v})</strong> → <strong>false</strong>`,'search');
+            logMsg(`contains(${v}) → false`,'search');
+        }
+        await sleep(d*1.5); renderAll(); setAnimating(false);
+    }
+
+    async function handleIterate(){
+        if(lhs.size===0)return; setAnimating(true); const d=getDelay();
+        setInfo(`🔄 Iterating in <strong>insertion order</strong>...`,'iter'); logMsg(`iterator(): [${lhs.order.join(', ')}]`,'iter');
+        for (let i = 0; i < lhs.order.length; i++) {
+            renderOrder(i,'iter'); await sleep(d*0.4);
+        }
+        setInfo(`✅ Iteration complete: [${lhs.order.join(' → ')}]. Order = insertion order, guaranteed.`,'iter');
+        await sleep(800); renderAll(); setAnimating(false);
+    }
+
+    function handleClear(){ lhs.clear(); hashDisplay.innerHTML='<span class="op">Ready</span>'; logMsg('clear()','info'); setInfo('🧹 Cleared. Capacity reset to 16.',''); renderAll(); }
+
+    async function handleSample(){
+        lhs.clear(); renderAll(); setAnimating(true);
+        const vals=[10,25,3,42,18,7,33,15,28,50,66,81,4]; logMsg(`Loading: add(${vals.join(', ')})`,'info'); const d=getDelay();
+        for (const v of vals) {
+            const r = lhs.add(v);
+            const idx = r.rehashed ? r.newPlacedIdx : r.placedIdx;
+            showHash(v, idx);
+            if (r.rehashed) {
+                rehashText.textContent=`${r.oldCap} → ${r.newCap}`;
+                rehashOverlay.classList.add('active');
+                logMsg(`Rehash! ${r.oldCap} → ${r.newCap}`,'rehash');
+                await sleep(d);
+                rehashOverlay.classList.remove('active');
+                showHash(v, idx);
+            }
+            renderAll(idx,'target',lhs.order.length-1,'add');
+            logMsg(`add(${v}) → bucket[${idx}]`,'add');
+            await sleep(d*0.4); renderAll(); await sleep(60);
+        }
+        setInfo(`✅ Loaded. Insertion order: [${lhs.order.join(' → ')}]. Try <strong>iterate()</strong>!`,'add'); renderAll(); setAnimating(false);
+    }
+
+    decBtn.addEventListener('click',()=>{const v=parseInt(valueInput.value)||0;valueInput.value=v-1});
+    incBtn.addEventListener('click',()=>{const v=parseInt(valueInput.value)||0;valueInput.value=v+1});
+    valueInput.addEventListener('keydown',e=>{if(e.key==='Enter'&&!animating)handleAdd()});
+    addBtn.addEventListener('click',handleAdd);
+    removeBtn.addEventListener('click',handleRemove);
+    containsBtn.addEventListener('click',handleContains);
+    iterBtn.addEventListener('click',handleIterate);
+    clearBtn.addEventListener('click',handleClear);
+    sampleBtn.addEventListener('click',handleSample);
+    clearLogBtn.addEventListener('click',()=>{logContainer.innerHTML='';logMsg('Log cleared.','info')});
+
+    /* Theory section toggle */
+    const theorySection = $('theorySection'), theoryToggle = $('theoryToggle');
+    theoryToggle.addEventListener('click', () => theorySection.classList.toggle('open'));
+
+    renderAll();
+})();
 </script>
 </body>
 </html>

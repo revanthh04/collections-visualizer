@@ -1,254 +1,842 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ArrayDeque Visualizer — Circular Buffer</title>
-  <link rel="stylesheet" href="../visualizer-common.css">
-  <style>
-    .ring-svg { width: 100%; max-width: 500px; margin: 0 auto; }
-    .ring-slot { cursor: default; transition: all .3s; }
-    .ring-text { font-family: var(--mono); font-size: 13px; fill: var(--text-muted); }
-    .ring-text.filled { fill: var(--blue); font-weight: 600; }
-    .ring-idx { font-family: var(--mono); font-size: 10px; fill: var(--text-muted); opacity: .6; }
-    .ring-pointer { font-family: var(--mono); font-size: 12px; font-weight: 700; }
-    .ring-pointer.head { fill: var(--green); }
-    .ring-pointer.tail { fill: var(--amber); }
-  </style>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='j' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23f89820'/%3E%3Cstop offset='1' stop-color='%23e25303'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M24 4c0 0 -4 12 8 16s12 12 4 20' fill='none' stroke='url(%23j)' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M32 4c0 0 -4 12 8 16s12 12 4 20' fill='none' stroke='url(%23j)' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M12 30h34v8c0 14-34 14-34 0z' fill='url(%23j)'/%3E%3Cpath d='M46 33h6c6 0 6 10 0 10h-6' fill='none' stroke='url(%23j)' stroke-width='3'/%3E%3Cpath d='M8 52h48' stroke='url(%23j)' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M14 56h36' stroke='url(%23j)' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArrayDeque Visualizer — Circular Buffer</title>
+    <meta name="description" content="Interactive circular buffer visualizer for Java ArrayDeque. Animated Deque, Queue, and Stack operations with ring and array views.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+/* ===== Design System — Pure Black Premium ===== */
+:root {
+    --bg-primary: #000000;
+    --bg-secondary: #0a0a0a;
+    --bg-panel: #0d0d0d;
+    --bg-panel-hover: #161616;
+    --bg-elevated: #111111;
+    --border: rgba(255,255,255,0.06);
+    --border-subtle: rgba(255,255,255,0.04);
+    --border-glow: rgba(255,255,255,0.12);
+    --text-primary: #f0f0f0;
+    --text-secondary: #8a8a8a;
+    --text-muted: #555555;
+    --accent-green: #4cff91;
+    --accent-green-bg: rgba(76,255,145,0.10);
+    --accent-red: #ff5252;
+    --accent-red-bg: rgba(255,82,82,0.08);
+    --accent-blue: #448aff;
+    --accent-blue-bg: rgba(68,138,255,0.08);
+    --accent-amber: #ffc107;
+    --accent-amber-bg: rgba(255,193,7,0.08);
+    --accent-purple: #b388ff;
+    --accent-purple-bg: rgba(179,136,255,0.08);
+    --accent-cyan: #18ffff;
+    --accent-cyan-bg: rgba(24,255,255,0.08);
+    --accent-teal: #64ffda;
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+    --radius-full: 999px;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.5);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.6);
+    --shadow-lg: 0 8px 40px rgba(0,0,0,0.7);
+    --shadow-glow-green: 0 0 24px rgba(76,255,145,0.25);
+    --shadow-glow-blue: 0 0 24px rgba(68,138,255,0.25);
+    --shadow-glow-amber: 0 0 24px rgba(255,193,7,0.3);
+    --shadow-glow-red: 0 0 24px rgba(255,82,82,0.25);
+    --shadow-glow-purple: 0 0 24px rgba(179,136,255,0.25);
+    --shadow-glow-cyan: 0 0 24px rgba(24,255,255,0.25);
+    --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+    --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font); background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; overflow-x: hidden; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+.app { max-width: 1400px; margin: 0 auto; padding: 20px 24px; display: flex; flex-direction: column; gap: 16px; }
+
+/* ===== Header ===== */
+.header { display: flex; align-items: center; justify-content: space-between; padding: 20px 28px; background: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius-xl); flex-wrap: wrap; gap: 16px; backdrop-filter: blur(20px); }
+.header-left { display: flex; align-items: center; gap: 16px; }
+.logo-icon { width: 48px; height: 48px; border-radius: var(--radius-md); background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue)); display: flex; align-items: center; justify-content: center; color: white; box-shadow: var(--shadow-glow-cyan); transition: transform var(--transition); }
+.logo-icon:hover { transform: scale(1.08) rotate(-3deg); }
+.header h1 { font-size: 1.35rem; font-weight: 800; letter-spacing: -0.03em; background: linear-gradient(135deg, #fff 0%, #888 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.subtitle { font-size: 0.72rem; color: var(--text-muted); font-weight: 500; margin-top: 3px; letter-spacing: 0.02em; }
+.header-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.formula-badge { display: flex; align-items: center; gap: 6px; padding: 7px 14px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: var(--radius-full); font-size: 0.72rem; transition: border-color var(--transition), background var(--transition); }
+.formula-badge:hover { background: rgba(255,255,255,0.06); border-color: var(--border-glow); }
+.formula-label { color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.58rem; letter-spacing: 0.1em; }
+.formula-badge code { font-family: var(--font-mono); color: var(--accent-cyan); font-weight: 600; font-size: 0.72rem; }
+
+/* ===== Mode Tabs ===== */
+.mode-bar { display: flex; align-items: center; gap: 6px; padding: 6px; background: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius-xl); backdrop-filter: blur(20px); }
+.mode-tab { flex: 1; display: flex; align-items: center; justify-content: center; gap: 7px; padding: 10px 18px; border: none; border-radius: var(--radius-lg); background: transparent; color: var(--text-muted); font-family: var(--font); font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all var(--transition); position: relative; }
+.mode-tab:hover { color: var(--text-secondary); background: rgba(255,255,255,0.03); }
+.mode-tab.active { color: var(--text-primary); background: rgba(255,255,255,0.06); border: 1px solid var(--border-glow); }
+.mode-tab .mode-tag { font-size: 0.55rem; font-weight: 700; padding: 2px 6px; border-radius: var(--radius-sm); text-transform: uppercase; letter-spacing: 0.08em; }
+.mode-tab.active .mode-tag { background: var(--accent-blue-bg); color: var(--accent-blue); }
+
+/* ===== Controls ===== */
+.controls-bar { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; background: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius-xl); gap: 14px; flex-wrap: wrap; backdrop-filter: blur(20px); }
+.controls-left, .controls-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.input-group { display: flex; align-items: center; gap: 0; }
+.stepper-btn { width: 36px; height: 40px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: var(--text-secondary); cursor: pointer; transition: all var(--transition); font-size: 1.1rem; font-weight: 600; user-select: none; }
+.stepper-btn:first-child { border-radius: var(--radius-sm) 0 0 var(--radius-sm); }
+.stepper-btn:hover { background: rgba(255,255,255,0.08); color: var(--text-primary); }
+.stepper-btn:active { background: rgba(255,255,255,0.12); transform: scale(0.95); }
+.input-group input { width: 72px; padding: 9px 8px; background: var(--bg-secondary); border: 1px solid var(--border); border-left: none; border-right: none; color: var(--text-primary); font-family: var(--font-mono); font-size: 0.9rem; font-weight: 700; outline: none; text-align: center; transition: border-color var(--transition); }
+.input-group input:focus { border-color: var(--accent-blue); }
+.input-group input::placeholder { color: var(--text-muted); font-weight: 400; }
+.input-group input::-webkit-outer-spin-button, .input-group input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.input-group input[type=number] { -moz-appearance: textfield; appearance: textfield; }
+
+.btn { display: inline-flex; align-items: center; gap: 7px; padding: 9px 16px; font-family: var(--font); font-size: 0.8rem; font-weight: 600; border: 1px solid transparent; border-radius: var(--radius-sm); cursor: pointer; transition: all var(--transition); white-space: nowrap; position: relative; overflow: hidden; }
+.btn::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, transparent 100%); pointer-events: none; opacity: 0; transition: opacity var(--transition); }
+.btn:hover::after { opacity: 1; }
+.btn:active { transform: scale(0.96); }
+.btn:disabled { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
+
+.btn-addFirst { background: var(--accent-cyan); color: #000; border-color: var(--accent-cyan); font-weight: 700; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+.btn-addFirst:hover { box-shadow: var(--shadow-glow-cyan); filter: brightness(1.12); }
+.btn-addLast { background: var(--accent-green); color: #000; border-color: var(--accent-green); font-weight: 700; }
+.btn-addLast:hover { box-shadow: var(--shadow-glow-green); filter: brightness(1.12); }
+.btn-removeFirst { background: var(--accent-red-bg); color: var(--accent-red); border: 1px solid rgba(255,82,82,0.2); }
+.btn-removeFirst:hover { background: rgba(255,82,82,0.18); box-shadow: var(--shadow-glow-red); }
+.btn-removeLast { background: var(--accent-amber-bg); color: var(--accent-amber); border: 1px solid rgba(255,193,7,0.2); }
+.btn-removeLast:hover { background: rgba(255,193,7,0.18); box-shadow: var(--shadow-glow-amber); }
+.btn-peekFirst { background: var(--accent-purple-bg); color: var(--accent-purple); border: 1px solid rgba(179,136,255,0.2); }
+.btn-peekFirst:hover { background: rgba(179,136,255,0.18); box-shadow: var(--shadow-glow-purple); }
+.btn-peekLast { background: var(--accent-purple-bg); color: var(--accent-purple); border: 1px solid rgba(179,136,255,0.2); }
+.btn-peekLast:hover { background: rgba(179,136,255,0.18); box-shadow: var(--shadow-glow-purple); }
+.btn-clear { background: rgba(255,255,255,0.03); color: var(--text-muted); border: 1px solid var(--border); }
+.btn-clear:hover { color: var(--text-secondary); background: rgba(255,255,255,0.06); }
+.btn-sample { background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple)); color: white; padding: 9px 18px; font-weight: 700; }
+.btn-sample:hover { box-shadow: var(--shadow-glow-blue); filter: brightness(1.15); }
+.btn-clear-log { background: rgba(255,255,255,0.03); color: var(--text-muted); border: 1px solid var(--border); padding: 5px 12px; font-size: 0.7rem; }
+
+/* Speed */
+.speed-control { display: flex; align-items: center; gap: 7px; }
+.speed-control label { font-size: 0.7rem; color: var(--text-muted); font-weight: 600; }
+.speed-control input[type="range"] { width: 64px; height: 4px; -webkit-appearance: none; appearance: none; background: rgba(255,255,255,0.08); border-radius: 2px; outline: none; }
+.speed-control input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--accent-blue); cursor: pointer; box-shadow: 0 0 8px rgba(68,138,255,0.4); }
+
+/* ===== Panels ===== */
+.panel { background: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius-xl); overflow: hidden; backdrop-filter: blur(20px); }
+.panel-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-bottom: 1px solid var(--border-subtle); background: rgba(255,255,255,0.01); }
+.panel-header h2 { font-size: 0.82rem; font-weight: 700; color: var(--text-secondary); }
+.badge { font-size: 0.68rem; font-weight: 600; padding: 4px 12px; background: var(--accent-blue-bg); color: var(--accent-blue); border-radius: var(--radius-full); border: 1px solid rgba(68,138,255,0.15); }
+.badge-cyan { background: var(--accent-cyan-bg); color: var(--accent-cyan); border-color: rgba(24,255,255,0.15); }
+.badge-purple { background: var(--accent-purple-bg); color: var(--accent-purple); border-color: rgba(179,136,255,0.15); }
+.code-hint { font-family: var(--font-mono); font-size: 0.62rem; color: var(--text-muted); padding: 4px 10px; background: rgba(255,255,255,0.03); border-radius: var(--radius-sm); border: 1px solid var(--border); }
+
+/* ===== Circular View ===== */
+.main-content { display: flex; gap: 16px; }
+.ring-panel { flex: 1; min-height: 420px; }
+.ring-container { position: relative; width: 100%; min-height: 380px; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.ring-container canvas { max-width: 100%; }
+.empty-state { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: var(--text-muted); font-size: 0.85rem; }
+.empty-state .hint { font-size: 0.72rem; opacity: 0.5; }
+.empty-state.hidden { display: none; }
+
+/* ===== Array View ===== */
+.array-container { padding: 18px 20px; display: flex; flex-direction: column; gap: 8px; overflow-x: auto; min-height: 90px; }
+.array-row { display: flex; align-items: flex-end; gap: 3px; }
+.array-cell { display: flex; flex-direction: column; align-items: center; gap: 2px; transition: all 0.3s ease; min-width: 44px; }
+.array-value { width: 44px; height: 38px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.02); border: 1.5px solid var(--border); border-radius: 6px; font-family: var(--font-mono); font-size: 0.82rem; font-weight: 700; color: var(--text-muted); transition: all 0.3s ease; }
+.array-value.occupied { color: var(--text-primary); background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.12); }
+.array-value.head-cell { border-color: var(--accent-cyan); background: var(--accent-cyan-bg); color: var(--accent-cyan); }
+.array-value.tail-cell { border-color: var(--accent-purple); background: var(--accent-purple-bg); color: var(--accent-purple); }
+.array-value.hl-add { border-color: var(--accent-green); background: var(--accent-green-bg); color: var(--accent-green); animation: cellPop 0.4s ease; }
+.array-value.hl-remove { border-color: var(--accent-red); background: var(--accent-red-bg); color: var(--accent-red); }
+.array-value.hl-peek { border-color: var(--accent-amber); background: var(--accent-amber-bg); color: var(--accent-amber); animation: peekPulse 0.8s ease infinite; }
+@keyframes cellPop { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+@keyframes peekPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); box-shadow: 0 0 16px rgba(255,193,7,0.3); } }
+.array-index { font-size: 0.55rem; font-weight: 600; color: var(--text-muted); font-family: var(--font-mono); opacity: 0.7; }
+.ptr-label { font-size: 0.55rem; font-weight: 700; font-family: var(--font-mono); padding: 1px 4px; border-radius: 3px; margin-top: 1px; }
+.ptr-label.head-label { color: var(--accent-cyan); background: var(--accent-cyan-bg); }
+.ptr-label.tail-label { color: var(--accent-purple); background: var(--accent-purple-bg); }
+.array-bracket { font-family: var(--font-mono); font-size: 1.3rem; font-weight: 300; color: rgba(255,255,255,0.15); align-self: center; }
+
+/* ===== Info Bar ===== */
+.info-bar { display: flex; align-items: center; gap: 12px; padding: 12px 20px; background: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius-md); font-size: 0.8rem; color: var(--text-secondary); min-height: 48px; transition: all 0.3s ease; backdrop-filter: blur(20px); }
+.info-bar.action-add { border-color: rgba(76,255,145,0.2); background: rgba(76,255,145,0.03); }
+.info-bar.action-remove { border-color: rgba(255,82,82,0.2); background: rgba(255,82,82,0.03); }
+.info-bar.action-peek { border-color: rgba(255,193,7,0.2); background: rgba(255,193,7,0.03); }
+.info-bar.action-resize { border-color: rgba(179,136,255,0.25); background: rgba(179,136,255,0.04); }
+.info-text { font-weight: 500; line-height: 1.5; }
+.info-text strong { color: var(--text-primary); font-weight: 700; }
+
+/* ===== Log ===== */
+.log-panel { max-height: 220px; }
+.log-container { padding: 10px 16px; max-height: 160px; overflow-y: auto; display: flex; flex-direction: column; gap: 3px; }
+.log-container::-webkit-scrollbar { width: 3px; }
+.log-container::-webkit-scrollbar-track { background: transparent; }
+.log-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
+.log-entry { font-family: var(--font-mono); font-size: 0.68rem; padding: 4px 10px; border-radius: var(--radius-sm); line-height: 1.6; color: var(--text-secondary); }
+.log-entry.log-add { color: var(--accent-green); background: var(--accent-green-bg); }
+.log-entry.log-remove { color: var(--accent-red); background: var(--accent-red-bg); }
+.log-entry.log-peek { color: var(--accent-amber); background: var(--accent-amber-bg); }
+.log-entry.log-resize { color: var(--accent-purple); background: var(--accent-purple-bg); }
+.log-entry.log-info { color: var(--text-muted); }
+
+/* ===== Theory Section ===== */
+.theory-section{background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--radius-xl);overflow:hidden;backdrop-filter:blur(20px)}
+.theory-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;padding:16px 24px;cursor:pointer;background:none;border:none;color:var(--text-primary);font-family:var(--font);transition:background var(--transition)}
+.theory-toggle:hover{background:rgba(255,255,255,0.02)}
+.theory-toggle h2{font-size:0.88rem;font-weight:700;display:flex;align-items:center;gap:10px;color:var(--text-secondary)}
+.theory-toggle h2 .accent{color:var(--accent-orange)}
+.toggle-chevron{width:20px;height:20px;color:var(--text-muted);transition:transform 0.3s ease}
+.theory-section.open .toggle-chevron{transform:rotate(180deg)}
+.theory-body{max-height:0;overflow:hidden;transition:max-height 0.5s cubic-bezier(0.4,0,0.2,1)}
+.theory-section.open .theory-body{max-height:3500px}
+.theory-inner{padding:0 24px 24px;display:flex;flex-direction:column;gap:20px}
+.theory-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:800px){.theory-grid{grid-template-columns:1fr}}
+.theory-card{background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;transition:border-color var(--transition)}
+.theory-card:hover{border-color:var(--border-glow)}
+.theory-card h3{font-size:0.82rem;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.theory-card h3 .icon{width:28px;height:28px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:0.85rem;flex-shrink:0}
+.theory-card p,.theory-card li{font-size:0.76rem;color:var(--text-secondary);line-height:1.7}
+.theory-card ul{padding-left:16px;display:flex;flex-direction:column;gap:4px}
+.theory-card code{font-family:var(--font-mono);font-size:0.72rem;color:var(--accent-cyan);background:rgba(24,255,255,0.06);padding:1px 6px;border-radius:4px}
+.theory-full{grid-column:1/-1}
+.complexity-table{width:100%;border-collapse:collapse;margin-top:8px}
+.complexity-table th,.complexity-table td{padding:8px 12px;font-size:0.72rem;text-align:left;border-bottom:1px solid var(--border-subtle)}
+.complexity-table th{color:var(--text-muted);font-weight:600;text-transform:uppercase;font-size:0.62rem;letter-spacing:0.08em}
+.complexity-table td{font-family:var(--font-mono);color:var(--text-primary);font-weight:600}
+.complexity-table td:first-child{font-family:var(--font);color:var(--text-secondary)}
+.complexity-table .good{color:var(--accent-green)}
+.complexity-table .warn{color:var(--accent-amber)}
+.complexity-table .bad{color:var(--accent-red)}
+
+/* ===== Responsive ===== */
+@media (max-width: 900px) {
+    .main-content { flex-direction: column; }
+    .header { flex-direction: column; align-items: flex-start; }
+    .controls-bar { flex-direction: column; align-items: flex-start; }
+    .controls-left, .controls-right { width: 100%; }
+}
+@media (max-width: 600px) {
+    .app { padding: 12px 14px; gap: 12px; }
+    .formula-badge { display: none; }
+    .stepper-btn { width: 32px; height: 36px; }
+    .input-group input { width: 60px; padding: 7px 6px; }
+}
+.home-link{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-secondary);font-size:0.72rem;font-weight:600;text-decoration:none;transition:all var(--transition)}
+.home-link:hover{background:rgba(255,255,255,0.08);color:var(--text-primary);border-color:var(--border-glow)}
+    </style>
 </head>
 <body>
-<div class="viz-page">
-  <div class="viz-header">
-    <div class="viz-header-left">
-      <a href="../index.html" class="viz-home">← Home</a>
-      <div class="viz-icon" style="background:linear-gradient(135deg,#2979ff,#448aff)">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M17 3l4 4-4 4"/><path d="M7 21l-4-4 4-4"/><line x1="21" y1="7" x2="3" y2="7"/><line x1="3" y1="17" x2="21" y2="17"/></svg>
-      </div>
-      <div class="viz-title-group">
-        <h1>ArrayDeque Visualizer</h1>
-        <p>Java Collections Framework — Circular Buffer</p>
-      </div>
-    </div>
-    <div class="viz-header-badges">
-      <div class="viz-badge">HEAD <code>elements[head]</code></div>
-      <div class="viz-badge">WRAP <code>(i + 1) & (len - 1)</code></div>
-      <div class="viz-badge">CAPACITY <code>Power of 2</code></div>
-    </div>
-  </div>
+    <div class="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <a href="../index.html" class="home-link" aria-label="Back to Home" title="Back to Home">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+                    Home
+                </a>
+                <div class="logo-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="8 12 12 8 16 12"/>
+                        <polyline points="8 16 12 12 16 16"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1>ArrayDeque Visualizer</h1>
+                    <p class="subtitle">Java Collections Framework — Circular Buffer</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="formula-badge"><span class="formula-label">Head</span><code>elements[head]</code></div>
+                <div class="formula-badge"><span class="formula-label">Wrap</span><code>(i + 1) & (len - 1)</code></div>
+                <div class="formula-badge"><span class="formula-label">Capacity</span><code>Power of 2</code></div>
+            </div>
+        </header>
 
-  <div class="viz-modes">
-    <button class="viz-mode-tab active" onclick="setMode('deque',this)"><span class="mode-label">🔄 Deque</span><span class="mode-desc">Double-ended</span></button>
-    <button class="viz-mode-tab" onclick="setMode('queue',this)"><span class="mode-label">📥 Queue</span><span class="mode-desc">FIFO</span></button>
-    <button class="viz-mode-tab" onclick="setMode('stack',this)"><span class="mode-label">📚 Stack</span><span class="mode-desc">LIFO</span></button>
-  </div>
+        <!-- Mode Tabs -->
+        <div class="mode-bar">
+            <button class="mode-tab active" data-mode="deque">
+                🔄 Deque <span class="mode-tag">Double-Ended</span>
+            </button>
+            <button class="mode-tab" data-mode="queue">
+                ➡️ Queue <span class="mode-tag">FIFO</span>
+            </button>
+            <button class="mode-tab" data-mode="stack">
+                📚 Stack <span class="mode-tag">LIFO</span>
+            </button>
+        </div>
 
-  <div class="viz-controls">
-    <div class="viz-input-group">
-      <button class="viz-input-btn" onclick="decVal()">−</button>
-      <input type="number" class="viz-input" id="valInput" value="0">
-      <button class="viz-input-btn" onclick="incVal()">+</button>
-    </div>
-    <button class="viz-op-btn primary" id="btn1" onclick="op1()">⇐ addFirst</button>
-    <button class="viz-op-btn primary" id="btn2" onclick="op2()">addLast ⇒</button>
-    <button class="viz-op-btn danger" id="btn3" onclick="op3()">removeFirst</button>
-    <button class="viz-op-btn danger" id="btn4" onclick="op4()">removeLast</button>
-    <button class="viz-op-btn secondary" id="btn5" onclick="op5()">peekFirst</button>
-    <button class="viz-op-btn secondary" id="btn6" onclick="op6()">peekLast</button>
-    <button class="viz-op-btn secondary" onclick="doClear()">Clear</button>
-    <div class="viz-controls-right">
-      <button class="viz-load-btn" onclick="loadExample()">▶ Load Example</button>
-      <div class="viz-speed">Speed <input type="range" id="speedSlider" min="100" max="1500" value="500"></div>
-    </div>
-  </div>
+        <!-- Controls -->
+        <div class="controls-bar">
+            <div class="controls-left">
+                <div class="input-group">
+                    <button class="stepper-btn" id="decBtn" type="button" aria-label="Decrease">−</button>
+                    <input type="number" id="valueInput" placeholder="0" min="-999" max="999">
+                    <button class="stepper-btn" id="incBtn" type="button" aria-label="Increase" style="border-radius:0">+</button>
+                    <button id="addFirstBtn" class="btn btn-addFirst">⬅ addFirst</button>
+                </div>
+                <button id="addLastBtn" class="btn btn-addLast">addLast ➡</button>
+                <button id="removeFirstBtn" class="btn btn-removeFirst">removeFirst</button>
+                <button id="removeLastBtn" class="btn btn-removeLast">removeLast</button>
+                <button id="peekFirstBtn" class="btn btn-peekFirst">peekFirst</button>
+                <button id="peekLastBtn" class="btn btn-peekLast">peekLast</button>
+                <button id="clearBtn" class="btn btn-clear">Clear</button>
+            </div>
+            <div class="controls-right">
+                <button id="sampleBtn" class="btn btn-sample">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                    Load Example
+                </button>
+                <div class="speed-control">
+                    <label>Speed</label>
+                    <input type="range" id="speedSlider" min="1" max="5" value="3" step="1">
+                </div>
+            </div>
+        </div>
 
-  <div class="viz-theory">
-    <button class="viz-theory-toggle" aria-expanded="false" onclick="toggleTheory(this)">
-      <span class="toggle-left">📖 What is an ArrayDeque? — Double-Ended Queue Internals</span>
-      <span class="viz-theory-chevron">▼</span>
-    </button>
-    <div class="viz-theory-content" id="theoryContent">
-      <div class="viz-theory-inner">
-        <h3>Circular Buffer</h3>
-        <p>ArrayDeque uses a resizable circular array. The <code>head</code> and <code>tail</code> indices wrap around using bitwise AND: <code>(index + 1) & (elements.length - 1)</code>. Capacity is always a power of 2 to make this wrapping efficient.</p>
-        <h3>Key Characteristics</h3>
-        <ul>
-          <li>All operations at both ends are O(1) amortized</li>
-          <li>Faster than LinkedList for Deque/Queue/Stack usage</li>
-          <li>Capacity doubles (power of 2) when full</li>
-          <li>Does NOT allow null elements</li>
-        </ul>
-      </div>
-    </div>
-  </div>
+        <!-- Theory Section -->
+        <div class="theory-section" id="theorySection">
+            <button class="theory-toggle" id="theoryToggle" type="button">
+                <h2>📖 <span class="accent" style="color:var(--accent-orange)">What is an ArrayDeque?</span> — Double-Ended Queue Internals</h2>
+                <svg class="toggle-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="theory-body">
+                <div class="theory-inner">
+                    <div class="theory-grid">
+                        <div class="theory-card">
+                            <h3><span class="icon" style="background:var(--accent-blue-bg);color:var(--accent-blue)">📦</span> Circular Array Backend</h3>
+                            <p style="margin-bottom:10px">An ArrayDeque uses a contiguous array but treats it as a circle using two pointers:</p>
+                            <ul>
+                                <li><strong>Head Pointer:</strong> Tracks the first element. Decrements when adding to the front.</li>
+                                <li><strong>Tail Pointer:</strong> Tracks the next available slot at the end. Increments when adding to the back.</li>
+                                <li><strong>Bitwise Wrapping:</strong> Power-of-2 capacity lets it wrap around instantly using <code>index & (length - 1)</code> instead of modulo.</li>
+                            </ul>
+                        </div>
 
-  <div class="viz-panel">
-    <div class="viz-panel-header">
-      <h2>🔄 Circular Buffer View (Memory Layout)</h2>
-      <div class="viz-panel-badges">
-        <span class="viz-panel-badge">Head: <strong id="headBadge">0</strong></span>
-        <span class="viz-panel-badge">Tail: <strong id="tailBadge">0</strong></span>
-        <span class="viz-panel-badge">Size: <strong id="sizeBadge">0 / 16</strong></span>
-      </div>
-    </div>
-    <div class="viz-panel-body" style="flex-direction:column">
-      <svg id="ringSvg" class="ring-svg" viewBox="0 0 500 500"></svg>
-    </div>
-  </div>
+                        <div class="theory-card">
+                            <h3><span class="icon" style="background:var(--accent-green-bg);color:var(--accent-green)">⚡</span> Faster than LinkedList & Stack</h3>
+                            <p style="margin-bottom:10px">It is the undisputed king of Queues and Stacks in Java:</p>
+                            <ul>
+                                <li><strong>Cache Friendly:</strong> Contiguous memory means zero node allocation and great CPU cache locality.</li>
+                                <li><strong>No Shifting:</strong> Adding/removing from either end is <strong>O(1)</strong> because only pointers move.</li>
+                                <li>Better than <code>Stack</code> (not synchronized/legacy) and better than <code>LinkedList</code> (no node heap allocation).</li>
+                            </ul>
+                        </div>
 
-  <div class="viz-status" id="statusBar"><span class="status-icon">ℹ️</span> Ready. Add elements to visualize the circular buffer.</div>
+                        <div class="theory-card theory-full">
+                            <h3><span class="icon" style="background:rgba(255,255,255,0.05);color:var(--text-primary)">⚙️</span> Common Methods & Time Complexity</h3>
+                            <table class="complexity-table">
+                                <thead>
+                                    <tr>
+                                        <th>Method</th>
+                                        <th>Description</th>
+                                        <th>Origin</th>
+                                        <th>Time Comp.</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><code>addFirst(E e)</code> / <code>push(E e)</code></td>
+                                        <td>Inserts at the head. Traverses backwards in the array.</td>
+                                        <td>Deque / Stack</td>
+                                        <td><span class="good">O(1)</span>*</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>addLast(E e)</code> / <code>add(E e)</code> / <code>offer(E e)</code></td>
+                                        <td>Inserts at the tail. Traverses forwards in the array.</td>
+                                        <td>Deque / Queue</td>
+                                        <td><span class="good">O(1)</span>*</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>removeFirst()</code> / <code>pop()</code> / <code>poll()</code></td>
+                                        <td>Removes the head element. Advances head pointer.</td>
+                                        <td>Deque / Stack / Queue</td>
+                                        <td><span class="good">O(1)</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>removeLast()</code></td>
+                                        <td>Removes the tail element. Retreats tail pointer.</td>
+                                        <td>Deque</td>
+                                        <td><span class="good">O(1)</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <p style="margin-top:10px;font-size:0.65rem;color:var(--text-muted)">* Amortized O(1). If the array fills up (head == tail), it creates a new double-sized array and copies elements linearly, taking O(n) temporarily.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-  <div class="viz-log">
-    <div class="viz-log-header"><h2>📋 Operation Log</h2><button class="viz-log-clear" onclick="clearLog()">Clear</button></div>
-    <div class="viz-log-body" id="logBody"><div class="log-entry info">Visualizer ready. ArrayDeque — circular buffer with capacity 16.</div></div>
-  </div>
-</div>
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="panel ring-panel">
+                <div class="panel-header">
+                    <h2>🔄 Circular Buffer View (Memory Layout)</h2>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <span class="badge badge-cyan" id="headLabel">Head: 0</span>
+                        <span class="badge badge-purple" id="tailLabel">Tail: 0</span>
+                        <span class="badge" id="sizeLabel">Size: 0 / 16</span>
+                    </div>
+                </div>
+                <div class="ring-container" id="ringContainer">
+                    <canvas id="ringCanvas" width="400" height="400"></canvas>
+                    <div class="empty-state" id="emptyState">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4">
+                            <circle cx="12" cy="12" r="10"/><polyline points="8 12 12 8 16 12"/>
+                        </svg>
+                        <p>Add elements to visualize the circular buffer</p>
+                        <p class="hint">Or click <strong>"Load Example"</strong> to see a demo</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Array View -->
+        <div class="panel array-panel">
+            <div class="panel-header">
+                <h2>📦 Internal Array (Object[] elements)</h2>
+                <code class="code-hint">Circular wrap: index & (elements.length - 1)</code>
+            </div>
+            <div class="array-container" id="arrayContainer">
+                <div style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.78rem;text-align:center;padding:10px;width:100%;">
+                    Empty — Object[] elements = new Object[16]
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Bar -->
+        <div class="info-bar" id="infoBar">
+            <div>ℹ️</div>
+            <div class="info-text" id="infoText">Ready. Add elements or load the example to begin. Mode: <strong>Deque</strong></div>
+        </div>
+
+        <!-- Operation Log -->
+        <div class="panel log-panel">
+            <div class="panel-header">
+                <h2>📋 Operation Log</h2>
+                <button id="clearLogBtn" class="btn btn-clear-log">Clear</button>
+            </div>
+            <div class="log-container" id="logContainer">
+                <div class="log-entry log-info">Visualizer ready. Default capacity = 16, Deque mode.</div>
+            </div>
+        </div>
+    </div>
 
 <script>
-let cap = 16;
-let buf = new Array(cap).fill(null);
-let head = 0, tail = 0, size = 0;
-let mode = 'deque';
-let animSpeed = 500;
+/**
+ * Circular ArrayDeque — mirrors Java's ArrayDeque internals.
+ * Uses power-of-2 capacity with bitwise wrap-around.
+ */
+class CircularDeque {
+    constructor(initCap = 16) {
+        this.capacity = initCap;
+        this.elements = new Array(this.capacity).fill(null);
+        this.head = 0;
+        this.tail = 0;
+    }
+    get size() { return (this.tail - this.head + this.capacity) & (this.capacity - 1); }
+    get isEmpty() { return this.head === this.tail; }
 
-document.getElementById('speedSlider').addEventListener('input', e => { animSpeed = 1600 - parseInt(e.target.value); });
-function getVal() { return parseInt(document.getElementById('valInput').value)||0; }
-function incVal() { const i=document.getElementById('valInput'); i.value=parseInt(i.value||0)+1; }
-function decVal() { const i=document.getElementById('valInput'); i.value=parseInt(i.value||0)-1; }
-function setStatus(msg) { document.getElementById('statusBar').innerHTML='<span class="status-icon">ℹ️</span> '+msg; }
-function addLog(msg,type='info') { const d=document.createElement('div'); d.className='log-entry '+type; d.textContent=msg; document.getElementById('logBody').insertBefore(d,document.getElementById('logBody').firstChild); }
-function clearLog() { document.getElementById('logBody').innerHTML=''; }
-function toggleTheory(btn) { const e=btn.getAttribute('aria-expanded')==='true'; btn.setAttribute('aria-expanded',!e); document.getElementById('theoryContent').classList.toggle('open'); }
-function sleep(ms) { return new Promise(r=>setTimeout(r,ms)); }
+    _doubleCapacity() {
+        const oldcap = this.capacity, newcap = oldcap * 2;
+        const newArr = new Array(newcap).fill(null);
+        // When _doubleCapacity is called, head === tail meaning the array is
+        // completely full, so the number of elements equals oldcap (not this.size
+        // which would incorrectly return 0 because head === tail).
+        const sz = oldcap;
+        for (let i = 0; i < sz; i++) newArr[i] = this.elements[(this.head + i) & (oldcap - 1)];
+        this.elements = newArr;
+        this.head = 0;
+        this.tail = sz;
+        this.capacity = newcap;
+        return { oldCap: oldcap, newCap: newcap };
+    }
 
-function setMode(m, btn) {
-  mode = m;
-  document.querySelectorAll('.viz-mode-tab').forEach(t=>t.classList.remove('active'));
-  btn.classList.add('active');
-  const b1=document.getElementById('btn1'),b2=document.getElementById('btn2'),b3=document.getElementById('btn3'),b4=document.getElementById('btn4'),b5=document.getElementById('btn5'),b6=document.getElementById('btn6');
-  if(m==='deque'){b1.textContent='⇐ addFirst';b2.textContent='addLast ⇒';b2.style.display='';b3.textContent='removeFirst';b4.textContent='removeLast';b4.style.display='';b5.textContent='peekFirst';b6.textContent='peekLast';b6.style.display='';}
-  else if(m==='queue'){b1.textContent='offer (enqueue)';b2.style.display='none';b3.textContent='poll (dequeue)';b4.style.display='none';b5.textContent='peek';b6.style.display='none';}
-  else{b1.textContent='push';b2.style.display='none';b3.textContent='pop';b4.style.display='none';b5.textContent='peek';b6.style.display='none';}
+    addFirst(val) {
+        const ops = [];
+        this.head = (this.head - 1 + this.capacity) & (this.capacity - 1);
+        this.elements[this.head] = val;
+        ops.push({ type: 'add', position: 'first', index: this.head, value: val, head: this.head, tail: this.tail, snapshot: [...this.elements], message: `addFirst(${val}): head moved to index ${this.head}, placed ${val}` });
+        if (this.head === this.tail) {
+            const r = this._doubleCapacity();
+            ops.push({ type: 'resize', oldCap: r.oldCap, newCap: r.newCap, head: this.head, tail: this.tail, snapshot: [...this.elements], message: `Capacity doubled: ${r.oldCap} → ${r.newCap}. Array rebuilt, head=0, tail=${this.tail}` });
+        }
+        return ops;
+    }
+
+    addLast(val) {
+        const ops = [];
+        this.elements[this.tail] = val;
+        const placedAt = this.tail;
+        this.tail = (this.tail + 1) & (this.capacity - 1);
+        ops.push({ type: 'add', position: 'last', index: placedAt, value: val, head: this.head, tail: this.tail, snapshot: [...this.elements], message: `addLast(${val}): placed ${val} at index ${placedAt}, tail moved to ${this.tail}` });
+        if (this.head === this.tail) {
+            const r = this._doubleCapacity();
+            ops.push({ type: 'resize', oldCap: r.oldCap, newCap: r.newCap, head: this.head, tail: this.tail, snapshot: [...this.elements], message: `Capacity doubled: ${r.oldCap} → ${r.newCap}. Array rebuilt, head=0, tail=${this.tail}` });
+        }
+        return ops;
+    }
+
+    removeFirst() {
+        if (this.isEmpty) return null;
+        const ops = [];
+        const val = this.elements[this.head];
+        const oldHead = this.head;
+        this.elements[this.head] = null;
+        this.head = (this.head + 1) & (this.capacity - 1);
+        ops.push({ type: 'remove', position: 'first', index: oldHead, value: val, head: this.head, tail: this.tail, snapshot: [...this.elements], message: `removeFirst(): removed ${val} from index ${oldHead}, head moved to ${this.head}` });
+        return { value: val, ops };
+    }
+
+    removeLast() {
+        if (this.isEmpty) return null;
+        const ops = [];
+        this.tail = (this.tail - 1 + this.capacity) & (this.capacity - 1);
+        const val = this.elements[this.tail];
+        const removedAt = this.tail;
+        this.elements[this.tail] = null;
+        ops.push({ type: 'remove', position: 'last', index: removedAt, value: val, head: this.head, tail: this.tail, snapshot: [...this.elements], message: `removeLast(): removed ${val} from index ${removedAt}, tail moved to ${this.tail}` });
+        return { value: val, ops };
+    }
+
+    peekFirst() { return this.isEmpty ? null : this.elements[this.head]; }
+    peekLast() { return this.isEmpty ? null : this.elements[(this.tail - 1 + this.capacity) & (this.capacity - 1)]; }
+    clear() { this.elements = new Array(this.capacity).fill(null); this.head = 0; this.tail = 0; }
+    toLogical() { const a = []; for (let i = 0; i < this.size; i++) a.push(this.elements[(this.head + i) & (this.capacity - 1)]); return a; }
 }
 
-function render(hlIdx=-1) {
-  const svg = document.getElementById('ringSvg');
-  const cx=250,cy=250,r=180;
-  let html = '';
-  // Draw ring slots
-  for (let i=0;i<cap;i++) {
-    const angle = (i/cap)*2*Math.PI - Math.PI/2;
-    const x = cx + r*Math.cos(angle);
-    const y = cy + r*Math.sin(angle);
-    const ix = cx + (r+28)*Math.cos(angle);
-    const iy = cy + (r+28)*Math.sin(angle);
+/**
+ * Visualizer UI
+ */
+(function () {
+    'use strict';
+    const $ = id => document.getElementById(id);
+    const decBtn = $('decBtn'), incBtn = $('incBtn');
+    const valueInput = $('valueInput');
+    const addFirstBtn = $('addFirstBtn'), addLastBtn = $('addLastBtn');
+    const removeFirstBtn = $('removeFirstBtn'), removeLastBtn = $('removeLastBtn');
+    const peekFirstBtn = $('peekFirstBtn'), peekLastBtn = $('peekLastBtn');
+    const clearBtn = $('clearBtn'), sampleBtn = $('sampleBtn'), clearLogBtn = $('clearLogBtn');
+    const speedSlider = $('speedSlider');
+    const ringCanvas = $('ringCanvas'), ringContainer = $('ringContainer'), emptyState = $('emptyState');
+    const arrayContainer = $('arrayContainer');
+    const infoBar = $('infoBar'), infoText = $('infoText');
+    const logContainer = $('logContainer');
+    const headLabel = $('headLabel'), tailLabel = $('tailLabel'), sizeLabel = $('sizeLabel');
 
-    const filled = buf[i] !== null;
-    const isHead = (i===head && size>0);
-    const isTail = (i===((tail-1+cap)%cap) && size>0);
-    const isHl = i===hlIdx;
+    const allBtns = [addFirstBtn, addLastBtn, removeFirstBtn, removeLastBtn, peekFirstBtn, peekLastBtn, clearBtn, sampleBtn];
+    let deque = new CircularDeque(16);
+    let animating = false;
+    let currentMode = 'deque'; // 'deque' | 'queue' | 'stack'
 
-    let stroke = 'rgba(255,255,255,0.1)';
-    let fill = 'rgba(255,255,255,0.02)';
-    if(filled){stroke='rgba(68,138,255,0.4)';fill='rgba(68,138,255,0.06)';}
-    if(isHead){stroke='#4cff91';fill='rgba(76,255,145,0.08)';}
-    if(isHl){stroke='#ffc107';fill='rgba(255,193,7,0.1)';}
+    // Mode config: which buttons to show
+    const modeConfig = {
+        deque: { addFirstBtn: ['⬅ addFirst', true], addLastBtn: ['addLast ➡', true], removeFirstBtn: ['removeFirst', true], removeLastBtn: ['removeLast', true], peekFirstBtn: ['peekFirst', true], peekLastBtn: ['peekLast', true] },
+        queue: { addFirstBtn: ['', false], addLastBtn: ['offer ➡', true], removeFirstBtn: ['poll', true], removeLastBtn: ['', false], peekFirstBtn: ['peek', true], peekLastBtn: ['', false] },
+        stack: { addFirstBtn: ['push ⬅', true], addLastBtn: ['', false], removeFirstBtn: ['pop', true], removeLastBtn: ['', false], peekFirstBtn: ['peek', true], peekLastBtn: ['', false] }
+    };
 
-    html += `<rect x="${x-20}" y="${y-20}" width="40" height="40" rx="8" stroke="${stroke}" stroke-width="1.5" fill="${fill}" class="ring-slot"/>`;
-    html += `<text x="${x}" y="${y+5}" text-anchor="middle" class="ring-text ${filled?'filled':''}">${filled?buf[i]:''}</text>`;
-    html += `<text x="${ix}" y="${iy+4}" text-anchor="middle" class="ring-idx">${i}</text>`;
-  }
-  // Head pointer
-  if(size>0) {
-    const ha = (head/cap)*2*Math.PI - Math.PI/2;
-    const hx = cx + (r-36)*Math.cos(ha);
-    const hy = cy + (r-36)*Math.sin(ha);
-    html += `<text x="${hx}" y="${hy+4}" text-anchor="middle" class="ring-pointer head">H</text>`;
-    const ta = (tail/cap)*2*Math.PI - Math.PI/2;
-    const tx = cx + (r-36)*Math.cos(ta);
-    const ty = cy + (r-36)*Math.sin(ta);
-    html += `<text x="${tx}" y="${ty+4}" text-anchor="middle" class="ring-pointer tail">T</text>`;
-  }
-  // Center text
-  html += `<text x="${cx}" y="${cy-4}" text-anchor="middle" style="font-family:var(--mono);font-size:11px;fill:var(--text-muted)">${size===0?'empty':size+' elements'}</text>`;
-  svg.innerHTML = html;
-  document.getElementById('headBadge').textContent = head;
-  document.getElementById('tailBadge').textContent = tail;
-  document.getElementById('sizeBadge').textContent = size + ' / ' + cap;
-}
+    function applyMode(mode) {
+        currentMode = mode;
+        document.querySelectorAll('.mode-tab').forEach(t => t.classList.toggle('active', t.dataset.mode === mode));
+        const cfg = modeConfig[mode];
+        for (const [id, [label, visible]] of Object.entries(cfg)) {
+            const btn = window[id] || $(id);
+            if (!btn) continue;
+            btn.style.display = visible ? '' : 'none';
+            if (label) btn.textContent = label;
+        }
+        setInfo(`Mode: <strong>${mode.charAt(0).toUpperCase() + mode.slice(1)}</strong> — ${mode === 'deque' ? 'Double-ended queue' : mode === 'queue' ? 'FIFO queue' : 'LIFO stack'}`, '');
+    }
 
-async function addFirst(val) {
-  if(size>=cap) await grow();
-  head = (head - 1 + cap) % cap;
-  buf[head] = val;
-  size++;
-  render(head);
-  setStatus(`addFirst(${val}) → head moved to index ${head}. Wrap: (${head+1}-1) & (${cap}-1) = ${head}`);
-  addLog(`addFirst(${val}) → head=${head}`, 'add');
-}
+    function getDelay() { const s = [1200, 800, 550, 350, 200]; return s[parseInt(speedSlider.value) - 1] || 550; }
+    function setAnimating(v) { animating = v; allBtns.forEach(b => b.disabled = v); updateBtnState(); }
+    function updateBtnState() { removeFirstBtn.disabled = animating || deque.isEmpty; removeLastBtn.disabled = animating || deque.isEmpty; peekFirstBtn.disabled = animating || deque.isEmpty; peekLastBtn.disabled = animating || deque.isEmpty; }
 
-async function addLast(val) {
-  if(size>=cap) await grow();
-  buf[tail] = val;
-  const oldTail = tail;
-  tail = (tail + 1) % cap;
-  size++;
-  render(oldTail);
-  setStatus(`addLast(${val}) → placed at tail index ${oldTail}, tail moved to ${tail}`);
-  addLog(`addLast(${val}) → tail=${tail}`, 'add');
-}
+    function log(message, type = 'info') {
+        const e = document.createElement('div');
+        e.className = `log-entry log-${type}`;
+        const t = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        e.textContent = `[${t}] ${message}`;
+        logContainer.appendChild(e);
+        logContainer.scrollTop = logContainer.scrollHeight;
+    }
+    function setInfo(msg, cls = '') { infoText.innerHTML = msg; infoBar.className = 'info-bar' + (cls ? ` action-${cls}` : ''); }
+    function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-async function removeFirst() {
-  if(!size){setStatus('Deque is empty');return null;}
-  const val = buf[head];
-  buf[head] = null;
-  render(head);
-  await sleep(animSpeed*0.5);
-  head = (head + 1) % cap;
-  size--;
-  render();
-  return val;
-}
+    /* ===== Circular Buffer Canvas Drawing ===== */
+    function drawRing(highlight = {}) {
+        const cap = deque.capacity;
+        const sz = deque.size;
+        const h = deque.head, t = deque.tail;
+        const els = deque.elements;
 
-async function removeLast() {
-  if(!size){setStatus('Deque is empty');return null;}
-  tail = (tail - 1 + cap) % cap;
-  const val = buf[tail];
-  buf[tail] = null;
-  size--;
-  render(tail);
-  await sleep(animSpeed*0.5);
-  render();
-  return val;
-}
+        // Responsive sizing
+        const containerW = ringContainer.clientWidth - 40;
+        const dim = Math.min(Math.max(340, containerW), 500);
+        ringCanvas.width = dim * 2; // retina
+        ringCanvas.height = dim * 2;
+        ringCanvas.style.width = dim + 'px';
+        ringCanvas.style.height = dim + 'px';
+        const ctx = ringCanvas.getContext('2d');
+        ctx.scale(2, 2);
 
-async function grow() {
-  const oldCap=cap; cap*=2;
-  const newBuf=new Array(cap).fill(null);
-  for(let i=0;i<size;i++) newBuf[i]=buf[(head+i)%oldCap];
-  buf=newBuf; head=0; tail=size;
-  setStatus(`⚡ Capacity doubled: ${oldCap} → ${cap} (power of 2). Elements copied linearly.`);
-  addLog(`Resize: ${oldCap} → ${cap}`, 'warn');
-  render(); await sleep(animSpeed);
-}
+        const cx = dim / 2, cy = dim / 2;
+        const outerR = dim / 2 - 40;
+        const innerR = outerR - 36;
+        const midR = (outerR + innerR) / 2;
+        const gap = 0.015;
 
-// Op handlers
-async function op1() { const v=getVal(); if(mode==='queue'){await addLast(v);}else if(mode==='stack'){await addFirst(v);}else{await addFirst(v);} incVal(); }
-async function op2() { const v=getVal(); await addLast(v); incVal(); }
-async function op3() { const v=await removeFirst(); if(v!==null){setStatus(`${mode==='queue'?'poll':'removeFirst'}() → ${v}`);addLog(`${mode==='queue'?'poll':'removeFirst'}() → ${v}`,'remove');}}
-async function op4() { const v=await removeLast(); if(v!==null){setStatus(`removeLast() → ${v}`);addLog(`removeLast() → ${v}`,'remove');}}
-function op5() { if(!size){setStatus('Empty');return;} const v=buf[head]; render(head); setStatus(`peekFirst() → ${v}`); addLog(`peekFirst() → ${v}`,'info'); }
-function op6() { if(!size){setStatus('Empty');return;} const idx=(tail-1+cap)%cap; const v=buf[idx]; render(idx); setStatus(`peekLast() → ${v}`); addLog(`peekLast() → ${v}`,'info'); }
+        if (sz === 0 && !highlight.peek) { emptyState.classList.remove('hidden'); } else { emptyState.classList.add('hidden'); }
 
-function doClear() { cap=16;buf=new Array(cap).fill(null);head=0;tail=0;size=0;render();setStatus('Cleared.');addLog('clear()','info'); }
+        ctx.clearRect(0, 0, dim, dim);
 
-async function loadExample() {
-  doClear();
-  const vals=[10,20,30,40,50];
-  for(const v of vals){document.getElementById('valInput').value=v;await addLast(v);await sleep(animSpeed*0.5);}
-  setStatus('Example loaded. Try addFirst/removeFirst to see wrapping!');
-}
+        // Draw each cell as an arc segment
+        for (let i = 0; i < cap; i++) {
+            const startAngle = (i / cap) * Math.PI * 2 - Math.PI / 2 + gap;
+            const endAngle = ((i + 1) / cap) * Math.PI * 2 - Math.PI / 2 - gap;
+            const val = els[i];
+            const occupied = val !== null;
+            const isHead = i === h && sz > 0;
+            const isTail = i === t;
 
-render();
+            // Determine cell color
+            let fillColor = 'rgba(255,255,255,0.02)';
+            let strokeColor = 'rgba(255,255,255,0.06)';
+            let textColor = '#555';
+
+            if (occupied) {
+                fillColor = 'rgba(68,138,255,0.08)';
+                strokeColor = 'rgba(68,138,255,0.25)';
+                textColor = '#ccc';
+            }
+            if (isHead && occupied) {
+                fillColor = 'rgba(24,255,255,0.12)';
+                strokeColor = 'rgba(24,255,255,0.5)';
+                textColor = '#18ffff';
+            }
+            if (highlight.addIndex === i) {
+                fillColor = 'rgba(76,255,145,0.15)';
+                strokeColor = 'rgba(76,255,145,0.6)';
+                textColor = '#4cff91';
+            }
+            if (highlight.removeIndex === i) {
+                fillColor = 'rgba(255,82,82,0.12)';
+                strokeColor = 'rgba(255,82,82,0.5)';
+                textColor = '#ff5252';
+            }
+            if (highlight.peekIndex === i) {
+                fillColor = 'rgba(255,193,7,0.15)';
+                strokeColor = 'rgba(255,193,7,0.6)';
+                textColor = '#ffc107';
+            }
+
+            // Draw arc segment
+            ctx.beginPath();
+            ctx.arc(cx, cy, outerR, startAngle, endAngle);
+            ctx.arc(cx, cy, innerR, endAngle, startAngle, true);
+            ctx.closePath();
+            ctx.fillStyle = fillColor;
+            ctx.fill();
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            // Value text
+            const midAngle = (startAngle + endAngle) / 2;
+            const tx = cx + Math.cos(midAngle) * midR;
+            const ty = cy + Math.sin(midAngle) * midR;
+            ctx.font = `700 ${cap <= 16 ? 13 : cap <= 32 ? 10 : 8}px 'JetBrains Mono', monospace`;
+            ctx.fillStyle = textColor;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(val !== null ? String(val) : '', tx, ty);
+
+            // Index label
+            const lx = cx + Math.cos(midAngle) * (innerR - 14);
+            const ly = cy + Math.sin(midAngle) * (innerR - 14);
+            ctx.font = `600 ${cap <= 16 ? 9 : 7}px 'JetBrains Mono', monospace`;
+            ctx.fillStyle = '#444';
+            ctx.fillText(String(i), lx, ly);
+        }
+
+        // Head pointer
+        if (sz > 0 || highlight.peek) {
+            const hAngle = (h / cap) * Math.PI * 2 - Math.PI / 2;
+            const hx = cx + Math.cos(hAngle) * (outerR + 22);
+            const hy = cy + Math.sin(hAngle) * (outerR + 22);
+            ctx.font = "700 10px 'Inter', sans-serif";
+            ctx.fillStyle = '#18ffff';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('H', hx, hy);
+            // Arrow towards the slot
+            const ahx = cx + Math.cos(hAngle) * (outerR + 4);
+            const ahy = cy + Math.sin(hAngle) * (outerR + 4);
+            ctx.beginPath();
+            ctx.moveTo(hx + Math.cos(hAngle) * -8, hy + Math.sin(hAngle) * -8);
+            ctx.lineTo(ahx, ahy);
+            ctx.strokeStyle = 'rgba(24,255,255,0.5)';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+        }
+
+        // Tail pointer
+        {
+            const tAngle = (t / cap) * Math.PI * 2 - Math.PI / 2;
+            const tx2 = cx + Math.cos(tAngle) * (outerR + 22);
+            const ty2 = cy + Math.sin(tAngle) * (outerR + 22);
+            ctx.font = "700 10px 'Inter', sans-serif";
+            ctx.fillStyle = '#b388ff';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('T', tx2, ty2);
+            const atx = cx + Math.cos(tAngle) * (outerR + 4);
+            const aty = cy + Math.sin(tAngle) * (outerR + 4);
+            ctx.beginPath();
+            ctx.moveTo(tx2 + Math.cos(tAngle) * -8, ty2 + Math.sin(tAngle) * -8);
+            ctx.lineTo(atx, aty);
+            ctx.strokeStyle = 'rgba(179,136,255,0.5)';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+        }
+
+        // Center info
+        ctx.font = "800 18px 'Inter', sans-serif";
+        ctx.fillStyle = '#f0f0f0';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(sz > 0 ? String(sz) : '∅', cx, cy - 8);
+        ctx.font = "500 10px 'Inter', sans-serif";
+        ctx.fillStyle = '#555';
+        ctx.fillText(sz > 0 ? `of ${cap}` : 'empty', cx, cy + 10);
+    }
+
+    /* ===== Linear Array View ===== */
+    function renderArray(highlight = {}) {
+        const cap = deque.capacity;
+        const els = deque.elements;
+        const h = deque.head, t = deque.tail, sz = deque.size;
+        if (sz === 0 && !highlight.peekIndex && highlight.peekIndex !== 0) {
+            arrayContainer.innerHTML = `<div style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.78rem;text-align:center;padding:10px;width:100%;">Empty — Object[] elements = new Object[${cap}]</div>`;
+            return;
+        }
+        let html = '<div class="array-row"><span class="array-bracket">[</span>';
+        for (let i = 0; i < cap; i++) {
+            const val = els[i];
+            const occupied = val !== null;
+            let cls = occupied ? 'occupied' : '';
+            if (i === h && sz > 0) cls += ' head-cell';
+            if (highlight.addIndex === i) cls = 'hl-add';
+            if (highlight.removeIndex === i) cls = 'hl-remove';
+            if (highlight.peekIndex === i) cls = 'hl-peek';
+            let ptrs = '';
+            if (i === h && sz > 0) ptrs += '<span class="ptr-label head-label">H</span>';
+            if (i === t) ptrs += '<span class="ptr-label tail-label">T</span>';
+            html += `<div class="array-cell"><div class="array-value ${cls}">${val !== null ? val : ''}</div><span class="array-index">${i}</span>${ptrs}</div>`;
+        }
+        html += '<span class="array-bracket">]</span></div>';
+        arrayContainer.innerHTML = html;
+    }
+
+    function fullRender(hl = {}) {
+        drawRing(hl);
+        renderArray(hl);
+        headLabel.textContent = `Head: ${deque.head}`;
+        tailLabel.textContent = `Tail: ${deque.tail}`;
+        sizeLabel.textContent = `Size: ${deque.size} / ${deque.capacity}`;
+        updateBtnState();
+    }
+
+    /* ===== Animation ===== */
+    async function animateOps(ops, logType) {
+        const d = getDelay();
+        for (const op of ops) {
+            if (op.type === 'add') {
+                fullRender({ addIndex: op.index });
+                setInfo(`<strong>${op.position === 'first' ? 'addFirst' : 'addLast'}(${op.value})</strong> — Placed at index <strong>${op.index}</strong>. Head=${op.head}, Tail=${op.tail}`, 'add');
+                log(op.message, 'add');
+                await sleep(d);
+            } else if (op.type === 'remove') {
+                fullRender({ removeIndex: op.index });
+                setInfo(`<strong>${op.position === 'first' ? 'removeFirst' : 'removeLast'}()</strong> → <strong>${op.value}</strong> from index ${op.index}. Head=${op.head}, Tail=${op.tail}`, 'remove');
+                log(op.message, 'remove');
+                await sleep(d);
+            } else if (op.type === 'resize') {
+                fullRender();
+                setInfo(`⚡ <strong>Resize!</strong> ${op.message}`, 'resize');
+                log(op.message, 'resize');
+                await sleep(d * 1.5);
+            }
+        }
+    }
+
+    /* ===== Handlers ===== */
+    function getVal() { const v = parseInt(valueInput.value); if (isNaN(v)) { setInfo('⚠️ Enter a valid integer.', ''); return null; } valueInput.value = ''; valueInput.focus(); return v; }
+
+    async function handleAddFirst() { const v = getVal(); if (v === null) return; setAnimating(true); const ops = deque.addFirst(v); await animateOps(ops, 'add'); setInfo(`✅ <strong>${v}</strong> added to front. Size: <strong>${deque.size}</strong>`, 'add'); fullRender(); setAnimating(false); }
+    async function handleAddLast() { const v = getVal(); if (v === null) return; setAnimating(true); const ops = deque.addLast(v); await animateOps(ops, 'add'); setInfo(`✅ <strong>${v}</strong> added to back. Size: <strong>${deque.size}</strong>`, 'add'); fullRender(); setAnimating(false); }
+
+    async function handleRemoveFirst() { if (deque.isEmpty) return; setAnimating(true); const r = deque.removeFirst(); await animateOps(r.ops, 'remove'); setInfo(`🗑️ <strong>removeFirst()</strong> → <strong>${r.value}</strong>. Size: <strong>${deque.size}</strong>`, 'remove'); fullRender(); setAnimating(false); }
+    async function handleRemoveLast() { if (deque.isEmpty) return; setAnimating(true); const r = deque.removeLast(); await animateOps(r.ops, 'remove'); setInfo(`🗑️ <strong>removeLast()</strong> → <strong>${r.value}</strong>. Size: <strong>${deque.size}</strong>`, 'remove'); fullRender(); setAnimating(false); }
+
+    async function handlePeekFirst() { if (deque.isEmpty) return; setAnimating(true); const v = deque.peekFirst(); log(`peekFirst() → ${v}`, 'peek'); setInfo(`🔍 <strong>peekFirst()</strong> → <strong>${v}</strong> (NOT removed). O(1)`, 'peek'); fullRender({ peekIndex: deque.head }); await sleep(1500); fullRender(); setAnimating(false); }
+    async function handlePeekLast() { if (deque.isEmpty) return; setAnimating(true); const li = (deque.tail - 1 + deque.capacity) & (deque.capacity - 1); const v = deque.peekLast(); log(`peekLast() → ${v}`, 'peek'); setInfo(`🔍 <strong>peekLast()</strong> → <strong>${v}</strong> (NOT removed). O(1)`, 'peek'); fullRender({ peekIndex: li }); await sleep(1500); fullRender(); setAnimating(false); }
+
+    function handleClear() { deque.clear(); log('clear() — All elements removed', 'info'); setInfo('🧹 Deque cleared.', ''); fullRender(); }
+
+    async function handleSample() {
+        deque = new CircularDeque(16);
+        fullRender();
+        setAnimating(true);
+        const vals = [10, 20, 30, 40, 50];
+        log(`Loading example: addLast(${vals.join(', ')}) then addFirst(5, 1)`, 'info');
+        for (const v of vals) { const ops = deque.addLast(v); await animateOps(ops, 'add'); fullRender(); await sleep(150); }
+        const frontVals = [5, 1];
+        for (const v of frontVals) { const ops = deque.addFirst(v); await animateOps(ops, 'add'); fullRender(); await sleep(150); }
+        setInfo(`✅ Example loaded: [${deque.toLogical().join(', ')}]. Try <strong>removeFirst()</strong> or <strong>removeLast()</strong>!`, 'add');
+        fullRender();
+        setAnimating(false);
+    }
+
+    /* ===== Event Listeners ===== */
+    decBtn.addEventListener('click', () => { const v = parseInt(valueInput.value) || 0; valueInput.value = v - 1; });
+    incBtn.addEventListener('click', () => { const v = parseInt(valueInput.value) || 0; valueInput.value = v + 1; });
+    valueInput.addEventListener('keydown', e => { if (e.key === 'Enter' && !animating) { if (currentMode === 'stack') handleAddFirst(); else handleAddLast(); } });
+
+    addFirstBtn.addEventListener('click', handleAddFirst);
+    addLastBtn.addEventListener('click', handleAddLast);
+    removeFirstBtn.addEventListener('click', handleRemoveFirst);
+    removeLastBtn.addEventListener('click', handleRemoveLast);
+    peekFirstBtn.addEventListener('click', handlePeekFirst);
+    peekLastBtn.addEventListener('click', handlePeekLast);
+    clearBtn.addEventListener('click', handleClear);
+    sampleBtn.addEventListener('click', handleSample);
+    clearLogBtn.addEventListener('click', () => { logContainer.innerHTML = ''; log('Log cleared.', 'info'); });
+
+    document.querySelectorAll('.mode-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            if (animating) return;
+            applyMode(tab.dataset.mode);
+            log(`Switched to ${tab.dataset.mode.toUpperCase()} mode`, 'info');
+        });
+    });
+
+    let resizeTimer;
+    window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => fullRender(), 150); });
+
+    /* Theory section toggle */
+    const theorySection = $('theorySection'), theoryToggle = $('theoryToggle');
+    if (theoryToggle) theoryToggle.addEventListener('click', () => theorySection.classList.toggle('open'));
+
+    /* ===== Init ===== */
+    applyMode('deque');
+    fullRender();
+})();
 </script>
 </body>
 </html>

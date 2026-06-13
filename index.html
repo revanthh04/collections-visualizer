@@ -1,403 +1,2386 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Java Collections Framework — Interactive Visualizers</title>
-  <meta name="description" content="See how Java Collections really work. Watch arrays resize, heaps bubble, trees rotate, and buffers wrap — with step-by-step visualizations.">
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-
-<!-- Background Grid -->
-<div class="bg-grid"></div>
-
-<!-- ── Navigation ── -->
-<nav class="navbar" id="navbar">
-  <a href="#" class="nav-brand">
-    <div class="nav-logo">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="16 18 22 12 16 6"></polyline>
-        <polyline points="8 6 2 12 8 18"></polyline>
-      </svg>
-    </div>
-    <span>Collections Visualization</span>
-  </a>
-  <ul class="nav-links">
-    <li><a href="#why">Why DSA</a></li>
-    <li><a href="#hierarchy">Hierarchy</a></li>
-    <li><a href="#visualizers">Visualizers</a></li>
-  </ul>
-</nav>
-
-<!-- ── Hero ── -->
-<section class="hero" id="hero">
-  <div class="hero-content">
-    <h1>
-      Understand Data Structures<br>
-      <span class="gradient-text">At the Memory Level</span>
-    </h1>
-    <p class="hero-subtitle">
-      See how Java Collections really work. Watch arrays resize, heaps bubble,
-      trees rotate, and buffers wrap — complete with comprehensive theory,
-      complexity tables, and step-by-step visualizations built for deep understanding.
-    </p>
-    <div class="hero-buttons">
-      <a href="#visualizers" class="btn-primary">Explore Visualizers →</a>
-      <a href="#hierarchy" class="btn-secondary">View Hierarchy</a>
-    </div>
-  </div>
-</section>
-
-<!-- ── Why DSA ── -->
-<section class="section" id="why">
-  <div class="reveal">
-    <div class="section-label">Why It Matters</div>
-    <h2 class="section-title">Every Line of Code Touches<br>a Data Structure</h2>
-    <p class="section-desc">
-      Choosing the right collection isn't just an interview question — it's the
-      difference between code that scales and code that breaks.
-    </p>
-  </div>
-
-  <div class="why-grid reveal">
-    <!-- Card 1: Performance -->
-    <div class="why-card">
-      <div class="why-icon green">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-      </div>
-      <h3>Performance</h3>
-      <p>O(1) vs O(n) can mean milliseconds vs minutes. Understanding internal mechanics helps you pick the right tool — ArrayList for random access, LinkedList for constant insertions.</p>
-    </div>
-    <!-- Card 2: Interview Mastery -->
-    <div class="why-card">
-      <div class="why-icon purple">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-      </div>
-      <h3>Interview Mastery</h3>
-      <p>FAANG-level interviews expect you to explain <em>why</em> a TreeMap uses Red-Black Trees, how PriorityQueue heapifies, and when ArrayDeque beats LinkedList.</p>
-    </div>
-    <!-- Card 3: Scalable Systems -->
-    <div class="why-card">
-      <div class="why-icon teal">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-      </div>
-      <h3>Scalable Systems</h3>
-      <p>From caching strategies to task scheduling, production systems rely on queues, heaps, and balanced trees. Know the internals to make architectural decisions.</p>
-    </div>
-    <!-- Card 4: One-Stop Destination -->
-    <div class="why-card">
-      <div class="why-icon amber">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-      </div>
-      <h3>One-Stop Destination</h3>
-      <p>Master the Java Collections Framework end-to-end. Visualizations paired with comprehensive theory, complexity tables, and real-world use cases build an intuitive, deep understanding.</p>
-    </div>
-  </div>
-</section>
-
-<!-- ── Visualizers ── -->
-<section class="section" id="visualizers">
-  <div class="reveal viz-intro">
-    <h2 class="section-title">Pick a Collection.<br>Watch it Work.</h2>
-    <p class="section-desc">
-      Each visualizer features an interactive <strong>Theory Section</strong> and lets you
-      perform real operations to see exactly how Java manages memory, pointers, and internal arrays.
-    </p>
-  </div>
-
-  <!-- Row 1: 3 cards -->
-  <div class="viz-grid reveal">
-    <!-- ArrayList -->
-    <a href="ArrayList/index.html" class="viz-card">
-      <div class="viz-card-icon orange">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>
-      </div>
-      <h3>ArrayList</h3>
-      <div class="viz-subtitle">Dynamic Resizable Array</div>
-      <p class="viz-desc">
-        Watch the internal <code>Object[]</code> array grow with the 1.5× formula. See element shifting during insertions and deletions, capacity thresholds, and <code>System.arraycopy</code> in action.
-      </p>
-      <div class="viz-tags">
-        <span class="viz-tag">add(e)</span>
-        <span class="viz-tag">add(i, e)</span>
-        <span class="viz-tag">remove(i)</span>
-        <span class="viz-tag">get(i)</span>
-        <span class="viz-tag">set(i, e)</span>
-        <span class="viz-tag">1.5× growth</span>
-      </div>
-      <span class="viz-link">Open Visualizer <span class="arrow">→</span></span>
-    </a>
-
-    <!-- LinkedList -->
-    <a href="LinkedList/index.html" class="viz-card">
-      <div class="viz-card-icon cyan">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><circle cx="6" cy="12" r="3"/><circle cx="18" cy="12" r="3"/><line x1="9" y1="12" x2="15" y2="12"/><path d="M13 10l2 2-2 2"/></svg>
-      </div>
-      <h3>LinkedList</h3>
-      <div class="viz-subtitle">Doubly-Linked List (List / Deque / Queue / Stack)</div>
-      <p class="viz-desc">
-        See <code>prev</code> and <code>next</code> pointers at each node. Watch O(n) traversal from the optimal end, O(1) head/tail operations, and switch between List, Deque, Queue, and Stack modes.
-      </p>
-      <div class="viz-tags">
-        <span class="viz-tag">addFirst()</span>
-        <span class="viz-tag">addLast()</span>
-        <span class="viz-tag">add(i, e)</span>
-        <span class="viz-tag">get(i)</span>
-        <span class="viz-tag">removeFirst()</span>
-        <span class="viz-tag">O(n) traversal</span>
-      </div>
-      <span class="viz-link">Open Visualizer <span class="arrow">→</span></span>
-    </a>
-
-    <!-- ArrayDeque -->
-    <a href="ArrayDeque/index.html" class="viz-card">
-      <div class="viz-card-icon blue">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M17 3l4 4-4 4"/><path d="M7 21l-4-4 4-4"/><line x1="21" y1="7" x2="3" y2="7"/><line x1="3" y1="17" x2="21" y2="17"/></svg>
-      </div>
-      <h3>ArrayDeque</h3>
-      <div class="viz-subtitle">Circular Buffer (Deque / Queue / Stack)</div>
-      <p class="viz-desc">
-        See the circular ring buffer with head and tail pointers wrapping around. Switch between Deque, Queue (FIFO), and Stack (LIFO) modes. Watch power-of-2 capacity doubling.
-      </p>
-      <div class="viz-tags">
-        <span class="viz-tag">addFirst()</span>
-        <span class="viz-tag">addLast()</span>
-        <span class="viz-tag">removeFirst()</span>
-        <span class="viz-tag">removeLast()</span>
-        <span class="viz-tag">circular wrap</span>
-      </div>
-      <span class="viz-link">Open Visualizer <span class="arrow">→</span></span>
-    </a>
-  </div>
-
-  <!-- Row 2: 3 cards -->
-  <div class="viz-grid reveal">
-    <!-- PriorityQueue -->
-    <a href="PriorityQueue/index.html" class="viz-card">
-      <div class="viz-card-icon purple">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
-      </div>
-      <h3>PriorityQueue</h3>
-      <div class="viz-subtitle">Binary Min/Max-Heap</div>
-      <p class="viz-desc">
-        Visualize heapify-up and heapify-down with the tree and array views side by side. Toggle between Min-Heap and Max-Heap. See parent/child index formulas live.
-      </p>
-      <div class="viz-tags">
-        <span class="viz-tag">add(e)</span>
-        <span class="viz-tag">poll()</span>
-        <span class="viz-tag">peek()</span>
-        <span class="viz-tag">heapify-up</span>
-        <span class="viz-tag">heapify-down</span>
-      </div>
-      <span class="viz-link">Open Visualizer <span class="arrow">→</span></span>
-    </a>
-
-    <!-- TreeSet -->
-    <a href="TreeSet/index.html" class="viz-card">
-      <div class="viz-card-icon red">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="5" r="3"/><circle cx="6" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><line x1="12" y1="8" x2="6" y2="14"/><line x1="12" y1="8" x2="18" y2="14"/></svg>
-      </div>
-      <h3>TreeSet</h3>
-      <div class="viz-subtitle">Red-Black Tree (Sorted Set)</div>
-      <p class="viz-desc">
-        Watch Red-Black Tree rotations and recoloring as elements are inserted and removed. See in-order traversal produce sorted output. Explore floor, ceiling, first, last.
-      </p>
-      <div class="viz-tags">
-        <span class="viz-tag">add(e)</span>
-        <span class="viz-tag">remove(e)</span>
-        <span class="viz-tag">contains(e)</span>
-        <span class="viz-tag">floor()</span>
-        <span class="viz-tag">ceiling()</span>
-        <span class="viz-tag">O(log n)</span>
-      </div>
-      <span class="viz-link">Open Visualizer <span class="arrow">→</span></span>
-    </a>
-
-    <!-- HashSet -->
-    <a href="HashSet/index.html" class="viz-card">
-      <div class="viz-card-icon" style="background:#ffc107">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
-      </div>
-      <h3>HashSet</h3>
-      <div class="viz-subtitle">Hash Table with Separate Chaining</div>
-      <p class="viz-desc">
-        See the bucket array, hash computation (<code>hash &amp; (n-1)</code>), and collision chaining in real time. Watch the load factor climb and trigger automatic rehashing.
-      </p>
-      <div class="viz-tags">
-        <span class="viz-tag">add(e)</span>
-        <span class="viz-tag">remove(e)</span>
-        <span class="viz-tag">contains(e)</span>
-        <span class="viz-tag">rehash</span>
-        <span class="viz-tag">load factor 0.75</span>
-      </div>
-      <span class="viz-link">Open Visualizer <span class="arrow">→</span></span>
-    </a>
-  </div>
-
-  <!-- Row 3: 1 card -->
-  <div class="viz-grid reveal" style="grid-template-columns: 1fr 1fr 1fr;">
-    <!-- LinkedHashSet -->
-    <a href="LinkedHashSet/index.html" class="viz-card">
-      <div class="viz-card-icon pink">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-      </div>
-      <h3>LinkedHashSet</h3>
-      <div class="viz-subtitle">Hash Table + Insertion-Order Linked List</div>
-      <p class="viz-desc">
-        Same bucket array as HashSet, but with a doubly-linked list threading through all entries in insertion order. See <code>iterate()</code> walk the chain to prove order is preserved.
-      </p>
-      <div class="viz-tags">
-        <span class="viz-tag">add(e)</span>
-        <span class="viz-tag">remove(e)</span>
-        <span class="viz-tag">contains(e)</span>
-        <span class="viz-tag">iterate()</span>
-        <span class="viz-tag">insertion order</span>
-      </div>
-      <span class="viz-link">Open Visualizer <span class="arrow">→</span></span>
-    </a>
-  </div>
-</section>
-
-<!-- ── Hierarchy Section ── -->
-<section class="hierarchy-section section" id="hierarchy">
-  <div class="reveal">
-    <div class="section-label">The Complete Hierarchy</div>
-    <h2 class="section-title">Java Collections<br>Family Tree</h2>
-    <p class="section-desc">
-      Both the Collection and Map hierarchies — every interface, abstract class, and concrete implementation in one view.
-    </p>
-  </div>
-
-  <div class="hierarchy-container reveal">
-    <div class="hierarchy-tree" id="hierarchy-tree">
-      <!-- Collection Hierarchy -->
-      <!-- Level 0: Iterable -->
-      <div class="hierarchy-level">
-        <div class="hierarchy-node node-interface">Iterable&lt;E&gt; <span class="node-info" title="Top-level interface for all collections">i</span></div>
-      </div>
-      <!-- Level 1: Collection -->
-      <div class="hierarchy-level">
-        <div class="hierarchy-node node-interface">Collection&lt;E&gt; <span class="node-info" title="Root interface for the Collections Framework">i</span></div>
-      </div>
-      <!-- Level 2: List, Queue, Set -->
-      <div class="hierarchy-level">
-        <div class="hierarchy-node node-interface">List&lt;E&gt; <span class="node-info" title="Ordered collection with index access">i</span></div>
-        <div class="hierarchy-node node-interface">Queue&lt;E&gt; <span class="node-info" title="FIFO ordering">i</span></div>
-        <div class="hierarchy-node node-interface">Set&lt;E&gt; <span class="node-info" title="No duplicate elements">i</span></div>
-      </div>
-      <!-- Level 3: Abstract classes & sub-interfaces -->
-      <div class="hierarchy-level">
-        <div class="hierarchy-node node-abstract">AbstractList</div>
-        <div class="hierarchy-node node-interface">Deque&lt;E&gt; <span class="node-info" title="Double-ended queue">i</span></div>
-        <div class="hierarchy-node node-class">PriorityQueue</div>
-        <div class="hierarchy-node node-class">HashSet</div>
-        <div class="hierarchy-node node-interface">SortedSet&lt;E&gt; <span class="node-info" title="Set with natural ordering">i</span></div>
-      </div>
-      <!-- Level 4: Concrete classes -->
-      <div class="hierarchy-level">
-        <div class="hierarchy-node node-class">ArrayList</div>
-        <div class="hierarchy-node node-class">LinkedList</div>
-        <div class="hierarchy-node node-class">ArrayDeque</div>
-        <div class="hierarchy-node node-class">LinkedHashSet</div>
-        <div class="hierarchy-node node-interface">NavigableSet&lt;E&gt; <span class="node-info" title="Extended SortedSet with navigation methods">i</span></div>
-      </div>
-      <!-- Level 5: Legacy & TreeSet -->
-      <div class="hierarchy-level">
-        <div class="hierarchy-node node-legacy">Vector</div>
-        <div class="hierarchy-node node-class">EnumSet</div>
-        <div class="hierarchy-node node-class">TreeSet</div>
-      </div>
-      <!-- Level 6 -->
-      <div class="hierarchy-level">
-        <div class="hierarchy-node node-legacy">Stack</div>
-      </div>
-
-      <!-- Map Hierarchy Divider -->
-      <div class="hierarchy-divider">Map Hierarchy (Separate from Collection)</div>
-
-      <!-- Map Level 0 -->
-      <div class="hierarchy-level">
-        <div class="hierarchy-node node-interface">Map&lt;K,V&gt; <span class="node-info" title="Key-value pair mapping">i</span></div>
-      </div>
-      <!-- Map Level 1 -->
-      <div class="hierarchy-level">
-        <div class="hierarchy-node node-abstract">AbstractMap&lt;K,V&gt;</div>
-        <div class="hierarchy-node node-interface">SortedMap&lt;K,V&gt; <span class="node-info" title="Map with key ordering">i</span></div>
-        <div class="hierarchy-node node-legacy">Hashtable</div>
-      </div>
-      <!-- Map Level 2 -->
-      <div class="hierarchy-level">
-        <div class="hierarchy-node node-class">HashMap</div>
-        <div class="hierarchy-node node-class">WeakHashMap</div>
-        <div class="hierarchy-node node-class">IdentityHashMap</div>
-        <div class="hierarchy-node node-class">EnumMap</div>
-        <div class="hierarchy-node node-interface">NavigableMap&lt;K,V&gt; <span class="node-info" title="Extended SortedMap with navigation">i</span></div>
-        <div class="hierarchy-node node-class">ConcurrentHashMap</div>
-      </div>
-      <!-- Map Level 3 -->
-      <div class="hierarchy-level">
-        <div class="hierarchy-node node-class">LinkedHashMap</div>
-        <div class="hierarchy-node node-class">TreeMap</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ── Footer ── -->
-<footer class="footer">
-  <p class="footer-tagline">Built for learning Java internals — one visualization at a time.</p>
-  <ul class="footer-links">
-    <li><a href="#why">Why DSA</a></li>
-    <li><a href="#hierarchy">Hierarchy</a></li>
-    <li><a href="#visualizers">Visualizers</a></li>
-  </ul>
-</footer>
-
-<!-- ── Scripts ── -->
-<script>
-  // Intersection Observer for reveal animations
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
+  <head>
+    <meta charset="UTF-8" />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='j' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23f89820'/%3E%3Cstop offset='1' stop-color='%23e25303'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M24 4c0 0 -4 12 8 16s12 12 4 20' fill='none' stroke='url(%23j)' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M32 4c0 0 -4 12 8 16s12 12 4 20' fill='none' stroke='url(%23j)' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M12 30h34v8c0 14-34 14-34 0z' fill='url(%23j)'/%3E%3Cpath d='M46 33h6c6 0 6 10 0 10h-6' fill='none' stroke='url(%23j)' stroke-width='3'/%3E%3Cpath d='M8 52h48' stroke='url(%23j)' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M14 56h36' stroke='url(%23j)' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Java Collections Framework — Interactive Visualizers</title>
+    <meta
+      name="description"
+      content="Explore the Java Collections Framework through interactive, animated visualizers. Understand ArrayList, PriorityQueue, TreeSet, and ArrayDeque at the memory level."
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* ===== Design System — Pure Black Premium ===== */
+      :root {
+        --bg-primary: #000000;
+        --bg-secondary: #060606;
+        --bg-panel: #0d0d0d;
+        --border: rgba(255, 255, 255, 0.06);
+        --border-subtle: rgba(255, 255, 255, 0.04);
+        --border-glow: rgba(255, 255, 255, 0.12);
+        --text-primary: #f0f0f0;
+        --text-secondary: #8a8a8a;
+        --text-muted: #555555;
+        --accent-green: #4cff91;
+        --accent-red: #ff5252;
+        --accent-blue: #448aff;
+        --accent-amber: #ffc107;
+        --accent-purple: #b388ff;
+        --accent-cyan: #18ffff;
+        --accent-orange: #ff9100;
+        --accent-teal: #64ffda;
+        --radius-sm: 8px;
+        --radius-md: 12px;
+        --radius-lg: 16px;
+        --radius-xl: 20px;
+        --radius-2xl: 28px;
+        --radius-full: 999px;
+        --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.6);
+        --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.7);
+        --font: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+        --font-mono: "JetBrains Mono", "Fira Code", monospace;
+        --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       }
-    });
-  }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
-
-  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-
-  // Active nav link highlighting
-  const sections = document.querySelectorAll('section[id]');
-  const navLinks = document.querySelectorAll('.nav-links a');
-
-  window.addEventListener('scroll', () => {
-    let current = '';
-    sections.forEach(section => {
-      const sectionTop = section.offsetTop - 100;
-      if (scrollY >= sectionTop) {
-        current = section.getAttribute('id');
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
       }
-    });
-    navLinks.forEach(link => {
-      link.classList.remove('active');
-      if (link.getAttribute('href') === '#' + current) {
-        link.classList.add('active');
+      html {
+        scroll-behavior: smooth;
       }
-    });
-  });
-
-  // Smooth scroll for nav links
-  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function(e) {
-      e.preventDefault();
-      const target = document.querySelector(this.getAttribute('href'));
-      if (target) {
-        target.scrollIntoView({ behavior: 'smooth' });
+      body {
+        font-family: var(--font);
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        min-height: 100vh;
+        overflow-x: hidden;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
       }
-    });
-  });
-</script>
+      a {
+        text-decoration: none;
+        color: inherit;
+      }
 
-</body>
+      /* ===== Scrollbar ===== */
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 3px;
+      }
+
+      /* ===== Navigation ===== */
+      .nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        backdrop-filter: blur(24px) saturate(180%);
+        -webkit-backdrop-filter: blur(24px) saturate(180%);
+        background: rgba(0, 0, 0, 0.65);
+        border-bottom: 1px solid var(--border);
+        transition: background 0.3s;
+      }
+      .nav-inner {
+        max-width: 1280px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 32px;
+      }
+      .nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 800;
+        font-size: 1.05rem;
+        letter-spacing: -0.03em;
+      }
+      .nav-logo {
+        width: 36px;
+        height: 36px;
+        border-radius: var(--radius-sm);
+        background: linear-gradient(
+          135deg,
+          var(--accent-blue),
+          var(--accent-purple)
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0 18px rgba(68, 138, 255, 0.3);
+      }
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 28px;
+      }
+      .nav-links a {
+        font-size: 0.82rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+        transition: color var(--transition);
+        position: relative;
+      }
+      .nav-links a::after {
+        content: "";
+        position: absolute;
+        bottom: -4px;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: linear-gradient(
+          90deg,
+          var(--accent-blue),
+          var(--accent-purple)
+        );
+        border-radius: 1px;
+        transition: width var(--transition);
+      }
+      .nav-links a:hover {
+        color: var(--text-primary);
+      }
+      .nav-links a:hover::after {
+        width: 100%;
+      }
+
+      /* ===== Hero Section ===== */
+      .hero {
+        position: relative;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 120px 32px 80px;
+        overflow: hidden;
+      }
+      .hero-bg {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        background:
+          radial-gradient(
+            ellipse 80% 50% at 50% -20%,
+            rgba(68, 138, 255, 0.12) 0%,
+            transparent 60%
+          ),
+          radial-gradient(
+            ellipse 60% 40% at 80% 80%,
+            rgba(179, 136, 255, 0.08) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            ellipse 50% 30% at 10% 60%,
+            rgba(24, 255, 255, 0.06) 0%,
+            transparent 50%
+          );
+      }
+      /* Animated grid */
+      .hero-grid {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+        background-size: 60px 60px;
+        animation: gridDrift 20s linear infinite;
+      }
+      @keyframes gridDrift {
+        0% {
+          transform: translate(0, 0);
+        }
+        100% {
+          transform: translate(60px, 60px);
+        }
+      }
+
+      /* Floating orbs */
+      .orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(80px);
+        opacity: 0.15;
+        z-index: 0;
+        animation: orbFloat 8s ease-in-out infinite alternate;
+      }
+      .orb-1 {
+        width: 400px;
+        height: 400px;
+        background: var(--accent-blue);
+        top: 10%;
+        left: 10%;
+        animation-delay: 0s;
+      }
+      .orb-2 {
+        width: 300px;
+        height: 300px;
+        background: var(--accent-purple);
+        bottom: 20%;
+        right: 10%;
+        animation-delay: 2s;
+      }
+      .orb-3 {
+        width: 250px;
+        height: 250px;
+        background: var(--accent-cyan);
+        top: 50%;
+        left: 50%;
+        animation-delay: 4s;
+      }
+      @keyframes orbFloat {
+        0% {
+          transform: translate(0, 0) scale(1);
+        }
+        100% {
+          transform: translate(30px, -40px) scale(1.1);
+        }
+      }
+
+      .hero-content {
+        position: relative;
+        z-index: 1;
+        max-width: 820px;
+        text-align: center;
+      }
+      .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 18px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-full);
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        margin-bottom: 28px;
+        backdrop-filter: blur(12px);
+        animation: fadeSlideUp 0.8s ease both;
+      }
+      .hero-badge .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--accent-green);
+        box-shadow: 0 0 8px var(--accent-green);
+        animation: pulse 2s ease-in-out infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.4;
+        }
+      }
+      @keyframes fadeSlideUp {
+        0% {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .hero h1 {
+        font-size: clamp(2.8rem, 6vw, 4.5rem);
+        font-weight: 900;
+        letter-spacing: -0.04em;
+        line-height: 1.08;
+        background: linear-gradient(
+          135deg,
+          #ffffff 0%,
+          #999999 50%,
+          #ffffff 100%
+        );
+        background-size: 200% 200%;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation:
+          fadeSlideUp 0.8s ease 0.1s both,
+          shimmer 6s ease-in-out infinite;
+        margin-bottom: 24px;
+      }
+      @keyframes shimmer {
+        0%,
+        100% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+      }
+      .hero h1 span.highlight {
+        background: linear-gradient(
+          135deg,
+          var(--accent-blue),
+          var(--accent-cyan)
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      .hero-desc {
+        font-size: 1.1rem;
+        line-height: 1.7;
+        color: var(--text-secondary);
+        max-width: 640px;
+        margin: 0 auto 40px;
+        font-weight: 400;
+        animation: fadeSlideUp 0.8s ease 0.2s both;
+      }
+      .hero-cta {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        animation: fadeSlideUp 0.8s ease 0.35s both;
+        flex-wrap: wrap;
+      }
+      .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 14px 32px;
+        background: linear-gradient(
+          135deg,
+          var(--accent-blue),
+          var(--accent-purple)
+        );
+        color: white;
+        font-family: var(--font);
+        font-size: 0.92rem;
+        font-weight: 700;
+        border: none;
+        border-radius: var(--radius-full);
+        cursor: pointer;
+        transition: all var(--transition);
+        box-shadow: 0 4px 24px rgba(68, 138, 255, 0.3);
+      }
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 32px rgba(68, 138, 255, 0.45);
+        filter: brightness(1.1);
+      }
+      .btn-primary:active {
+        transform: translateY(0) scale(0.98);
+      }
+      .btn-secondary {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 14px 32px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid var(--border-glow);
+        color: var(--text-secondary);
+        font-family: var(--font);
+        font-size: 0.92rem;
+        font-weight: 600;
+        border-radius: var(--radius-full);
+        cursor: pointer;
+        transition: all var(--transition);
+        backdrop-filter: blur(8px);
+      }
+      .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--text-primary);
+        border-color: rgba(255, 255, 255, 0.2);
+      }
+
+      /* ===== Section Base ===== */
+      .section {
+        padding: 100px 32px;
+        max-width: 1280px;
+        margin: 0 auto;
+      }
+      .section-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--accent-blue);
+        margin-bottom: 16px;
+      }
+      .section-label .line {
+        width: 24px;
+        height: 2px;
+        background: linear-gradient(90deg, var(--accent-blue), transparent);
+        border-radius: 1px;
+      }
+      .section-title {
+        font-size: clamp(1.8rem, 4vw, 2.6rem);
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        line-height: 1.15;
+        margin-bottom: 16px;
+        background: linear-gradient(135deg, #fff 0%, #aaa 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      .section-subtitle {
+        font-size: 1rem;
+        color: var(--text-secondary);
+        max-width: 560px;
+        line-height: 1.65;
+        margin-bottom: 56px;
+      }
+
+      /* ===== Why DS Section ===== */
+      .why-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 20px;
+      }
+      .why-card {
+        padding: 32px 28px;
+        background: var(--bg-panel);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-xl);
+        transition: all var(--transition);
+        position: relative;
+        overflow: hidden;
+      }
+      .why-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+        background: linear-gradient(
+          90deg,
+          var(--accent-blue),
+          var(--accent-purple)
+        );
+        opacity: 0;
+        transition: opacity var(--transition);
+      }
+      .why-card:hover {
+        border-color: var(--border-glow);
+        transform: translateY(-4px);
+      }
+      .why-card:hover::before {
+        opacity: 1;
+      }
+      .why-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 18px;
+        font-size: 1.2rem;
+      }
+      .why-card h3 {
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+        color: var(--text-primary);
+      }
+      .why-card p {
+        font-size: 0.82rem;
+        color: var(--text-secondary);
+        line-height: 1.65;
+      }
+
+      /* ===== Hierarchy Section ===== */
+      .hierarchy-section {
+        padding-bottom: 60px;
+      }
+      .hierarchy-wrapper {
+        background: linear-gradient(
+          180deg,
+          var(--bg-panel) 0%,
+          rgba(6, 6, 6, 1) 100%
+        );
+        border: 1px solid var(--border);
+        border-radius: var(--radius-xl);
+        padding: 48px 28px 56px;
+        position: relative;
+        overflow-x: auto;
+        overflow-y: hidden;
+      }
+      .hierarchy-wrapper::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(
+            ellipse 50% 40% at 20% 20%,
+            rgba(255, 145, 0, 0.04) 0%,
+            transparent 60%
+          ),
+          radial-gradient(
+            ellipse 50% 40% at 50% 10%,
+            rgba(24, 255, 255, 0.04) 0%,
+            transparent 60%
+          ),
+          radial-gradient(
+            ellipse 50% 40% at 80% 20%,
+            rgba(229, 57, 53, 0.04) 0%,
+            transparent 60%
+          );
+        pointer-events: none;
+      }
+      .hierarchy-wrapper::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+          ellipse 70% 40% at 50% 100%,
+          rgba(255, 193, 7, 0.04) 0%,
+          transparent 60%
+        );
+        pointer-events: none;
+      }
+      .tree-canvas {
+        position: relative;
+        min-width: 1060px;
+        margin: 0 auto;
+      }
+      .tree-canvas svg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 0;
+        overflow: visible;
+      }
+      .tree-canvas svg path {
+        fill: none;
+        stroke-width: 1.5;
+        stroke: rgba(255, 255, 255, 0.07);
+        transition:
+          stroke 0.4s,
+          filter 0.4s;
+      }
+      .tree-canvas svg path.solid {
+        stroke: rgba(255, 255, 255, 0.1);
+      }
+      .tn {
+        position: absolute;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 18px;
+        border-radius: var(--radius-full);
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        font-weight: 700;
+        border: 1.5px solid;
+        white-space: nowrap;
+        transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: default;
+        z-index: 1;
+        backdrop-filter: blur(12px);
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+      }
+      .tn:hover {
+        transform: translateY(-2px) scale(1.06);
+        z-index: 5;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      }
+      /* Type labels */
+      .tn .tt {
+        font-size: 0.48rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        opacity: 0.55;
+        padding: 2px 6px;
+        border-radius: 4px;
+        background: rgba(255, 255, 255, 0.06);
+      }
+      /* Color classes */
+      .tn-root {
+        background: rgba(68, 138, 255, 0.12);
+        border-color: rgba(68, 138, 255, 0.35);
+        color: #82b1ff;
+        font-size: 0.82rem;
+        box-shadow: 0 0 20px rgba(68, 138, 255, 0.12);
+      }
+      .tn-iface {
+        background: rgba(179, 136, 255, 0.1);
+        border-color: rgba(179, 136, 255, 0.3);
+        color: var(--accent-purple);
+        box-shadow: 0 0 16px rgba(179, 136, 255, 0.08);
+      }
+      .tn-list {
+        background: rgba(255, 145, 0, 0.1);
+        border-color: rgba(255, 145, 0, 0.3);
+        color: var(--accent-orange);
+        box-shadow: 0 0 16px rgba(255, 145, 0, 0.08);
+      }
+      .tn-set {
+        background: rgba(229, 57, 53, 0.1);
+        border-color: rgba(229, 57, 53, 0.3);
+        color: #ef5350;
+        box-shadow: 0 0 16px rgba(229, 57, 53, 0.08);
+      }
+      .tn-queue {
+        background: rgba(24, 255, 255, 0.1);
+        border-color: rgba(24, 255, 255, 0.3);
+        color: var(--accent-cyan);
+        box-shadow: 0 0 16px rgba(24, 255, 255, 0.08);
+      }
+      .tn-map {
+        background: rgba(255, 193, 7, 0.1);
+        border-color: rgba(255, 193, 7, 0.3);
+        color: var(--accent-amber);
+        box-shadow: 0 0 16px rgba(255, 193, 7, 0.08);
+      }
+      .tn-impl {
+        background: rgba(76, 255, 145, 0.07);
+        border-color: rgba(76, 255, 145, 0.22);
+        color: var(--accent-green);
+        font-size: 0.7rem;
+      }
+      .tn-legacy {
+        background: rgba(255, 255, 255, 0.03);
+        border-color: rgba(255, 255, 255, 0.1);
+        color: var(--text-muted);
+        font-size: 0.7rem;
+        border-style: dashed;
+      }
+      .tn-abstract {
+        background: rgba(100, 255, 218, 0.07);
+        border-color: rgba(100, 255, 218, 0.22);
+        color: var(--accent-teal);
+        font-size: 0.7rem;
+        font-style: italic;
+      }
+      /* Legend */
+      .hierarchy-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: center;
+        margin-top: 40px;
+        position: relative;
+        z-index: 1;
+        padding-top: 24px;
+        border-top: 1px solid var(--border-subtle);
+      }
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        font-size: 0.68rem;
+        font-weight: 600;
+        color: var(--text-muted);
+      }
+      .legend-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        border: 1.5px solid;
+      }
+      .ld-iface {
+        background: rgba(179, 136, 255, 0.2);
+        border-color: rgba(179, 136, 255, 0.5);
+      }
+      .ld-impl {
+        background: rgba(76, 255, 145, 0.15);
+        border-color: rgba(76, 255, 145, 0.4);
+      }
+      .ld-map {
+        background: rgba(255, 193, 7, 0.15);
+        border-color: rgba(255, 193, 7, 0.4);
+      }
+      .ld-legacy {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.2);
+      }
+      .ld-abstract {
+        background: rgba(100, 255, 218, 0.1);
+        border-color: rgba(100, 255, 218, 0.3);
+      }
+      /* Separator line between Collection and Map */
+      .hierarchy-divider {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin: 36px 0 12px;
+        position: relative;
+        z-index: 1;
+      }
+      .hierarchy-divider .hdl {
+        flex: 1;
+        height: 1px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.08),
+          transparent
+        );
+      }
+      .hierarchy-divider span {
+        font-size: 0.62rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--text-muted);
+        padding: 5px 16px;
+        background: var(--bg-panel);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-full);
+      }
+
+      /* ===== Collection Cards ===== */
+      .cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 24px;
+      }
+      .collection-card {
+        position: relative;
+        background: var(--bg-panel);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-2xl);
+        padding: 36px 32px 32px;
+        cursor: pointer;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+      }
+      .collection-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: var(--radius-2xl);
+        padding: 1.5px;
+        background: linear-gradient(
+          135deg,
+          transparent 40%,
+          var(--card-accent, rgba(255, 255, 255, 0.1))
+        );
+        -webkit-mask:
+          linear-gradient(#fff 0 0) content-box,
+          linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask:
+          linear-gradient(#fff 0 0) content-box,
+          linear-gradient(#fff 0 0);
+        mask-composite: exclude;
+        opacity: 0;
+        transition: opacity 0.4s;
+        pointer-events: none;
+      }
+      .collection-card::after {
+        content: "";
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(
+          circle at 70% 30%,
+          var(--card-glow, transparent) 0%,
+          transparent 50%
+        );
+        opacity: 0;
+        transition: opacity 0.5s;
+        pointer-events: none;
+      }
+      .collection-card:hover {
+        transform: translateY(-8px);
+        border-color: var(--border-glow);
+        box-shadow: var(--shadow-lg);
+      }
+      .collection-card:hover::before {
+        opacity: 1;
+      }
+      .collection-card:hover::after {
+        opacity: 1;
+      }
+
+      /* Card accent colors */
+      .card-arraylist {
+        --card-accent: rgba(255, 145, 0, 0.5);
+        --card-glow: rgba(255, 145, 0, 0.04);
+      }
+      .card-priorityqueue {
+        --card-accent: rgba(68, 138, 255, 0.5);
+        --card-glow: rgba(68, 138, 255, 0.04);
+      }
+      .card-treeset {
+        --card-accent: rgba(229, 57, 53, 0.5);
+        --card-glow: rgba(229, 57, 53, 0.04);
+      }
+      .card-arraydeque {
+        --card-accent: rgba(24, 255, 255, 0.5);
+        --card-glow: rgba(24, 255, 255, 0.04);
+      }
+      .card-linkedlist {
+        --card-accent: rgba(100, 255, 218, 0.5);
+        --card-glow: rgba(100, 255, 218, 0.04);
+      }
+      .card-hashset {
+        --card-accent: rgba(255, 145, 0, 0.5);
+        --card-glow: rgba(255, 145, 0, 0.04);
+      }
+      .card-linkedhashset {
+        --card-accent: rgba(233, 30, 99, 0.5);
+        --card-glow: rgba(233, 30, 99, 0.04);
+      }
+      .card-hashmap {
+        --card-accent: rgba(255, 193, 7, 0.5);
+        --card-glow: rgba(255, 193, 7, 0.04);
+      }
+      .card-linkedhashmap {
+        --card-accent: rgba(233, 30, 99, 0.5);
+        --card-glow: rgba(233, 30, 99, 0.04);
+      }
+      .card-treemap {
+        --card-accent: rgba(76, 175, 80, 0.5);
+        --card-glow: rgba(76, 175, 80, 0.04);
+      }
+
+      .card-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: var(--radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all var(--transition);
+      }
+      .collection-card:hover .card-icon {
+        transform: scale(1.08) rotate(-3deg);
+      }
+      .card-icon-arraylist {
+        background: linear-gradient(
+          135deg,
+          var(--accent-orange),
+          var(--accent-amber)
+        );
+        color: #000;
+        box-shadow: 0 0 24px rgba(255, 145, 0, 0.3);
+      }
+      .card-icon-priorityqueue {
+        background: linear-gradient(
+          135deg,
+          var(--accent-blue),
+          var(--accent-purple)
+        );
+        color: #fff;
+        box-shadow: 0 0 24px rgba(68, 138, 255, 0.3);
+      }
+      .card-icon-treeset {
+        background: linear-gradient(135deg, #e53935, #b71c1c);
+        color: #fff;
+        box-shadow: 0 0 24px rgba(229, 57, 53, 0.3);
+      }
+      .card-icon-arraydeque {
+        background: linear-gradient(
+          135deg,
+          var(--accent-cyan),
+          var(--accent-blue)
+        );
+        color: #fff;
+        box-shadow: 0 0 24px rgba(24, 255, 255, 0.3);
+      }
+      .card-icon-linkedlist {
+        background: linear-gradient(
+          135deg,
+          var(--accent-teal),
+          var(--accent-cyan)
+        );
+        color: #000;
+        box-shadow: 0 0 24px rgba(100, 255, 218, 0.3);
+      }
+      .card-icon-hashset {
+        background: linear-gradient(
+          135deg,
+          var(--accent-orange),
+          #ff6d00
+        );
+        color: #000;
+        box-shadow: 0 0 24px rgba(255, 145, 0, 0.3);
+      }
+      .card-icon-linkedhashset {
+        background: linear-gradient(
+          135deg,
+          #e91e63,
+          var(--accent-purple)
+        );
+        color: #fff;
+        box-shadow: 0 0 24px rgba(233, 30, 99, 0.3);
+      }
+      .card-icon-hashmap {
+        background: linear-gradient(
+          135deg,
+          var(--accent-amber),
+          #ff6d00
+        );
+        color: #000;
+        box-shadow: 0 0 24px rgba(255, 193, 7, 0.3);
+      }
+      .card-icon-linkedhashmap {
+        background: linear-gradient(
+          135deg,
+          #e91e63,
+          var(--accent-purple)
+        );
+        color: #fff;
+        box-shadow: 0 0 24px rgba(233, 30, 99, 0.3);
+      }
+      .card-icon-treemap {
+        background: linear-gradient(
+          135deg,
+          #4caf50,
+          var(--accent-teal)
+        );
+        color: #000;
+        box-shadow: 0 0 24px rgba(76, 175, 80, 0.3);
+      }
+
+      .card-title {
+        font-size: 1.2rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+      }
+      .card-subtitle {
+        font-size: 0.72rem;
+        font-weight: 500;
+        color: var(--text-muted);
+        margin-top: 2px;
+        font-family: var(--font-mono);
+      }
+      .card-desc {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        line-height: 1.65;
+        flex: 1;
+      }
+      .card-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .card-tag {
+        font-family: var(--font-mono);
+        font-size: 0.65rem;
+        font-weight: 600;
+        padding: 4px 10px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-full);
+        color: var(--text-muted);
+        transition: all var(--transition);
+      }
+      .collection-card:hover .card-tag {
+        border-color: var(--border-glow);
+        color: var(--text-secondary);
+      }
+      .card-cta {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        transition: all var(--transition);
+        margin-top: 4px;
+      }
+      .card-cta .arrow {
+        transition: transform var(--transition);
+      }
+      .collection-card:hover .card-cta {
+        color: var(--text-primary);
+      }
+      .collection-card:hover .card-cta .arrow {
+        transform: translateX(4px);
+      }
+
+      /* Card accent CTA colors */
+      .card-arraylist .card-cta {
+        color: var(--accent-orange);
+      }
+      .card-priorityqueue .card-cta {
+        color: var(--accent-blue);
+      }
+      .card-treeset .card-cta {
+        color: #ef5350;
+      }
+      .card-arraydeque .card-cta {
+        color: var(--accent-cyan);
+      }
+      .card-linkedlist .card-cta {
+        color: var(--accent-teal);
+      }
+      .card-hashset .card-cta {
+        color: var(--accent-orange);
+      }
+      .card-linkedhashset .card-cta {
+        color: #f48fb1;
+      }
+      .card-hashmap .card-cta {
+        color: var(--accent-amber);
+      }
+      .card-linkedhashmap .card-cta {
+        color: #f48fb1;
+      }
+      .card-treemap .card-cta {
+        color: #66bb6a;
+      }
+
+      /* ===== Stats Bar ===== */
+      .stats-bar {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 1px;
+        background: var(--border);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-xl);
+        overflow: hidden;
+        margin-bottom: 80px;
+      }
+      .stat-item {
+        background: var(--bg-panel);
+        padding: 28px 24px;
+        text-align: center;
+      }
+      .stat-value {
+        font-size: 1.8rem;
+        font-weight: 900;
+        letter-spacing: -0.03em;
+        background: linear-gradient(135deg, #fff, #888);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 6px;
+      }
+      .stat-label {
+        font-size: 0.72rem;
+        font-weight: 500;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      /* ===== Footer ===== */
+      .footer {
+        border-top: 1px solid var(--border);
+        padding: 40px 32px;
+        text-align: center;
+      }
+      .footer-inner {
+        max-width: 1280px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 16px;
+      }
+      .footer-text {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+      }
+      .footer-text strong {
+        color: var(--text-secondary);
+      }
+      .footer-links {
+        display: flex;
+        gap: 20px;
+      }
+      .footer-links a {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        transition: color var(--transition);
+      }
+      .footer-links a:hover {
+        color: var(--text-primary);
+      }
+
+      /* ===== Responsive ===== */
+      @media (max-width: 768px) {
+        .nav-links {
+          display: none;
+        }
+        .nav-inner {
+          padding: 14px 20px;
+        }
+        .section {
+          padding: 60px 20px;
+        }
+        .hero {
+          padding: 100px 20px 60px;
+        }
+        .hierarchy-wrapper {
+          padding: 32px 20px;
+        }
+        .h-branch {
+          flex-direction: column;
+          align-items: center;
+          gap: 16px;
+        }
+        .h-branch::before {
+          display: none;
+        }
+        .h-sub-branch {
+          flex-direction: column;
+          align-items: center;
+        }
+        .cards-grid {
+          grid-template-columns: 1fr;
+        }
+        .footer-inner {
+          flex-direction: column;
+          text-align: center;
+        }
+      }
+
+      /* ===== Reveal Animation ===== */
+      .reveal {
+        opacity: 0;
+        transform: translateY(32px);
+        transition:
+          opacity 0.7s ease,
+          transform 0.7s ease;
+      }
+      .reveal.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav class="nav">
+      <div class="nav-inner">
+        <a href="#" class="nav-brand">
+          <div class="nav-logo">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polyline points="16 18 22 12 16 6"></polyline>
+              <polyline points="8 6 2 12 8 18"></polyline>
+            </svg>
+          </div>
+          Collections Visualization by TAP Academy
+        </a>
+        <div class="nav-links">
+          <a href="#why">Why DSA</a>
+          <a href="#hierarchy">Hierarchy</a>
+          <a href="#visualizers">Visualizers</a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="hero-bg"></div>
+      <div class="hero-grid"></div>
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+      <div class="orb orb-3"></div>
+      <div class="hero-content">
+        <div class="hero-badge">
+          <span class="dot"></span>
+          Interactive Learning — Java Collections Framework
+        </div>
+        <h1>
+          Understand Data Structures<br /><span class="highlight"
+            >At the Memory Level</span
+          >
+        </h1>
+        <p class="hero-desc">
+          See how Java Collections really work. Watch arrays
+          resize, heaps bubble, trees rotate, and buffers wrap — complete with 
+          <strong>comprehensive theory</strong>, <strong>complexity tables</strong>, 
+          and step-by-step visualizations built for deep understanding.
+        </p>
+        <div class="hero-cta">
+          <a href="#visualizers" class="btn-primary">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <polygon points="5 3 19 12 5 21 5 3" />
+            </svg>
+            Explore Visualizers
+          </a>
+          <a href="#hierarchy" class="btn-secondary">
+            View Hierarchy
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <polyline points="19 12 12 19 5 12" />
+            </svg>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Why Data Structures Matter -->
+    <section class="section" id="why">
+      <div class="reveal">
+        <div class="section-label">
+          <span class="line"></span> WHY IT MATTERS
+        </div>
+        <h2 class="section-title">
+          Every Line of Code Touches<br />a Data Structure
+        </h2>
+        <p class="section-subtitle">
+          Choosing the right collection isn't just an interview question — it's
+          the difference between code that scales and code that breaks.
+        </p>
+      </div>
+      <div class="why-grid reveal">
+        <div class="why-card">
+          <div
+            class="why-icon"
+            style="
+              background: rgba(76, 255, 145, 0.08);
+              color: var(--accent-green);
+            "
+          >
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+            </svg>
+          </div>
+          <h3>Performance</h3>
+          <p>
+            O(1) vs O(n) can mean milliseconds vs minutes. Understanding
+            internal mechanics helps you pick the right tool — ArrayList for
+            random access, LinkedList for constant insertions.
+          </p>
+        </div>
+        <div class="why-card">
+          <div
+            class="why-icon"
+            style="
+              background: rgba(68, 138, 255, 0.08);
+              color: var(--accent-blue);
+            "
+          >
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <rect x="2" y="3" width="20" height="14" rx="2" />
+              <line x1="8" y1="21" x2="16" y2="21" />
+              <line x1="12" y1="17" x2="12" y2="21" />
+            </svg>
+          </div>
+          <h3>Interview Mastery</h3>
+          <p>
+            FAANG-level interviews expect you to explain <em>why</em> a TreeMap
+            uses Red-Black Trees, how PriorityQueue heapifies, and when
+            ArrayDeque beats LinkedList.
+          </p>
+        </div>
+        <div class="why-card">
+          <div
+            class="why-icon"
+            style="
+              background: rgba(179, 136, 255, 0.08);
+              color: var(--accent-purple);
+            "
+          >
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <line x1="2" y1="12" x2="22" y2="12" />
+              <path
+                d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
+              />
+            </svg>
+          </div>
+          <h3>Scalable Systems</h3>
+          <p>
+            From caching strategies to task scheduling, production systems rely
+            on queues, heaps, and balanced trees. Know the internals to make
+            architectural decisions.
+          </p>
+        </div>
+        <div class="why-card">
+          <div
+            class="why-icon"
+            style="
+              background: rgba(255, 193, 7, 0.08);
+              color: var(--accent-amber);
+            "
+          >
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <path d="M12 20h9" />
+              <path
+                d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"
+              />
+            </svg>
+          </div>
+          <h3>One-Stop Destination</h3>
+          <p>
+            Master the Java Collections Framework end-to-end. Visualizations paired
+            with comprehensive theory, complexity tables, and real-world use cases
+            build an intuitive, deep understanding.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats -->
+    <div class="section" style="padding-top: 0; padding-bottom: 0">
+      <div class="stats-bar reveal">
+        <div class="stat-item">
+          <div class="stat-value">10</div>
+          <div class="stat-label">Collections Visualized</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">Deep</div>
+          <div class="stat-label">Theory & Use Cases</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">O(1)</div>
+          <div class="stat-label">Complexity Tables</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">∞</div>
+          <div class="stat-label">Animations</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Visualizer Cards -->
+    <section class="section" id="visualizers">
+      <div class="reveal">
+        <div class="section-label">
+          <span class="line"></span> INTERACTIVE VISUALIZERS
+        </div>
+        <h2 class="section-title">Pick a Collection.<br />Watch it Work.</h2>
+        <p class="section-subtitle">
+          Each visualizer features an interactive <strong>Theory Section</strong> and lets you perform real operations to see exactly how Java manages memory, pointers, and internal arrays.
+        </p>
+      </div>
+      <div class="cards-grid reveal">
+        <!-- 1. ArrayList Card -->
+        <a
+          href="ArrayList/index.html"
+          target="_blank"
+          class="collection-card card-arraylist"
+          id="card-arraylist"
+        >
+          <div class="card-icon card-icon-arraylist">
+            <svg
+              width="26"
+              height="26"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect x="3" y="3" width="18" height="18" rx="2" />
+              <line x1="9" y1="3" x2="9" y2="21" />
+              <line x1="15" y1="3" x2="15" y2="21" />
+            </svg>
+          </div>
+          <div>
+            <div class="card-title">ArrayList</div>
+            <div class="card-subtitle">Dynamic Resizable Array</div>
+          </div>
+          <p class="card-desc">
+            Watch the internal <code>Object[]</code> array grow with the 1.5×
+            formula. See element shifting during insertions and deletions,
+            capacity thresholds, and <code>System.arraycopy</code> in action.
+          </p>
+          <div class="card-tags">
+            <span class="card-tag">add(e)</span>
+            <span class="card-tag">add(i, e)</span>
+            <span class="card-tag">remove(i)</span>
+            <span class="card-tag">get(i)</span>
+            <span class="card-tag">set(i, e)</span>
+            <span class="card-tag">1.5× growth</span>
+          </div>
+          <div class="card-cta">
+            Open Visualizer
+            <svg
+              class="arrow"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <line x1="5" y1="12" x2="19" y2="12" />
+              <polyline points="12 5 19 12 12 19" />
+            </svg>
+          </div>
+        </a>
+
+        <!-- 2. LinkedList Card -->
+        <a
+          href="LinkedList/index.html"
+          target="_blank"
+          class="collection-card card-linkedlist"
+          id="card-linkedlist"
+        >
+          <div class="card-icon card-icon-linkedlist">
+            <svg
+              width="26"
+              height="26"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="5" cy="12" r="2.5" />
+              <circle cx="19" cy="12" r="2.5" />
+              <line x1="7.5" y1="12" x2="16.5" y2="12" />
+              <polyline points="14 9 16.5 12 14 15" />
+            </svg>
+          </div>
+          <div>
+            <div class="card-title">LinkedList</div>
+            <div class="card-subtitle">
+              Doubly-Linked List (List / Deque / Queue / Stack)
+            </div>
+          </div>
+          <p class="card-desc">
+            See <code>prev</code> and <code>next</code> pointers at each node.
+            Watch O(n) traversal from the optimal end, O(1) head/tail
+            operations, and switch between List, Deque, Queue, and Stack modes.
+          </p>
+          <div class="card-tags">
+            <span class="card-tag">addFirst()</span>
+            <span class="card-tag">addLast()</span>
+            <span class="card-tag">add(i, e)</span>
+            <span class="card-tag">get(i)</span>
+            <span class="card-tag">removeFirst()</span>
+            <span class="card-tag">O(n) traversal</span>
+          </div>
+          <div class="card-cta">
+            Open Visualizer
+            <svg
+              class="arrow"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <line x1="5" y1="12" x2="19" y2="12" />
+              <polyline points="12 5 19 12 12 19" />
+            </svg>
+          </div>
+        </a>
+
+        <!-- 3. ArrayDeque Card -->
+        <a
+          href="ArrayDeque/index.html"
+          target="_blank"
+          class="collection-card card-arraydeque"
+          id="card-arraydeque"
+        >
+          <div class="card-icon card-icon-arraydeque">
+            <svg
+              width="26"
+              height="26"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="8 12 12 8 16 12" />
+              <polyline points="8 16 12 12 16 16" />
+            </svg>
+          </div>
+          <div>
+            <div class="card-title">ArrayDeque</div>
+            <div class="card-subtitle">
+              Circular Buffer (Deque / Queue / Stack)
+            </div>
+          </div>
+          <p class="card-desc">
+            See the circular ring buffer with head and tail pointers wrapping
+            around. Switch between Deque, Queue (FIFO), and Stack (LIFO) modes.
+            Watch power-of-2 capacity doubling.
+          </p>
+          <div class="card-tags">
+            <span class="card-tag">addFirst()</span>
+            <span class="card-tag">addLast()</span>
+            <span class="card-tag">removeFirst()</span>
+            <span class="card-tag">removeLast()</span>
+            <span class="card-tag">circular wrap</span>
+          </div>
+          <div class="card-cta">
+            Open Visualizer
+            <svg
+              class="arrow"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <line x1="5" y1="12" x2="19" y2="12" />
+              <polyline points="12 5 19 12 12 19" />
+            </svg>
+          </div>
+        </a>
+
+        <!-- 4. PriorityQueue Card -->
+        <a
+          href="PriorityQueue/index.html"
+          target="_blank"
+          class="collection-card card-priorityqueue"
+          id="card-priorityqueue"
+        >
+          <div class="card-icon card-icon-priorityqueue">
+            <svg
+              width="26"
+              height="26"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2" />
+              <line x1="12" y1="22" x2="12" y2="15.5" />
+              <polyline points="22 8.5 12 15.5 2 8.5" />
+            </svg>
+          </div>
+          <div>
+            <div class="card-title">PriorityQueue</div>
+            <div class="card-subtitle">Binary Min/Max-Heap</div>
+          </div>
+          <p class="card-desc">
+            Visualize heapify-up and heapify-down with the tree and array views
+            side by side. Toggle between Min-Heap and Max-Heap. See parent/child
+            index formulas live.
+          </p>
+          <div class="card-tags">
+            <span class="card-tag">add(e)</span>
+            <span class="card-tag">poll()</span>
+            <span class="card-tag">peek()</span>
+            <span class="card-tag">heapify-up</span>
+            <span class="card-tag">heapify-down</span>
+          </div>
+          <div class="card-cta">
+            Open Visualizer
+            <svg
+              class="arrow"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <line x1="5" y1="12" x2="19" y2="12" />
+              <polyline points="12 5 19 12 12 19" />
+            </svg>
+          </div>
+        </a>
+
+        <!-- 5. TreeSet Card -->
+        <a
+          href="TreeSet/index.html"
+          target="_blank"
+          class="collection-card card-treeset"
+          id="card-treeset"
+        >
+          <div class="card-icon card-icon-treeset">
+            <svg
+              width="26"
+              height="26"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="6" r="3" />
+              <line x1="12" y1="9" x2="12" y2="13" />
+              <circle cx="7" cy="17" r="3" />
+              <circle cx="17" cy="17" r="3" />
+              <line x1="12" y1="13" x2="7" y2="14" />
+              <line x1="12" y1="13" x2="17" y2="14" />
+            </svg>
+          </div>
+          <div>
+            <div class="card-title">TreeSet</div>
+            <div class="card-subtitle">Red-Black Tree (Sorted Set)</div>
+          </div>
+          <p class="card-desc">
+            Watch Red-Black Tree rotations and recoloring as elements are
+            inserted and removed. See in-order traversal produce sorted output.
+            Explore floor, ceiling, first, last.
+          </p>
+          <div class="card-tags">
+            <span class="card-tag">add(e)</span>
+            <span class="card-tag">remove(e)</span>
+            <span class="card-tag">contains(e)</span>
+            <span class="card-tag">floor()</span>
+            <span class="card-tag">ceiling()</span>
+            <span class="card-tag">O(log n)</span>
+          </div>
+          <div class="card-cta">
+            Open Visualizer
+            <svg
+              class="arrow"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <line x1="5" y1="12" x2="19" y2="12" />
+              <polyline points="12 5 19 12 12 19" />
+            </svg>
+          </div>
+        </a>
+
+        <!-- 6. HashSet Card -->
+        <a
+          href="HashSet/index.html"
+          target="_blank"
+          class="collection-card card-hashset"
+          id="card-hashset"
+        >
+          <div class="card-icon card-icon-hashset">
+            <svg
+              width="26"
+              height="26"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect x="3" y="3" width="7" height="7" rx="1" />
+              <rect x="14" y="3" width="7" height="7" rx="1" />
+              <rect x="3" y="14" width="7" height="7" rx="1" />
+              <rect x="14" y="14" width="7" height="7" rx="1" />
+            </svg>
+          </div>
+          <div>
+            <div class="card-title">HashSet</div>
+            <div class="card-subtitle">Hash Table with Separate Chaining</div>
+          </div>
+          <p class="card-desc">
+            See the bucket array, hash computation
+            (<code>hash & (n-1)</code>), and collision chaining in real time.
+            Watch the load factor climb and trigger automatic rehashing.
+          </p>
+          <div class="card-tags">
+            <span class="card-tag">add(e)</span>
+            <span class="card-tag">remove(e)</span>
+            <span class="card-tag">contains(e)</span>
+            <span class="card-tag">rehash</span>
+            <span class="card-tag">load factor 0.75</span>
+          </div>
+          <div class="card-cta">
+            Open Visualizer
+            <svg
+              class="arrow"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <line x1="5" y1="12" x2="19" y2="12" />
+              <polyline points="12 5 19 12 12 19" />
+            </svg>
+          </div>
+        </a>
+
+        <!-- 7. LinkedHashSet Card -->
+        <a
+          href="LinkedHashSet/index.html"
+          target="_blank"
+          class="collection-card card-linkedhashset"
+          id="card-linkedhashset"
+        >
+          <div class="card-icon card-icon-linkedhashset">
+            <svg
+              width="26"
+              height="26"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect x="3" y="3" width="7" height="7" rx="1" />
+              <rect x="14" y="3" width="7" height="7" rx="1" />
+              <rect x="3" y="14" width="7" height="7" rx="1" />
+              <rect x="14" y="14" width="7" height="7" rx="1" />
+              <line x1="10" y1="6.5" x2="14" y2="6.5" />
+              <line x1="10" y1="17.5" x2="14" y2="17.5" />
+            </svg>
+          </div>
+          <div>
+            <div class="card-title">LinkedHashSet</div>
+            <div class="card-subtitle">
+              Hash Table + Insertion-Order Linked List
+            </div>
+          </div>
+          <p class="card-desc">
+            Same bucket array as HashSet, but with a doubly-linked list
+            threading through all entries in insertion order. See
+            <code>iterate()</code> walk the chain to prove order is preserved.
+          </p>
+          <div class="card-tags">
+            <span class="card-tag">add(e)</span>
+            <span class="card-tag">remove(e)</span>
+            <span class="card-tag">contains(e)</span>
+            <span class="card-tag">iterate()</span>
+            <span class="card-tag">insertion order</span>
+          </div>
+          <div class="card-cta">
+            Open Visualizer
+            <svg
+              class="arrow"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <line x1="5" y1="12" x2="19" y2="12" />
+              <polyline points="12 5 19 12 12 19" />
+            </svg>
+          </div>
+        </a>
+
+        <!-- 8. HashMap Card -->
+        <a
+          href="HashMap/index.html"
+          target="_blank"
+          class="collection-card card-hashmap"
+          id="card-hashmap"
+        >
+          <div class="card-icon card-icon-hashmap">
+            <svg
+              width="26"
+              height="26"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect x="3" y="3" width="18" height="18" rx="2" />
+              <line x1="3" y1="9" x2="21" y2="9" />
+              <line x1="3" y1="15" x2="21" y2="15" />
+              <line x1="12" y1="3" x2="12" y2="21" />
+            </svg>
+          </div>
+          <div>
+            <div class="card-title">HashMap</div>
+            <div class="card-subtitle">Hash Table — Key → Value Mapping</div>
+          </div>
+          <p class="card-desc">
+            See the bucket array, hash computation
+            (<code>hash & (n-1)</code>), separate chaining collisions,
+            load factor tracking, and automatic rehashing with capacity
+            doubling. The most-used Map implementation.
+          </p>
+          <div class="card-tags">
+            <span class="card-tag">put(k,v)</span>
+            <span class="card-tag">get(k)</span>
+            <span class="card-tag">remove(k)</span>
+            <span class="card-tag">containsKey</span>
+            <span class="card-tag">rehash</span>
+            <span class="card-tag">O(1) avg</span>
+          </div>
+          <div class="card-cta">
+            Open Visualizer
+            <svg
+              class="arrow"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <line x1="5" y1="12" x2="19" y2="12" />
+              <polyline points="12 5 19 12 12 19" />
+            </svg>
+          </div>
+        </a>
+
+        <!-- 9. LinkedHashMap Card -->
+        <a
+          href="LinkedHashMap/index.html"
+          target="_blank"
+          class="collection-card card-linkedhashmap"
+          id="card-linkedhashmap"
+        >
+          <div class="card-icon card-icon-linkedhashmap">
+            <svg
+              width="26"
+              height="26"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect x="3" y="3" width="18" height="18" rx="2" />
+              <line x1="3" y1="9" x2="21" y2="9" />
+              <line x1="3" y1="15" x2="21" y2="15" />
+              <line x1="12" y1="3" x2="12" y2="21" />
+              <path d="M6 6h.01M18 6h.01M6 12h.01M18 12h.01" stroke-width="3" />
+            </svg>
+          </div>
+          <div>
+            <div class="card-title">LinkedHashMap</div>
+            <div class="card-subtitle">
+              Hash Table + Doubly-Linked List (Insertion Order)
+            </div>
+          </div>
+          <p class="card-desc">
+            Same hash table as HashMap, but with a doubly-linked list
+            preserving insertion order. See the DLL head↔tail chain and
+            learn how to build an <code>LRU cache</code> with access-order mode.
+          </p>
+          <div class="card-tags">
+            <span class="card-tag">put(k,v)</span>
+            <span class="card-tag">get(k)</span>
+            <span class="card-tag">remove(k)</span>
+            <span class="card-tag">insertion order</span>
+            <span class="card-tag">LRU cache</span>
+          </div>
+          <div class="card-cta">
+            Open Visualizer
+            <svg
+              class="arrow"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <line x1="5" y1="12" x2="19" y2="12" />
+              <polyline points="12 5 19 12 12 19" />
+            </svg>
+          </div>
+        </a>
+
+        <!-- 10. TreeMap Card -->
+        <a
+          href="TreeMap/index.html"
+          target="_blank"
+          class="collection-card card-treemap"
+          id="card-treemap"
+        >
+          <div class="card-icon card-icon-treemap">
+            <svg
+              width="26"
+              height="26"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="5" r="3" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <circle cx="6" cy="16" r="3" />
+              <circle cx="18" cy="16" r="3" />
+              <line x1="12" y1="12" x2="6" y2="13" />
+              <line x1="12" y1="12" x2="18" y2="13" />
+            </svg>
+          </div>
+          <div>
+            <div class="card-title">TreeMap</div>
+            <div class="card-subtitle">Red-Black Tree — Sorted Key-Value Map</div>
+          </div>
+          <p class="card-desc">
+            Watch Red-Black Tree balancing with key-value pairs. Each node
+            displays both key and value. Explore NavigableMap operations:
+            <code>firstKey</code>, <code>lastKey</code>,
+            <code>floorKey</code>, <code>ceilingKey</code>.
+          </p>
+          <div class="card-tags">
+            <span class="card-tag">put(k,v)</span>
+            <span class="card-tag">get(k)</span>
+            <span class="card-tag">remove(k)</span>
+            <span class="card-tag">firstKey()</span>
+            <span class="card-tag">floorKey()</span>
+            <span class="card-tag">O(log n)</span>
+          </div>
+          <div class="card-cta">
+            Open Visualizer
+            <svg
+              class="arrow"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <line x1="5" y1="12" x2="19" y2="12" />
+              <polyline points="12 5 19 12 12 19" />
+            </svg>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <!-- Collections Hierarchy -->
+    <section class="section hierarchy-section" id="hierarchy">
+      <div class="reveal">
+        <div class="section-label">
+          <span class="line"></span> THE COMPLETE HIERARCHY
+        </div>
+        <h2 class="section-title">Java Collections<br />Family Tree</h2>
+        <p class="section-subtitle">
+          Both the Collection and Map hierarchies — every interface, abstract
+          class, and concrete implementation in one view.
+        </p>
+      </div>
+      <div class="hierarchy-wrapper reveal">
+        <!-- ===== COLLECTION TREE ===== -->
+        <div class="tree-canvas" id="treeCanvas" style="height: 520px">
+          <svg id="treeSvg" width="100%" height="100%"></svg>
+          <!-- Row 0: Iterable -->
+          <div class="tn tn-root" id="n-iterable" style="left: 420px; top: 0">
+            Iterable&lt;E&gt; <span class="tt">I</span>
+          </div>
+          <!-- Row 1: Collection -->
+          <div
+            class="tn tn-iface"
+            id="n-collection"
+            style="left: 406px; top: 70px"
+          >
+            Collection&lt;E&gt; <span class="tt">I</span>
+          </div>
+          <!-- Row 2: List / Queue / Set  (Queue in middle, Set on right) -->
+          <div class="tn tn-list" id="n-list" style="left: 70px; top: 152px">
+            List&lt;E&gt; <span class="tt">I</span>
+          </div>
+          <div class="tn tn-queue" id="n-queue" style="left: 415px; top: 152px">
+            Queue&lt;E&gt; <span class="tt">I</span>
+          </div>
+          <div class="tn tn-set" id="n-set" style="left: 770px; top: 152px">
+            Set&lt;E&gt; <span class="tt">I</span>
+          </div>
+          <!-- List branch -->
+          <div
+            class="tn tn-abstract"
+            id="n-abslist"
+            style="left: 12px; top: 240px"
+          >
+            AbstractList
+          </div>
+          <div
+            class="tn tn-impl"
+            id="n-arraylist"
+            style="left: 0px; top: 320px"
+          >
+            ArrayList
+          </div>
+          <div
+            class="tn tn-impl"
+            id="n-linkedlist"
+            style="left: 148px; top: 320px"
+          >
+            LinkedList
+          </div>
+          <div
+            class="tn tn-legacy"
+            id="n-vector"
+            style="left: 16px; top: 400px"
+          >
+            Vector
+          </div>
+          <div class="tn tn-legacy" id="n-stack" style="left: 14px; top: 468px">
+            Stack
+          </div>
+          <!-- Queue branch — Deque first, PriorityQueue second -->
+          <div class="tn tn-queue" id="n-deque" style="left: 340px; top: 240px">
+            Deque&lt;E&gt; <span class="tt">I</span>
+          </div>
+          <div
+            class="tn tn-impl"
+            id="n-priorityqueue"
+            style="left: 490px; top: 240px"
+          >
+            PriorityQueue
+          </div>
+          <div
+            class="tn tn-impl"
+            id="n-arraydeque"
+            style="left: 330px; top: 320px"
+          >
+            ArrayDeque
+          </div>
+          <!-- Set branch -->
+          <div
+            class="tn tn-impl"
+            id="n-hashset"
+            style="left: 710px; top: 240px"
+          >
+            HashSet
+          </div>
+          <div
+            class="tn tn-set"
+            id="n-sortedset"
+            style="left: 836px; top: 240px"
+          >
+            SortedSet&lt;E&gt; <span class="tt">I</span>
+          </div>
+          <div
+            class="tn tn-impl"
+            id="n-linkedhashset"
+            style="left: 690px; top: 320px"
+          >
+            LinkedHashSet
+          </div>
+          <div class="tn tn-set" id="n-navset" style="left: 830px; top: 320px">
+            NavigableSet&lt;E&gt; <span class="tt">I</span>
+          </div>
+          <div
+            class="tn tn-impl"
+            id="n-enumset"
+            style="left: 750px; top: 400px"
+          >
+            EnumSet
+          </div>
+          <div
+            class="tn tn-impl"
+            id="n-treeset"
+            style="left: 860px; top: 400px"
+          >
+            TreeSet
+          </div>
+        </div>
+
+        <div class="hierarchy-divider">
+          <div class="hdl"></div>
+          <span>Map Hierarchy (Separate from Collection)</span>
+          <div class="hdl"></div>
+        </div>
+
+        <!-- ===== MAP TREE ===== -->
+        <div class="tree-canvas" id="mapCanvas" style="height: 320px">
+          <svg id="mapSvg" width="100%" height="100%"></svg>
+          <div class="tn tn-map" id="n-map" style="left: 420px; top: 0">
+            Map&lt;K,V&gt; <span class="tt">I</span>
+          </div>
+          <div
+            class="tn tn-abstract"
+            id="n-absmap"
+            style="left: 160px; top: 80px"
+          >
+            AbstractMap&lt;K,V&gt;
+          </div>
+          <div
+            class="tn tn-map"
+            id="n-sortedmap"
+            style="left: 560px; top: 80px"
+          >
+            SortedMap&lt;K,V&gt; <span class="tt">I</span>
+          </div>
+          <div
+            class="tn tn-legacy"
+            id="n-hashtable"
+            style="left: 820px; top: 80px"
+          >
+            Hashtable
+          </div>
+          <div class="tn tn-impl" id="n-hashmap" style="left: 50px; top: 168px">
+            HashMap
+          </div>
+          <div
+            class="tn tn-impl"
+            id="n-linkedhashmap"
+            style="left: 30px; top: 248px"
+          >
+            LinkedHashMap
+          </div>
+          <div
+            class="tn tn-impl"
+            id="n-weakhashmap"
+            style="left: 180px; top: 168px"
+          >
+            WeakHashMap
+          </div>
+          <div
+            class="tn tn-impl"
+            id="n-identityhashmap"
+            style="left: 330px; top: 168px"
+          >
+            IdentityHashMap
+          </div>
+          <div
+            class="tn tn-impl"
+            id="n-enummap"
+            style="left: 490px; top: 168px"
+          >
+            EnumMap
+          </div>
+          <div class="tn tn-map" id="n-navmap" style="left: 620px; top: 168px">
+            NavigableMap&lt;K,V&gt; <span class="tt">I</span>
+          </div>
+          <div
+            class="tn tn-impl"
+            id="n-treemap"
+            style="left: 640px; top: 248px"
+          >
+            TreeMap
+          </div>
+          <div
+            class="tn tn-impl"
+            id="n-concurrenthashmap"
+            style="left: 810px; top: 168px"
+          >
+            ConcurrentHashMap
+          </div>
+          <div
+            class="tn tn-legacy"
+            id="n-properties"
+            style="left: 830px; top: 248px"
+          >
+            Properties
+          </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="hierarchy-legend">
+          <div class="legend-item">
+            <div class="legend-dot ld-iface"></div>
+            Interface
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot ld-impl"></div>
+            Concrete Class
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot ld-abstract"></div>
+            Abstract Class
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot ld-map"></div>
+            Map Interface
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot ld-legacy"></div>
+            Legacy Class
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <script>
+      // Draw hierarchy with curved bezier paths
+      function drawTreePaths(canvasId, svgId, connections) {
+        const canvas = document.getElementById(canvasId);
+        const svg = document.getElementById(svgId);
+        if (!canvas || !svg) return;
+        const canvasR = canvas.getBoundingClientRect();
+        let paths = "";
+        connections.forEach(([parentId, childId, opts]) => {
+          const p = document.getElementById(parentId);
+          const c = document.getElementById(childId);
+          if (!p || !c) return;
+          const pr = p.getBoundingClientRect();
+          const cr = c.getBoundingClientRect();
+          const x1 = pr.left + pr.width / 2 - canvasR.left;
+          const y1 = pr.top + pr.height - canvasR.top;
+          const x2 = cr.left + cr.width / 2 - canvasR.left;
+          const y2 = cr.top - canvasR.top;
+          const my = (y1 + y2) / 2;
+          const cls = opts?.dashed === false ? "solid" : "";
+          // Quadratic bezier curve through midpoint
+          paths += `<path d="M${x1.toFixed(1)},${y1.toFixed(1)} C${x1.toFixed(1)},${my.toFixed(1)} ${x2.toFixed(1)},${my.toFixed(1)} ${x2.toFixed(1)},${y2.toFixed(1)}" class="${cls}"/>`;
+        });
+        svg.innerHTML = paths;
+      }
+
+      function renderHierarchyLines() {
+        drawTreePaths("treeCanvas", "treeSvg", [
+          ["n-iterable", "n-collection"],
+          ["n-collection", "n-list"],
+          ["n-collection", "n-queue"],
+          ["n-collection", "n-set"],
+          // List
+          ["n-list", "n-abslist"],
+          ["n-abslist", "n-arraylist", { dashed: false }],
+          ["n-list", "n-linkedlist", { dashed: false }],
+          ["n-abslist", "n-vector", { dashed: false }],
+          ["n-vector", "n-stack", { dashed: false }],
+          // Queue — Deque first
+          ["n-queue", "n-deque"],
+          ["n-queue", "n-priorityqueue", { dashed: false }],
+          ["n-deque", "n-arraydeque", { dashed: false }],
+          ["n-deque", "n-linkedlist"], // LinkedList implements Deque
+          // Set
+          ["n-set", "n-hashset", { dashed: false }],
+          ["n-set", "n-sortedset"],
+          ["n-hashset", "n-linkedhashset", { dashed: false }],
+          ["n-sortedset", "n-navset"],
+          ["n-navset", "n-treeset", { dashed: false }],
+          ["n-set", "n-enumset", { dashed: false }],
+        ]);
+
+        drawTreePaths("mapCanvas", "mapSvg", [
+          ["n-map", "n-absmap"],
+          ["n-map", "n-sortedmap"],
+          ["n-map", "n-hashtable", { dashed: false }],
+          ["n-absmap", "n-hashmap", { dashed: false }],
+          ["n-hashmap", "n-linkedhashmap", { dashed: false }],
+          ["n-absmap", "n-weakhashmap", { dashed: false }],
+          ["n-absmap", "n-identityhashmap", { dashed: false }],
+          ["n-absmap", "n-enummap", { dashed: false }],
+          ["n-sortedmap", "n-navmap"],
+          ["n-navmap", "n-treemap", { dashed: false }],
+          ["n-map", "n-concurrenthashmap", { dashed: false }],
+          ["n-hashtable", "n-properties", { dashed: false }],
+        ]);
+      }
+
+      window.addEventListener("load", renderHierarchyLines);
+      window.addEventListener("resize", () => {
+        clearTimeout(window._hrt);
+        window._hrt = setTimeout(renderHierarchyLines, 200);
+      });
+    </script>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-inner">
+        <p class="footer-text">
+          Built for learning <strong>Java internals</strong> — one visualization
+          at a time.
+        </p>
+        <div class="footer-links">
+          <a href="#why">Why DSA</a>
+          <a href="#hierarchy">Hierarchy</a>
+          <a href="#visualizers">Visualizers</a>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // Intersection Observer for reveal animations
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("visible");
+            }
+          });
+        },
+        { threshold: 0.12, rootMargin: "0px 0px -40px 0px" },
+      );
+
+      document
+        .querySelectorAll(".reveal")
+        .forEach((el) => observer.observe(el));
+
+      // Smooth scroll for nav links
+      document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+        anchor.addEventListener("click", (e) => {
+          e.preventDefault();
+          const target = document.querySelector(anchor.getAttribute("href"));
+          if (target)
+            target.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      });
+    </script>
+  </body>
 </html>

@@ -1,277 +1,563 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ArrayList Visualizer — Dynamic Array</title>
-  <link rel="stylesheet" href="../visualizer-common.css">
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='j' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23f89820'/%3E%3Cstop offset='1' stop-color='%23e25303'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M24 4c0 0 -4 12 8 16s12 12 4 20' fill='none' stroke='url(%23j)' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M32 4c0 0 -4 12 8 16s12 12 4 20' fill='none' stroke='url(%23j)' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M12 30h34v8c0 14-34 14-34 0z' fill='url(%23j)'/%3E%3Cpath d='M46 33h6c6 0 6 10 0 10h-6' fill='none' stroke='url(%23j)' stroke-width='3'/%3E%3Cpath d='M8 52h48' stroke='url(%23j)' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M14 56h36' stroke='url(%23j)' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArrayList Visualizer — Dynamic Array</title>
+    <meta name="description" content="Interactive visualizer for Java ArrayList. Animated add, remove, get, set with element shifting and capacity growth.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+:root {
+    --bg-primary: #000000; --bg-secondary: #0a0a0a; --bg-panel: #0d0d0d;
+    --border: rgba(255,255,255,0.06); --border-subtle: rgba(255,255,255,0.04); --border-glow: rgba(255,255,255,0.12);
+    --text-primary: #f0f0f0; --text-secondary: #8a8a8a; --text-muted: #555555;
+    --accent-green: #4cff91; --accent-green-bg: rgba(76,255,145,0.10);
+    --accent-red: #ff5252; --accent-red-bg: rgba(255,82,82,0.08);
+    --accent-blue: #448aff; --accent-blue-bg: rgba(68,138,255,0.08);
+    --accent-amber: #ffc107; --accent-amber-bg: rgba(255,193,7,0.08);
+    --accent-purple: #b388ff; --accent-purple-bg: rgba(179,136,255,0.08);
+    --accent-cyan: #18ffff; --accent-cyan-bg: rgba(24,255,255,0.08);
+    --accent-orange: #ff9100; --accent-orange-bg: rgba(255,145,0,0.08);
+    --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px; --radius-xl: 20px; --radius-full: 999px;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.5); --shadow-md: 0 4px 16px rgba(0,0,0,0.6);
+    --shadow-glow-green: 0 0 24px rgba(76,255,145,0.25); --shadow-glow-blue: 0 0 24px rgba(68,138,255,0.25);
+    --shadow-glow-amber: 0 0 24px rgba(255,193,7,0.3); --shadow-glow-red: 0 0 24px rgba(255,82,82,0.25);
+    --shadow-glow-purple: 0 0 24px rgba(179,136,255,0.25); --shadow-glow-cyan: 0 0 24px rgba(24,255,255,0.25);
+    --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+    --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--bg-primary);color:var(--text-primary);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+.app{max-width:1400px;margin:0 auto;padding:20px 24px;display:flex;flex-direction:column;gap:16px}
+
+/* Header */
+.header{display:flex;align-items:center;justify-content:space-between;padding:20px 28px;background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--radius-xl);flex-wrap:wrap;gap:16px;backdrop-filter:blur(20px)}
+.header-left{display:flex;align-items:center;gap:16px}
+.logo-icon{width:48px;height:48px;border-radius:var(--radius-md);background:linear-gradient(135deg,var(--accent-orange),var(--accent-amber));display:flex;align-items:center;justify-content:center;color:#000;box-shadow:0 0 24px rgba(255,145,0,0.3);transition:transform var(--transition)}
+.logo-icon:hover{transform:scale(1.08) rotate(-3deg)}
+.header h1{font-size:1.35rem;font-weight:800;letter-spacing:-0.03em;background:linear-gradient(135deg,#fff,#888);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.subtitle{font-size:0.72rem;color:var(--text-muted);font-weight:500;margin-top:3px;letter-spacing:0.02em}
+.header-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.formula-badge{display:flex;align-items:center;gap:6px;padding:7px 14px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:var(--radius-full);font-size:0.72rem;transition:border-color var(--transition),background var(--transition)}
+.formula-badge:hover{background:rgba(255,255,255,0.06);border-color:var(--border-glow)}
+.formula-label{color:var(--text-muted);font-weight:600;text-transform:uppercase;font-size:0.58rem;letter-spacing:0.1em}
+.formula-badge code{font-family:var(--font-mono);color:var(--accent-cyan);font-weight:600;font-size:0.72rem}
+
+/* Controls */
+.controls-bar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--radius-xl);gap:14px;flex-wrap:wrap;backdrop-filter:blur(20px)}
+.controls-left,.controls-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.input-group{display:flex;align-items:center;gap:0}
+.stepper-btn{width:36px;height:40px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.04);border:1px solid var(--border);color:var(--text-secondary);cursor:pointer;transition:all var(--transition);font-size:1.1rem;font-weight:600;user-select:none}
+.stepper-btn:first-child{border-radius:var(--radius-sm) 0 0 var(--radius-sm)}
+.stepper-btn:hover{background:rgba(255,255,255,0.08);color:var(--text-primary)}
+.stepper-btn:active{background:rgba(255,255,255,0.12);transform:scale(0.95)}
+.input-group input{width:72px;padding:9px 8px;background:var(--bg-secondary);border:1px solid var(--border);border-left:none;border-right:none;color:var(--text-primary);font-family:var(--font-mono);font-size:0.9rem;font-weight:700;outline:none;text-align:center;transition:border-color var(--transition)}
+.input-group input:focus{border-color:var(--accent-blue)}
+.input-group input::placeholder{color:var(--text-muted);font-weight:400}
+.input-group input::-webkit-outer-spin-button,.input-group input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.input-group input[type=number]{-moz-appearance:textfield;appearance:textfield}
+.idx-input{width:52px!important;border-left:1px solid var(--border)!important;border-right:1px solid var(--border)!important;border-radius:0!important}
+
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;font-family:var(--font);font-size:0.8rem;font-weight:600;border:1px solid transparent;border-radius:var(--radius-sm);cursor:pointer;transition:all var(--transition);white-space:nowrap;position:relative;overflow:hidden}
+.btn::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,0.06) 0%,transparent 100%);pointer-events:none;opacity:0;transition:opacity var(--transition)}
+.btn:hover::after{opacity:1}
+.btn:active{transform:scale(0.96)}
+.btn:disabled{opacity:0.3;cursor:not-allowed;pointer-events:none}
+.btn-add{background:var(--accent-green);color:#000;border-color:var(--accent-green);font-weight:700;border-radius:0 var(--radius-sm) var(--radius-sm) 0}
+.btn-add:hover{box-shadow:var(--shadow-glow-green);filter:brightness(1.12)}
+.btn-addAt{background:var(--accent-cyan);color:#000;border-color:var(--accent-cyan);font-weight:700}
+.btn-addAt:hover{box-shadow:var(--shadow-glow-cyan);filter:brightness(1.12)}
+.btn-remove{background:var(--accent-red-bg);color:var(--accent-red);border:1px solid rgba(255,82,82,0.2)}
+.btn-remove:hover{background:rgba(255,82,82,0.18);box-shadow:var(--shadow-glow-red)}
+.btn-get{background:var(--accent-amber-bg);color:var(--accent-amber);border:1px solid rgba(255,193,7,0.2)}
+.btn-get:hover{background:rgba(255,193,7,0.18);box-shadow:var(--shadow-glow-amber)}
+.btn-set{background:var(--accent-purple-bg);color:var(--accent-purple);border:1px solid rgba(179,136,255,0.2)}
+.btn-set:hover{background:rgba(179,136,255,0.18);box-shadow:var(--shadow-glow-purple)}
+.btn-clear{background:rgba(255,255,255,0.03);color:var(--text-muted);border:1px solid var(--border)}
+.btn-clear:hover{color:var(--text-secondary);background:rgba(255,255,255,0.06)}
+.btn-sample{background:linear-gradient(135deg,var(--accent-blue),var(--accent-purple));color:white;padding:9px 18px;font-weight:700}
+.btn-sample:hover{box-shadow:var(--shadow-glow-blue);filter:brightness(1.15)}
+.btn-clear-log{background:rgba(255,255,255,0.03);color:var(--text-muted);border:1px solid var(--border);padding:5px 12px;font-size:0.7rem}
+.speed-control{display:flex;align-items:center;gap:7px}
+.speed-control label{font-size:0.7rem;color:var(--text-muted);font-weight:600}
+.speed-control input[type="range"]{width:64px;height:4px;-webkit-appearance:none;appearance:none;background:rgba(255,255,255,0.08);border-radius:2px;outline:none}
+.speed-control input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--accent-blue);cursor:pointer;box-shadow:0 0 8px rgba(68,138,255,0.4)}
+
+/* Panels */
+.panel{background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--radius-xl);overflow:hidden;backdrop-filter:blur(20px)}
+.panel-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border-subtle);background:rgba(255,255,255,0.01)}
+.panel-header h2{font-size:0.82rem;font-weight:700;color:var(--text-secondary)}
+.badge{font-size:0.68rem;font-weight:600;padding:4px 12px;background:var(--accent-blue-bg);color:var(--accent-blue);border-radius:var(--radius-full);border:1px solid rgba(68,138,255,0.15)}
+.badge-orange{background:var(--accent-orange-bg);color:var(--accent-orange);border-color:rgba(255,145,0,0.15)}
+.code-hint{font-family:var(--font-mono);font-size:0.62rem;color:var(--text-muted);padding:4px 10px;background:rgba(255,255,255,0.03);border-radius:var(--radius-sm);border:1px solid var(--border)}
+
+/* Array View */
+.array-viewport{padding:24px 20px;overflow-x:auto;min-height:140px}
+.array-wrapper{display:flex;flex-direction:column;gap:6px;min-width:fit-content}
+.array-row{display:flex;align-items:flex-end;gap:3px}
+.cell{display:flex;flex-direction:column;align-items:center;gap:3px;transition:all 0.4s cubic-bezier(0.34,1.56,0.64,1);min-width:52px}
+.cell-val{width:52px;height:46px;display:flex;align-items:center;justify-content:center;border-radius:8px;font-family:var(--font-mono);font-size:0.88rem;font-weight:700;transition:all 0.3s ease;border:1.5px solid var(--border)}
+.cell-val.occupied{color:var(--text-primary);background:rgba(68,138,255,0.06);border-color:rgba(68,138,255,0.2)}
+.cell-val.empty{color:var(--text-muted);background:rgba(255,255,255,0.015);border-color:var(--border);opacity:0.5}
+.cell-val.hl-add{border-color:var(--accent-green);background:var(--accent-green-bg);color:var(--accent-green);animation:popIn .4s ease}
+.cell-val.hl-remove{border-color:var(--accent-red);background:var(--accent-red-bg);color:var(--accent-red)}
+.cell-val.hl-shift{border-color:var(--accent-amber);background:var(--accent-amber-bg);color:var(--accent-amber);animation:shiftGlow .5s ease}
+.cell-val.hl-get{border-color:var(--accent-amber);background:var(--accent-amber-bg);color:var(--accent-amber);animation:peekPulse .8s ease infinite}
+.cell-val.hl-set{border-color:var(--accent-purple);background:var(--accent-purple-bg);color:var(--accent-purple);animation:popIn .4s ease}
+.cell-val.hl-gap{border:2px dashed rgba(255,82,82,0.4);background:rgba(255,82,82,0.04);color:transparent}
+@keyframes popIn{0%{transform:scale(0.5);opacity:0}100%{transform:scale(1);opacity:1}}
+@keyframes shiftGlow{0%{transform:translateX(-8px);opacity:0.5}100%{transform:translateX(0);opacity:1}}
+@keyframes peekPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08);box-shadow:0 0 16px rgba(255,193,7,0.3)}}
+.cell-idx{font-size:0.55rem;font-weight:600;color:var(--text-muted);font-family:var(--font-mono);opacity:0.7}
+.separator{width:2px;height:46px;background:linear-gradient(180deg,var(--accent-orange),transparent);border-radius:1px;align-self:flex-start;margin:0 2px;opacity:0.6}
+.sep-label{font-size:0.5rem;font-weight:700;color:var(--accent-orange);font-family:var(--font-mono);white-space:nowrap}
+.array-bracket{font-family:var(--font-mono);font-size:1.3rem;font-weight:300;color:rgba(255,255,255,0.15);align-self:center}
+
+/* Capacity Bar */
+.capacity-bar{display:flex;align-items:center;gap:12px;padding:10px 20px;border-top:1px solid var(--border-subtle)}
+.cap-track{flex:1;height:6px;background:rgba(255,255,255,0.04);border-radius:3px;overflow:hidden;position:relative}
+.cap-fill{height:100%;border-radius:3px;transition:width 0.5s ease,background 0.3s}
+.cap-text{font-size:0.68rem;font-weight:600;color:var(--text-muted);font-family:var(--font-mono);white-space:nowrap}
+
+/* Info Bar */
+.info-bar{display:flex;align-items:center;gap:12px;padding:12px 20px;background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--radius-md);font-size:0.8rem;color:var(--text-secondary);min-height:48px;transition:all 0.3s ease;backdrop-filter:blur(20px)}
+.info-bar.action-add{border-color:rgba(76,255,145,0.2);background:rgba(76,255,145,0.03)}
+.info-bar.action-remove{border-color:rgba(255,82,82,0.2);background:rgba(255,82,82,0.03)}
+.info-bar.action-get{border-color:rgba(255,193,7,0.2);background:rgba(255,193,7,0.03)}
+.info-bar.action-set{border-color:rgba(179,136,255,0.2);background:rgba(179,136,255,0.03)}
+.info-bar.action-resize{border-color:rgba(255,145,0,0.25);background:rgba(255,145,0,0.04)}
+.info-text{font-weight:500;line-height:1.5}
+.info-text strong{color:var(--text-primary);font-weight:700}
+
+/* Log */
+.log-panel{max-height:220px}
+.log-container{padding:10px 16px;max-height:160px;overflow-y:auto;display:flex;flex-direction:column;gap:3px}
+.log-container::-webkit-scrollbar{width:3px}
+.log-container::-webkit-scrollbar-track{background:transparent}
+.log-container::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:2px}
+.log-entry{font-family:var(--font-mono);font-size:0.68rem;padding:4px 10px;border-radius:var(--radius-sm);line-height:1.6;color:var(--text-secondary)}
+.log-entry.log-add{color:var(--accent-green);background:var(--accent-green-bg)}
+.log-entry.log-remove{color:var(--accent-red);background:var(--accent-red-bg)}
+.log-entry.log-get{color:var(--accent-amber);background:var(--accent-amber-bg)}
+.log-entry.log-set{color:var(--accent-purple);background:var(--accent-purple-bg)}
+.log-entry.log-resize{color:var(--accent-orange);background:var(--accent-orange-bg)}
+.log-entry.log-info{color:var(--text-muted)}
+
+/* ===== Theory Section ===== */
+.theory-section{background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--radius-xl);overflow:hidden;backdrop-filter:blur(20px)}
+.theory-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;padding:16px 24px;cursor:pointer;background:none;border:none;color:var(--text-primary);font-family:var(--font);transition:background var(--transition)}
+.theory-toggle:hover{background:rgba(255,255,255,0.02)}
+.theory-toggle h2{font-size:0.88rem;font-weight:700;display:flex;align-items:center;gap:10px;color:var(--text-secondary)}
+.theory-toggle h2 .accent{color:var(--accent-orange)}
+.toggle-chevron{width:20px;height:20px;color:var(--text-muted);transition:transform 0.3s ease}
+.theory-section.open .toggle-chevron{transform:rotate(180deg)}
+.theory-body{max-height:0;overflow:hidden;transition:max-height 0.5s cubic-bezier(0.4,0,0.2,1)}
+.theory-section.open .theory-body{max-height:3500px}
+.theory-inner{padding:0 24px 24px;display:flex;flex-direction:column;gap:20px}
+.theory-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:800px){.theory-grid{grid-template-columns:1fr}}
+.theory-card{background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;transition:border-color var(--transition)}
+.theory-card:hover{border-color:var(--border-glow)}
+.theory-card h3{font-size:0.82rem;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.theory-card h3 .icon{width:28px;height:28px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:0.85rem;flex-shrink:0}
+.theory-card p,.theory-card li{font-size:0.76rem;color:var(--text-secondary);line-height:1.7}
+.theory-card ul{padding-left:16px;display:flex;flex-direction:column;gap:4px}
+.theory-card code{font-family:var(--font-mono);font-size:0.72rem;color:var(--accent-cyan);background:rgba(24,255,255,0.06);padding:1px 6px;border-radius:4px}
+.theory-full{grid-column:1/-1}
+.complexity-table{width:100%;border-collapse:collapse;margin-top:8px}
+.complexity-table th,.complexity-table td{padding:8px 12px;font-size:0.72rem;text-align:left;border-bottom:1px solid var(--border-subtle)}
+.complexity-table th{color:var(--text-muted);font-weight:600;text-transform:uppercase;font-size:0.62rem;letter-spacing:0.08em}
+.complexity-table td{font-family:var(--font-mono);color:var(--text-primary);font-weight:600}
+.complexity-table td:first-child{font-family:var(--font);color:var(--text-secondary)}
+.complexity-table .good{color:var(--accent-green)}
+.complexity-table .warn{color:var(--accent-amber)}
+.complexity-table .bad{color:var(--accent-red)}
+
+@media(max-width:900px){.header{flex-direction:column;align-items:flex-start}.controls-bar{flex-direction:column;align-items:flex-start}.controls-left,.controls-right{width:100%}}
+@media(max-width:600px){.app{padding:12px 14px;gap:12px}.formula-badge{display:none}.stepper-btn{width:32px;height:36px}.cell-val{width:42px;height:38px;font-size:0.78rem}}
+.home-link{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-secondary);font-size:0.72rem;font-weight:600;text-decoration:none;transition:all var(--transition)}
+.home-link:hover{background:rgba(255,255,255,0.08);color:var(--text-primary);border-color:var(--border-glow)}
+    </style>
 </head>
 <body>
-<div class="viz-page">
-  <!-- Header -->
-  <div class="viz-header">
-    <div class="viz-header-left">
-      <a href="../index.html" class="viz-home">← Home</a>
-      <div class="viz-icon" style="background:linear-gradient(135deg,#ff6d00,#ff9100)">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>
-      </div>
-      <div class="viz-title-group">
-        <h1>ArrayList Visualizer</h1>
-        <p>Java Collections — Dynamic Resizable Array</p>
-      </div>
-    </div>
-    <div class="viz-header-badges">
-      <div class="viz-badge">INTERNAL <code>Object[]</code></div>
-      <div class="viz-badge">GROWTH <code>1.5×</code></div>
-      <div class="viz-badge">ACCESS <code>O(1)</code></div>
-    </div>
-  </div>
+<div class="app">
+    <header class="header">
+        <div class="header-left">
+            <a href="../index.html" class="home-link" aria-label="Back to Home" title="Back to Home">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+                Home
+            </a>
+            <div class="logo-icon">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/>
+                </svg>
+            </div>
+            <div>
+                <h1>ArrayList Visualizer</h1>
+                <p class="subtitle">Java Collections Framework — Dynamic Array (Resizable)</p>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="formula-badge"><span class="formula-label">Default</span><code>capacity = 10</code></div>
+            <div class="formula-badge"><span class="formula-label">Growth</span><code>old + (old >> 1)</code></div>
+            <div class="formula-badge"><span class="formula-label">Add/Remove</span><code>System.arraycopy</code></div>
+        </div>
+    </header>
 
-  <!-- Controls -->
-  <div class="viz-controls">
-    <div class="viz-input-group">
-      <button class="viz-input-btn" onclick="decVal()">−</button>
-      <input type="number" class="viz-input" id="valInput" value="10">
-      <button class="viz-input-btn" onclick="incVal()">+</button>
+    <div class="controls-bar">
+        <div class="controls-left">
+            <div class="input-group">
+                <button class="stepper-btn" id="decBtn" type="button">−</button>
+                <input type="number" id="valueInput" placeholder="val" min="-999" max="999">
+                <button class="stepper-btn" id="incBtn" type="button" style="border-radius:0">+</button>
+                <button id="addBtn" class="btn btn-add">add(e)</button>
+            </div>
+            <div class="input-group" style="margin-left:4px">
+                <input type="number" id="idxInput" class="idx-input" placeholder="idx" min="0" max="999">
+                <button id="addAtBtn" class="btn btn-addAt" style="border-radius:0 var(--radius-sm) var(--radius-sm) 0">add(i,e)</button>
+            </div>
+            <button id="removeBtn" class="btn btn-remove">remove(i)</button>
+            <button id="getBtn" class="btn btn-get">get(i)</button>
+            <button id="setBtn" class="btn btn-set">set(i,e)</button>
+            <button id="clearAllBtn" class="btn btn-clear">Clear</button>
+        </div>
+        <div class="controls-right">
+            <button id="sampleBtn" class="btn btn-sample">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                Load Example
+            </button>
+            <div class="speed-control">
+                <label>Speed</label>
+                <input type="range" id="speedSlider" min="1" max="5" value="3" step="1">
+            </div>
+        </div>
     </div>
-    <button class="viz-op-btn primary" onclick="doAdd()">add(e)</button>
-    <span class="viz-idx-label">idx</span>
-    <input type="number" class="viz-input" id="idxInput" value="0" style="width:48px;border:1px solid var(--border);border-radius:6px">
-    <button class="viz-op-btn info" onclick="doAddAt()">add(i, e)</button>
-    <button class="viz-op-btn danger" onclick="doRemove()">remove(i)</button>
-    <button class="viz-op-btn secondary" onclick="doGet()">get(i)</button>
-    <button class="viz-op-btn warn" onclick="doSet()">set(i, e)</button>
-    <button class="viz-op-btn secondary" onclick="doClear()">Clear</button>
-    <div class="viz-controls-right">
-      <button class="viz-load-btn" onclick="loadExample()">▶ Load Example</button>
-      <div class="viz-speed">Speed <input type="range" id="speedSlider" min="100" max="1500" value="500"></div>
-    </div>
-  </div>
 
-  <!-- Theory -->
-  <div class="viz-theory">
-    <button class="viz-theory-toggle" aria-expanded="false" onclick="toggleTheory(this)">
-      <span class="toggle-left">📖 What is an ArrayList? — Dynamic Array Internals</span>
-      <span class="viz-theory-chevron">▼</span>
-    </button>
-    <div class="viz-theory-content" id="theoryContent">
-      <div class="viz-theory-inner">
-        <h3>Internal Structure</h3>
-        <p>ArrayList uses an internal <code>Object[] elementData</code> array. When elements are added beyond the current capacity, a new array is created with <code>newCapacity = oldCapacity + (oldCapacity >> 1)</code> — approximately <strong>1.5×</strong> the old size. Elements are copied using <code>System.arraycopy()</code>.</p>
-        <h3>Key Characteristics</h3>
-        <ul>
-          <li><strong>Random access:</strong> <code>get(i)</code> and <code>set(i, e)</code> are O(1)</li>
-          <li><strong>Add at end:</strong> Amortized O(1) — occasionally O(n) when resizing</li>
-          <li><strong>Add/Remove at index:</strong> O(n) — requires shifting elements</li>
-          <li><strong>Default capacity:</strong> 10 (when first element is added)</li>
-        </ul>
-        <h3>When to Use</h3>
-        <p>Use ArrayList when you need fast random access and mostly add/remove at the end. Avoid it for frequent insertions/removals in the middle — use LinkedList instead.</p>
-      </div>
-    </div>
-  </div>
+    <!-- Theory Section -->
+    <div class="theory-section" id="theorySection">
+        <button class="theory-toggle" id="theoryToggle" type="button">
+            <h2>📖 <span class="accent" style="color:var(--accent-orange)">What is an ArrayList?</span> — Dynamic Array Internals</h2>
+            <svg class="toggle-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="theory-body">
+            <div class="theory-inner">
+                <div class="theory-grid">
+                    <div class="theory-card">
+                        <h3><span class="icon" style="background:var(--accent-blue-bg);color:var(--accent-blue)">📦</span> Dynamic Array Backend</h3>
+                        <p style="margin-bottom:10px">An ArrayList stores elements inside a contiguous array. When it runs out of space, it automatically grows:</p>
+                        <ul>
+                            <li><strong>Contiguous Memory</strong> ensures fast sequential iteration and CPU cache locality.</li>
+                            <li><strong>Initial Capacity:</strong> Starts at 10 (by default).</li>
+                            <li><strong>Growth Factor:</strong> Grows by 1.5x (<code>newCap = old + (old >> 1)</code>).</li>
+                        </ul>
+                    </div>
 
-  <!-- Array Visualization -->
-  <div class="viz-panel">
-    <div class="viz-panel-header">
-      <h2>📦 Internal Object[] Array</h2>
-      <div class="viz-panel-badges">
-        <span class="viz-panel-badge">capacity: <strong id="capBadge">10</strong></span>
-        <span class="viz-panel-badge">size: <strong id="sizeBadge">0</strong></span>
-      </div>
-    </div>
-    <div class="viz-panel-body" id="arrayView">
-      <div class="viz-empty">
-        <div class="viz-empty-icon">📦</div>
-        <p>Add elements to visualize the array</p>
-        <p>Or click <strong>"Load Example"</strong> for a demo</p>
-      </div>
-    </div>
-  </div>
+                    <div class="theory-card">
+                        <h3><span class="icon" style="background:var(--accent-green-bg);color:var(--accent-green)">⚡</span> The O(1) Advantage</h3>
+                        <p style="margin-bottom:10px">ArrayList is heavily optimized for reads and append-only writes:</p>
+                        <ul>
+                            <li><strong>Random Access:</strong> <code>get(i)</code> and <code>set(i, val)</code> are instantly calculated via memory offsets, making them <strong>O(1)</strong>.</li>
+                            <li><strong>Appending:</strong> <code>add(val)</code> at the end is <strong>amortized O(1)</strong> (fast except during a resize).</li>
+                        </ul>
+                    </div>
 
-  <!-- Status -->
-  <div class="viz-status" id="statusBar">
-    <span class="status-icon">ℹ️</span> Ready. Add elements or load the example.
-  </div>
+                    <div class="theory-card">
+                        <h3><span class="icon" style="background:var(--accent-red-bg);color:var(--accent-red)">📉</span> The O(N) Caveat</h3>
+                        <p style="margin-bottom:10px">Because the array is contiguous, inserting or removing elements in the middle forces shifting:</p>
+                        <ul>
+                            <li><strong>Shifting Cost:</strong> <code>add(i, val)</code> and <code>remove(i)</code> take <strong>O(N)</strong> time because <code>System.arraycopy</code> must move elements.</li>
+                            <li>Removing from the head (index 0) is always the worst case, <strong>O(N)</strong>.</li>
+                        </ul>
+                    </div>
 
-  <!-- Operation Log -->
-  <div class="viz-log">
-    <div class="viz-log-header">
-      <h2>📋 Operation Log</h2>
-      <button class="viz-log-clear" onclick="clearLog()">Clear</button>
+                    <div class="theory-card theory-full">
+                        <h3><span class="icon" style="background:rgba(255,255,255,0.05);color:var(--text-primary)">⚙️</span> Common Methods & Time Complexity</h3>
+                        <table class="complexity-table">
+                            <thead>
+                                <tr>
+                                    <th>Method</th>
+                                    <th>Description</th>
+                                    <th>Origin</th>
+                                    <th>Time Comp.</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>boolean add(E e)</code></td>
+                                    <td>Appends the element to the end of the list.</td>
+                                    <td>List</td>
+                                    <td><span class="good">O(1)</span>*</td>
+                                </tr>
+                                <tr>
+                                    <td><code>void add(int i, E e)</code></td>
+                                    <td>Inserts element at position <code>i</code>, shifting subsequent elements right.</td>
+                                    <td>List</td>
+                                    <td><span class="bad">O(n)</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>E remove(int i)</code></td>
+                                    <td>Removes element at position <code>i</code>, shifting subsequent elements left.</td>
+                                    <td>List</td>
+                                    <td><span class="bad">O(n)</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>E get(int i)</code></td>
+                                    <td>Returns the element at the specified position.</td>
+                                    <td>List</td>
+                                    <td><span class="good">O(1)</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>E set(int i, E e)</code></td>
+                                    <td>Replaces the element at the specified position.</td>
+                                    <td>List</td>
+                                    <td><span class="good">O(1)</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p style="margin-top:10px;font-size:0.65rem;color:var(--text-muted)">* Amortized complexity. It takes O(n) during the exact moment a resize happens, but effectively O(1) averaged over all insertions.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="viz-log-body" id="logBody">
-      <div class="log-entry info">Visualizer ready. ArrayList backed by Object[] with initial capacity 10.</div>
+
+    <!-- Array View -->
+    <div class="panel" id="arrayPanel">
+        <div class="panel-header">
+            <h2>📦 Internal Array — Object[] elementData</h2>
+            <div style="display:flex;gap:8px;align-items:center">
+                <span class="badge" id="sizeLabel">Size: 0</span>
+                <span class="badge badge-orange" id="capLabel">Capacity: 10</span>
+            </div>
+        </div>
+        <div class="array-viewport" id="arrayViewport">
+            <div class="array-wrapper" id="arrayContainer">
+                <div style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.78rem;text-align:center;padding:18px;width:100%">
+                    Empty — Object[] elementData = new Object[10]
+                </div>
+            </div>
+        </div>
+        <div class="capacity-bar">
+            <span class="cap-text" id="capText">0 / 10</span>
+            <div class="cap-track"><div class="cap-fill" id="capFill" style="width:0%;background:var(--accent-blue)"></div></div>
+        </div>
     </div>
-  </div>
+
+    <div class="info-bar" id="infoBar">
+        <div>ℹ️</div>
+        <div class="info-text" id="infoText">Ready. Add elements or load the example to begin.</div>
+    </div>
+
+    <div class="panel log-panel">
+        <div class="panel-header">
+            <h2>📋 Operation Log</h2>
+            <button id="clearLogBtn" class="btn btn-clear-log">Clear</button>
+        </div>
+        <div class="log-container" id="logContainer">
+            <div class="log-entry log-info">Visualizer ready. Default capacity = 10.</div>
+        </div>
+    </div>
 </div>
 
 <script>
-// --- ArrayList State ---
-let capacity = 10;
-let arr = [];
-let animSpeed = 500;
+/**
+ * ArrayList — mirrors Java's ArrayList internals.
+ */
+class SimArrayList {
+    constructor(initCap = 10) {
+        this.capacity = initCap;
+        this.data = new Array(this.capacity).fill(undefined);
+        this._size = 0;
+    }
+    get size() { return this._size; }
+    get isEmpty() { return this._size === 0; }
 
-document.getElementById('speedSlider').addEventListener('input', e => {
-  animSpeed = 1600 - parseInt(e.target.value);
-});
+    _grow() {
+        const oldCap = this.capacity;
+        const newCap = oldCap + (oldCap >> 1); // 1.5x
+        const newArr = new Array(newCap).fill(undefined);
+        for (let i = 0; i < this._size; i++) newArr[i] = this.data[i];
+        this.data = newArr;
+        this.capacity = newCap;
+        return { oldCap, newCap };
+    }
 
-function getVal() { return parseInt(document.getElementById('valInput').value) || 0; }
-function getIdx() { return parseInt(document.getElementById('idxInput').value) || 0; }
-function incVal() { const i = document.getElementById('valInput'); i.value = parseInt(i.value||0)+1; }
-function decVal() { const i = document.getElementById('valInput'); i.value = parseInt(i.value||0)-1; }
-function setStatus(msg) { document.getElementById('statusBar').innerHTML = '<span class="status-icon">ℹ️</span> ' + msg; }
-function addLog(msg, type='info') {
-  const log = document.getElementById('logBody');
-  const d = document.createElement('div');
-  d.className = 'log-entry ' + type;
-  d.textContent = msg;
-  log.insertBefore(d, log.firstChild);
-}
-function clearLog() { document.getElementById('logBody').innerHTML = ''; }
+    add(val) {
+        const ops = [];
+        if (this._size === this.capacity) {
+            const r = this._grow();
+            ops.push({ type: 'resize', oldCap: r.oldCap, newCap: r.newCap, snapshot: this.data.slice(0, this.capacity), size: this._size, message: `Capacity full! Grew: ${r.oldCap} → ${r.newCap} (oldCap + oldCap >> 1)` });
+        }
+        this.data[this._size] = val;
+        this._size++;
+        ops.push({ type: 'add', index: this._size - 1, value: val, snapshot: this.data.slice(0, this.capacity), size: this._size, message: `add(${val}): placed at index ${this._size - 1}. Size = ${this._size}` });
+        return ops;
+    }
 
-function toggleTheory(btn) {
-  const expanded = btn.getAttribute('aria-expanded') === 'true';
-  btn.setAttribute('aria-expanded', !expanded);
-  document.getElementById('theoryContent').classList.toggle('open');
-}
+    addAt(index, val) {
+        if (index < 0 || index > this._size) return null;
+        const ops = [];
+        if (this._size === this.capacity) {
+            const r = this._grow();
+            ops.push({ type: 'resize', oldCap: r.oldCap, newCap: r.newCap, snapshot: this.data.slice(0, this.capacity), size: this._size, message: `Capacity full! Grew: ${r.oldCap} → ${r.newCap}` });
+        }
+        // Shift right
+        const shiftCount = this._size - index;
+        if (shiftCount > 0) {
+            ops.push({ type: 'shift-right-start', index, count: shiftCount, snapshot: this.data.slice(0, this.capacity), size: this._size, message: `Shifting ${shiftCount} element(s) right from index ${index} to make room` });
+            for (let i = this._size; i > index; i--) this.data[i] = this.data[i - 1];
+            ops.push({ type: 'shift-right-done', index, shiftedIndices: Array.from({length: shiftCount}, (_, k) => index + 1 + k), snapshot: this.data.slice(0, this.capacity), size: this._size, message: `Shifted! Gap created at index ${index}` });
+        }
+        this.data[index] = val;
+        this._size++;
+        ops.push({ type: 'add', index, value: val, snapshot: this.data.slice(0, this.capacity), size: this._size, message: `add(${index}, ${val}): inserted. Size = ${this._size}` });
+        return ops;
+    }
 
-function render(highlightIdx = -1, highlightClass = 'highlight') {
-  const view = document.getElementById('arrayView');
-  let html = '<div style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center;width:100%">';
-  for (let i = 0; i < capacity; i++) {
-    const filled = i < arr.length;
-    let cls = filled ? 'filled' : 'empty';
-    if (i === highlightIdx) cls = highlightClass;
-    const val = filled ? arr[i] : '';
-    html += `<div class="array-cell ${i === highlightIdx ? 'anim-pulse' : ''}">
-      <span class="cell-index">[${i}]</span>
-      <div class="cell-box ${cls}">${val}</div>
-    </div>`;
-  }
-  html += '</div>';
-  view.innerHTML = html;
-  document.getElementById('capBadge').textContent = capacity;
-  document.getElementById('sizeBadge').textContent = arr.length;
-}
+    remove(index) {
+        if (index < 0 || index >= this._size) return null;
+        const ops = [];
+        const val = this.data[index];
+        ops.push({ type: 'remove-mark', index, value: val, snapshot: this.data.slice(0, this.capacity), size: this._size, message: `remove(${index}): removing ${val} at index ${index}` });
+        const shiftCount = this._size - 1 - index;
+        if (shiftCount > 0) {
+            for (let i = index; i < this._size - 1; i++) this.data[i] = this.data[i + 1];
+            ops.push({ type: 'shift-left-done', index, shiftedIndices: Array.from({length: shiftCount}, (_, k) => index + k), snapshot: this.data.slice(0, this.capacity), size: this._size, message: `Shifted ${shiftCount} element(s) left (System.arraycopy)` });
+        }
+        this._size--;
+        this.data[this._size] = undefined;
+        ops.push({ type: 'remove-done', index, value: val, snapshot: this.data.slice(0, this.capacity), size: this._size, message: `Removed ${val}. Size = ${this._size}` });
+        return { value: val, ops };
+    }
 
-async function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-
-async function doAdd() {
-  const val = getVal();
-  if (arr.length >= capacity) {
-    await grow();
-  }
-  arr.push(val);
-  render(arr.length - 1, 'highlight');
-  setStatus(`add(${val}) → inserted at index ${arr.length-1}. Size = ${arr.length}`);
-  addLog(`add(${val}) → index ${arr.length-1}`, 'add');
-  incVal();
-}
-
-async function doAddAt() {
-  const val = getVal();
-  const idx = getIdx();
-  if (idx < 0 || idx > arr.length) {
-    setStatus(`IndexOutOfBoundsException: index ${idx}, size ${arr.length}`);
-    addLog(`add(${idx}, ${val}) → IndexOutOfBoundsException`, 'remove');
-    return;
-  }
-  if (arr.length >= capacity) await grow();
-  // Show shifting
-  for (let i = arr.length; i > idx; i--) {
-    render(i, 'shifting');
-    await sleep(animSpeed * 0.5);
-  }
-  arr.splice(idx, 0, val);
-  render(idx, 'highlight');
-  setStatus(`add(${idx}, ${val}) → shifted ${arr.length - 1 - idx} elements right. Size = ${arr.length}`);
-  addLog(`add(${idx}, ${val}) → shifted elements, inserted at index ${idx}`, 'add');
-}
-
-async function doRemove() {
-  const idx = getIdx();
-  if (idx < 0 || idx >= arr.length) {
-    setStatus(`IndexOutOfBoundsException: index ${idx}, size ${arr.length}`);
-    addLog(`remove(${idx}) → IndexOutOfBoundsException`, 'remove');
-    return;
-  }
-  const removed = arr[idx];
-  render(idx, 'removing');
-  await sleep(animSpeed);
-  // Show shifting left
-  for (let i = idx; i < arr.length - 1; i++) {
-    arr[i] = arr[i + 1];
-    render(i, 'shifting');
-    await sleep(animSpeed * 0.4);
-  }
-  arr.pop();
-  render(-1);
-  setStatus(`remove(${idx}) → removed ${removed}, shifted ${arr.length - idx} elements left. Size = ${arr.length}`);
-  addLog(`remove(${idx}) → removed ${removed}`, 'remove');
+    get(index) { return (index >= 0 && index < this._size) ? this.data[index] : null; }
+    set(index, val) {
+        if (index < 0 || index >= this._size) return null;
+        const old = this.data[index];
+        this.data[index] = val;
+        return old;
+    }
+    clear() { this.data = new Array(this.capacity).fill(undefined); this._size = 0; }
+    toArray() { return this.data.slice(0, this._size); }
 }
 
-async function doGet() {
-  const idx = getIdx();
-  if (idx < 0 || idx >= arr.length) {
-    setStatus(`IndexOutOfBoundsException: index ${idx}, size ${arr.length}`);
-    addLog(`get(${idx}) → IndexOutOfBoundsException`, 'remove');
-    return;
-  }
-  render(idx, 'accessed');
-  setStatus(`get(${idx}) → returned ${arr[idx]}. O(1) direct index access.`);
-  addLog(`get(${idx}) → ${arr[idx]}`, 'info');
-}
+(function() {
+    'use strict';
+    const $ = id => document.getElementById(id);
+    const decBtn=$('decBtn'),incBtn=$('incBtn'),valueInput=$('valueInput'),idxInput=$('idxInput');
+    const addBtn=$('addBtn'),addAtBtn=$('addAtBtn'),removeBtn=$('removeBtn'),getBtn=$('getBtn'),setBtn=$('setBtn');
+    const clearAllBtn=$('clearAllBtn'),sampleBtn=$('sampleBtn'),clearLogBtn=$('clearLogBtn');
+    const speedSlider=$('speedSlider'),arrayContainer=$('arrayContainer');
+    const infoBar=$('infoBar'),infoText=$('infoText'),logContainer=$('logContainer');
+    const sizeLabel=$('sizeLabel'),capLabel=$('capLabel'),capText=$('capText'),capFill=$('capFill');
+    const allBtns=[addBtn,addAtBtn,removeBtn,getBtn,setBtn,clearAllBtn,sampleBtn];
 
-async function doSet() {
-  const idx = getIdx();
-  const val = getVal();
-  if (idx < 0 || idx >= arr.length) {
-    setStatus(`IndexOutOfBoundsException: index ${idx}, size ${arr.length}`);
-    addLog(`set(${idx}, ${val}) → IndexOutOfBoundsException`, 'remove');
-    return;
-  }
-  const old = arr[idx];
-  arr[idx] = val;
-  render(idx, 'highlight');
-  setStatus(`set(${idx}, ${val}) → replaced ${old}. O(1) direct index access.`);
-  addLog(`set(${idx}, ${val}) → replaced ${old}`, 'warn');
-}
+    let list = new SimArrayList(10);
+    let animating = false;
 
-async function grow() {
-  const oldCap = capacity;
-  capacity = Math.max(capacity + (capacity >> 1), capacity + 1);
-  setStatus(`⚡ Capacity exceeded! Growing: ${oldCap} → ${capacity} (1.5× formula). System.arraycopy() in progress...`);
-  addLog(`Resize: ${oldCap} → ${capacity} (newCap = oldCap + oldCap >> 1)`, 'warn');
-  // Flash all cells as "grow"
-  render(-1);
-  const cells = document.querySelectorAll('.cell-box');
-  cells.forEach(c => c.classList.add('grow'));
-  await sleep(animSpeed);
-  render(-1);
-}
+    function getDelay(){const s=[1200,800,550,350,200];return s[parseInt(speedSlider.value)-1]||550}
+    function setAnimating(v){animating=v;allBtns.forEach(b=>b.disabled=v);updateBtns()}
+    function updateBtns(){removeBtn.disabled=animating||list.isEmpty;getBtn.disabled=animating||list.isEmpty;setBtn.disabled=animating||list.isEmpty}
 
-function doClear() {
-  arr = [];
-  capacity = 10;
-  render(-1);
-  setStatus('Cleared. ArrayList reset with capacity 10.');
-  addLog('clear() → size = 0, capacity reset to 10', 'info');
-}
+    function log(msg,type='info'){const e=document.createElement('div');e.className=`log-entry log-${type}`;const t=new Date().toLocaleTimeString('en-US',{hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'});e.textContent=`[${t}] ${msg}`;logContainer.appendChild(e);logContainer.scrollTop=logContainer.scrollHeight}
+    function setInfo(msg,cls=''){infoText.innerHTML=msg;infoBar.className='info-bar'+(cls?` action-${cls}`:'')}
+    function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
 
-async function loadExample() {
-  doClear();
-  const vals = [10, 20, 30, 40, 50, 60, 70, 80];
-  for (const v of vals) {
-    document.getElementById('valInput').value = v;
-    await doAdd();
-    await sleep(animSpeed * 0.6);
-  }
-  setStatus('Example loaded: [10, 20, 30, 40, 50, 60, 70, 80]');
-}
+    function renderArray(hl={}){
+        const cap=list.capacity,sz=list.size,d=list.data;
+        sizeLabel.textContent=`Size: ${sz}`;
+        capLabel.textContent=`Capacity: ${cap}`;
+        capText.textContent=`${sz} / ${cap}`;
+        const pct=cap>0?(sz/cap)*100:0;
+        capFill.style.width=pct+'%';
+        capFill.style.background=pct>80?'var(--accent-red)':pct>50?'var(--accent-amber)':'var(--accent-blue)';
 
-// Initial render
-render(-1);
+        if(sz===0&&!hl.addIndex&&hl.addIndex!==0){
+            arrayContainer.innerHTML=`<div style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.78rem;text-align:center;padding:18px;width:100%">Empty — Object[] elementData = new Object[${cap}]</div>`;
+            return;
+        }
+        let html='<div class="array-row"><span class="array-bracket">[</span>';
+        for(let i=0;i<cap;i++){
+            const val=d[i];
+            const occ=i<sz;
+            let cls=occ?'occupied':'empty';
+            if(hl.addIndex===i)cls='hl-add';
+            if(hl.removeIndex===i)cls='hl-remove';
+            if(hl.getIndex===i)cls='hl-get';
+            if(hl.setIndex===i)cls='hl-set';
+            if(hl.shiftIndices&&hl.shiftIndices.includes(i))cls='hl-shift';
+            if(hl.gapIndex===i)cls='hl-gap';
+            // Size/capacity separator
+            if(i===sz&&sz<cap){
+                html+=`<div style="display:flex;flex-direction:column;align-items:center;gap:2px;margin:0 2px"><div class="separator"></div><span class="sep-label">size=${sz}</span></div>`;
+            }
+            html+=`<div class="cell"><div class="cell-val ${cls}">${occ?(val!==undefined?val:''):''}</div><span class="cell-idx">${i}</span></div>`;
+        }
+        html+='<span class="array-bracket">]</span></div>';
+        arrayContainer.innerHTML=html;
+    }
+
+    async function animateOps(ops,logType){
+        const d=getDelay();
+        for(const op of ops){
+            if(op.type==='resize'){
+                renderArray();setInfo(`⚡ <strong>Resize!</strong> ${op.message}`,'resize');log(op.message,'resize');await sleep(d*1.5);
+            }else if(op.type==='add'){
+                renderArray({addIndex:op.index});setInfo(`<strong>add(${op.value})</strong> at index <strong>${op.index}</strong>. Size = ${op.size}`,'add');log(op.message,'add');await sleep(d);
+            }else if(op.type==='shift-right-start'){
+                renderArray({gapIndex:op.index});setInfo(`⏩ Shifting ${op.count} element(s) right from index ${op.index}...`,'add');log(op.message,'info');await sleep(d*.8);
+            }else if(op.type==='shift-right-done'){
+                renderArray({shiftIndices:op.shiftedIndices,gapIndex:op.index});setInfo(`✅ Shifted! Gap at index <strong>${op.index}</strong>`,'add');log(op.message,'add');await sleep(d*.6);
+            }else if(op.type==='remove-mark'){
+                renderArray({removeIndex:op.index});setInfo(`🗑️ Removing <strong>${op.value}</strong> at index ${op.index}...`,'remove');log(op.message,'remove');await sleep(d);
+            }else if(op.type==='shift-left-done'){
+                renderArray({shiftIndices:op.shiftedIndices});setInfo(`⏪ Shifted ${op.shiftedIndices.length} element(s) left (System.arraycopy)`,'remove');log(op.message,'remove');await sleep(d*.8);
+            }else if(op.type==='remove-done'){
+                renderArray();log(op.message,'remove');await sleep(d*.4);
+            }
+        }
+    }
+
+    function getVal(){const v=parseInt(valueInput.value);if(isNaN(v)){setInfo('⚠️ Enter a valid integer value.','');return null}valueInput.value='';valueInput.focus();return v}
+    function getIdx(){const v=parseInt(idxInput.value);if(isNaN(v)||v<0){setInfo('⚠️ Enter a valid index ≥ 0.','');return null}return v}
+
+    async function handleAdd(){const v=getVal();if(v===null)return;setAnimating(true);const ops=list.add(v);await animateOps(ops,'add');setInfo(`✅ <strong>${v}</strong> added. Size: <strong>${list.size}</strong>`,'add');renderArray();setAnimating(false)}
+
+    async function handleAddAt(){const v=getVal();const i=getIdx();if(v===null||i===null)return;if(i>list.size){setInfo(`⚠️ Index ${i} out of bounds. Size = ${list.size}`,'');return}setAnimating(true);const ops=list.addAt(i,v);if(!ops){setInfo('⚠️ Invalid index.','');setAnimating(false);return}await animateOps(ops,'add');setInfo(`✅ <strong>${v}</strong> inserted at index <strong>${i}</strong>. Size: <strong>${list.size}</strong>`,'add');renderArray();setAnimating(false)}
+
+    async function handleRemove(){const i=getIdx();if(i===null)return;if(i>=list.size){setInfo(`⚠️ Index ${i} out of bounds. Size = ${list.size}`,'');return}setAnimating(true);const r=list.remove(i);await animateOps(r.ops,'remove');setInfo(`🗑️ <strong>remove(${i})</strong> → <strong>${r.value}</strong>. Size: <strong>${list.size}</strong>`,'remove');renderArray();setAnimating(false)}
+
+    function handleGet(){const i=getIdx();if(i===null)return;if(i>=list.size){setInfo(`⚠️ Index ${i} out of bounds. Size = ${list.size}`,'');return}const v=list.get(i);log(`get(${i}) → ${v}`,'get');setInfo(`🔍 <strong>get(${i})</strong> → <strong>${v}</strong>. O(1) random access.`,'get');renderArray({getIndex:i})}
+
+    function handleSet(){const v=getVal();const i=getIdx();if(v===null||i===null)return;if(i>=list.size){setInfo(`⚠️ Index ${i} out of bounds. Size = ${list.size}`,'');return}const old=list.set(i,v);log(`set(${i}, ${v}): ${old} → ${v}`,'set');setInfo(`✏️ <strong>set(${i}, ${v})</strong>: replaced <strong>${old}</strong> with <strong>${v}</strong>. O(1).`,'set');renderArray({setIndex:i})}
+
+    function handleClear(){list.clear();log('clear() — All elements removed','info');setInfo('🧹 List cleared.','');renderArray()}
+
+    async function handleSample(){list=new SimArrayList(10);renderArray();setAnimating(true);const vals=[10,20,30,40,50,60,70];log(`Loading example: [${vals.join(', ')}]`,'info');for(const v of vals){const ops=list.add(v);await animateOps(ops,'add');renderArray();await sleep(120)}setInfo(`✅ Example loaded: [${list.toArray().join(', ')}]. Try <strong>add(3, 99)</strong> or <strong>remove(2)</strong>!`,'add');renderArray();setAnimating(false)}
+
+    decBtn.addEventListener('click',()=>{const v=parseInt(valueInput.value)||0;valueInput.value=v-1});
+    incBtn.addEventListener('click',()=>{const v=parseInt(valueInput.value)||0;valueInput.value=v+1});
+    valueInput.addEventListener('keydown',e=>{if(e.key==='Enter'&&!animating)handleAdd()});
+    addBtn.addEventListener('click',handleAdd);
+    addAtBtn.addEventListener('click',handleAddAt);
+    removeBtn.addEventListener('click',handleRemove);
+    getBtn.addEventListener('click',handleGet);
+    setBtn.addEventListener('click',handleSet);
+    clearAllBtn.addEventListener('click',handleClear);
+    sampleBtn.addEventListener('click',handleSample);
+    clearLogBtn.addEventListener('click',()=>{logContainer.innerHTML='';log('Log cleared.','info')});
+
+    let rt;window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>renderArray(),150)});
+    
+    /* Theory section toggle */
+    const theorySection = $('theorySection'), theoryToggle = $('theoryToggle');
+    theoryToggle.addEventListener('click', () => theorySection.classList.toggle('open'));
+
+    renderArray();
+})();
 </script>
 </body>
 </html>

@@ -8,7 +8,7 @@ Every line of code touches a data structure. Choosing the right collection isn't
 
 ## ✨ Features
 
-- **7 Fully Interactive Visualizers:** Supports `ArrayList`, `LinkedList`, `ArrayDeque`, `PriorityQueue`, `TreeSet`, `HashSet`, and `LinkedHashSet`.
+- **10 Fully Interactive Visualizers:** Supports `ArrayList`, `LinkedList`, `ArrayDeque`, `PriorityQueue`, `TreeSet`, `HashSet`, `LinkedHashSet`, `HashMap`, `LinkedHashMap`, and `TreeMap`.
 - **Real-Time Data Manipulation:** Perform operations like `add()`, `remove()`, `get()`, and `poll()` and watch the data structures react instantly.
 - **Internal Mechanics Exposed:** Watch arrays resize (1.5x growth), nodes traverse, heaps sift-up/down, trees rotate, and hash tables linearly probe on collisions.
 - **Comprehensive Theory Sections:** Built-in explanations, complexity tables (Big-O), and indexing formulas directly alongside the visualizer.
@@ -27,15 +27,16 @@ Every line of code touches a data structure. Choosing the right collection isn't
 ```text
 /
 ├── index.html                 # Main landing page & Collection hierarchy
-├── style.css                  # Landing page styling
-├── visualizer-common.css      # Shared design system for all visualizers
 ├── ArrayList/                 # Dynamic Resizable Array visualizer
 ├── LinkedList/                # Doubly-Linked List visualizer
 ├── ArrayDeque/                # Circular Ring Buffer visualizer
 ├── PriorityQueue/             # Binary Min/Max-Heap visualizer
 ├── HashSet/                   # Hash Table (Linear Probing) visualizer
 ├── LinkedHashSet/             # Hash Table + Insertion Order Chain visualizer
-└── TreeSet/                   # Red-Black Tree visualizer
+├── TreeSet/                   # Red-Black Tree visualizer
+├── HashMap/                   # Hash Table (Separate Chaining) visualizer
+├── LinkedHashMap/             # Hash Table + Insertion Order Chain visualizer
+└── TreeMap/                   # Red-Black Tree Map visualizer
 ```
 
 ## 📸 Screenshots
